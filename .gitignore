@@ -1,0 +1,29 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Key files
+*.key
+*.csr
+*.crt
+
+# OSX specific files
+.DS_Store
+
+# generated files and directories
+node_modules/
+*.log
+*.pid
+*~
+
+# Hugo-specific build files
+public/

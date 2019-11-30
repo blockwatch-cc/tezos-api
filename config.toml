@@ -1,0 +1,54 @@
+theme = "docuapi"
+contentDir = "content"
+languageCode = "en-us"
+defaultContentLanguage = "en"
+baseurl = "https://tzstats.com/docs/api"
+
+#RelativeURLs = true
+title = "API Reference | TzStats"
+
+disableKinds = ["taxonomyTerm"]
+
+# Code highlighting settings
+pygmentsCodefences = true
+pygmentsCodeFencesGuessSyntax = false
+pygmentsOptions = ""
+pygmentsStyle = "monokai"
+
+# The monokai stylesheet is included in the base template.
+pygmentsUseClasses = true
+#pygmentsUseClasses = false
+
+[module]
+[module.hugoVersion]
+[[module.imports]]
+# We include the theme by "../.." above, but we need one module import for Hugo to detect us as a Hugo Module.
+path="github.com/bep/empty-hugo-module"
+
+[params]
+search = true
+
+# Configure the language example tabs.
+[[params.language_tabs]]
+key = "shell"
+name = "Shell"
+#[[params.language_tabs]]
+#key = "go"
+#name = "Go"
+
+#Languages
+[languages]
+
+[languages.en]
+languageName = "English"
+weight = 2
+title = "API Reference | TzStats"
+
+# Left sidebar footer items. Use HTMl or Markdown.
+toc_footers = [
+	"API v005-2019-11-27",
+]
+
+[languages.en.blackfriday]
+angledQuotes = false
+hrefTargetBlank = true

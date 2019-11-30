@@ -1,0 +1,31 @@
+// Overrides
+
+// BACKGROUND COLORS
+////////////////////
+$main-bg: #FFF !default;
+$nav-bg:#f8f8f8 !default;
+$nav-subitem-bg: #f8f8f8 !default;
+$nav-active-parent-bg: transparent !default; // parent links of the current section
+
+$examples-bg: #18355c !default;
+$code-bg: transparent !default;
+$code-annotation-bg: transparent !default;
+$lang-select-border: #000 !default;
+$lang-select-bg: #132948 !default;
+
+
+$main-text: #1b3a52 !default; // main content text color
+$nav-text: #666 !default;
+$nav-active-parent-text: #18355c !default;
+
+$nav-width: 190px !default; // width of the navbar
+$main-padding: 28px !default; // padding to left and right of content & examples
+$code-annotation-padding: 0 !default; // padding inside code annotations
+
+
+$aside-notice-bg: #bdddfb !default;
+$aside-warning-bg: #ffd8da !default;
+$aside-success-bg: #d4ffd9 !default;
+$search-notice-bg: #c97a7e !default;
+
+$font-default-size: 13px !default;
