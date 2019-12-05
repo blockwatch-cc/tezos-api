@@ -7,7 +7,7 @@ title: Changelog | TzStats Data API
 
 Recent changes and additions to the TzStats Data API.
 
-## 2019-11-27 (pre-release)
+## 2019-12-05
 
 - FIXES
 	- account `is_revealed` is now correctly reset when account balance becomes zero (in this case a Tezos node will remove all account data including a revealed pubkey from storage)
@@ -17,6 +17,7 @@ Recent changes and additions to the TzStats Data API.
     - fixed vote table  `period_start_height` and `period_end_height` field names
     - fixed empty fields in some CSV results
     - numeric filters on tables now fully support range, in and not-in argument lists
+    - corrected `missed_baking_income` when prio 0 blocks are lost
 - NEW EXPLORER FEATURES
 	- added [config](#blockchain-config) field `deployment` that contains a serial counter of protocol activations on the chain
 	- changed [config](#blockchain-config) field `version` to show the protocol implementation version (ie. 4 for Athens, 5 for Babylon, etc)

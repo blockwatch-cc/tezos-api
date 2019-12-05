@@ -30,7 +30,7 @@ TzStats Data API is read-only, i.e. the only supported HTTP methods are `GET` an
 
 Table and time-series endpoints stream data, that is, they immediately return response headers after accepting and validating a request and then stream rows or aggregated data points as they are fetched from the underlying database.
 
-### Security
+### Transport Security
 
 > All our certificates are signed by [LetsEncrypt Authority X3 certificate](https://letsencrypt.org/certificates/).
 
@@ -56,7 +56,7 @@ All our API responses are tagged with an API version that's included in the `X-A
 > **Current TzStats Mainnet Response Headers**
 
     # API version
-    X-Api-Version:   v005-2019-11-01
+    X-Api-Version:   v005-2019-12-05
 
     # Tezos Network (chain id)
     X-Network-Id:    NetXdQprcVkpaWU

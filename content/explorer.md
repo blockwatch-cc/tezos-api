@@ -28,10 +28,10 @@ Endpoint | Is Paged | Filter | Comment
 `GET /explorer/op/{hash}`                 |   |   |  operation info |
 `GET /explorer/account/{hash}`            |   |   | account info |
 `GET /explorer/account/{hash}/managed`    | x |   | list of contracts managed by this account |
-`GET /explorer/account/{hash}/op`         | x | `type` | account info with embedded list of related operations |
+`GET /explorer/account/{hash}/op`         | x | `type`, `block`, `since` | account info with embedded list of related operations |
 `GET /explorer/account/{hash}/ballots`    | x |   | list proposals and ballots |
 `GET /explorer/contract/{hash}`           |   |   | smart contract metadata |
-`GET /explorer/contract/{hash}/calls`     | x | `type` | list contract calls |
+`GET /explorer/contract/{hash}/calls`     | x | `block`, `since` | list contract calls |
 `GET /explorer/contract/{hash}/manager`   |   |   | contract manager (pre-babylon) or originator |
 `GET /explorer/contract/{hash}/script`    |   |   | smart contract code, storage and parameter spec |
 `GET /explorer/contract/{hash}/storage`   |   |   | smart contract storage |
@@ -236,6 +236,13 @@ Field              | Description
 `next_endorse_height` *int64*  | Height of next block endorsing right.
 `next_endorse_time` *datetime* | Approximate time of next block endorsing right.
 
+### List Account Operations
+
+`GET https://api.tzstats.com/explorer/account/{hash}/op`
+
+Lists operations sent from and to an account (defaults to all types and ascending order). This endpoint supports pagination with `limit` and `offset`. Use `type` to filter for a specific operation type (e.g. transactions), `block` (int64|hash) to lock a call to a specific block height or hash (hash is reorg-aware and throws an error when block has become orphan). To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter.
+
+
 ## Bigmaps
 
 Bigmaps are key-value stores where smart contracts can store large amounts of data. Values in bigmaps are accessed by unique keys. The TzStats bigmap index supports different key encodings: a **hash** (script expression hash), the **binary** representation of a key and the **native** typed version of a key. For convenience, all three variants are present in responses as `key_hash`, `key_binary` and `key`.
@@ -251,6 +258,10 @@ Bigmaps are key-value stores where smart contracts can store large amounts of da
 **Pagination** The Bigmap API support paginated queries for keys, values and updates using `limit` and `offset`.
 
 **Time-lock** To query a bigmap at a certain point in time (ie. a specific block) use the optional query argument `block` (int64|hash) to specific a height or block hash. Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash).
+
+### **SECURITY WARNING**
+
+Unlike other on-chain data where values and ranges are predictable the contents of bigmaps are entirely user-controlled and unpredictable. IT MAY CONTAIN MALICIOUS DATA INTENDED TO ATTACK YOUR APPLICATIONS AND USERS! Be vigilant and sanitize all data before you process or display it.
 
 
 ### Bigmap Metadata
@@ -464,7 +475,7 @@ Lists key/value pairs contained in bigmap. This endpoint supports paging with `l
 
 `GET https://api.tzstats.com/explorer/bigmap/{id}/values`
 
-Lists all values contained in the bigmap at present time, ie. at blockchain head. Can otioanlly return bigmap contents at the specified block in the past using the optional paramater `block` height (int64) or hash (hash).
+Lists all values contained in the bigmap at present time, ie. at blockchain head. Can return bigmap contents at a specific block in the past using the optional paramater `block` height (int64) or hash (hash).
 
 `GET https://api.tzstats.com/explorer/bigmap/{id}/{key}`
 
@@ -546,12 +557,12 @@ Lists all updates across the entire bigmap.
 
 `GET https://api.tzstats.com/explorer/bigmap/{id}/{key}/updates`
 
-Lists updates for a specific key. Key can be a key hash (script expr hash), the native key representation (i.e. an address or integer) or the encoded binary version of.
+Lists updates for a specific key. Key can be a key hash (script expr hash), the native key representation (i.e. an address or integer) or the encoded binary version.
 
 
 ### HTTP Response
 
-Contains the same fields as the values endpoint above with one exception:
+Contains the same fields as the values endpoint above with one addition:
 
 
 Field              | Description
@@ -726,6 +737,75 @@ Field              | Description
 `days_destroyed` *float*       | Token days destroyed (`tokens transfered * token idle time`).
 `pct_account_reuse` *float*    | Portion of seen accounts that existed before.
 `endorsers` *array[hash]*      | List of delegates with rights to endorse this block in slot order.
+
+
+### List Block Operations
+
+> Example request to list block operations.
+
+```shell
+curl "https://api.tzstats.com/explorer/block/head/op"
+```
+
+> **Example response.**
+
+```json
+{
+  "hash": "BLFjwCUTebnhw6ZWpQNxa9VjZgGLgnp1Zazb21T1356VFEnxPrZ",
+  "predecessor": "BLWT4x43zqzbtRzWNShkuU1DaTjU9fX34Qs4V3Hku2ZgYxiEpPW",
+  "baker": "tz1S1Aew75hMrPUymqenKfHo8FspppXKpW7h",
+  "height": 627343,
+  "cycle": 153,
+  // ...
+  "ops": [{
+      "hash": "oozRTWSPr2M2rr1EQKaU4uVgu4kP28UnTu1tMS24DoTAZiC3kx3",
+      "type": "endorsement",
+      "block": "BLFjwCUTebnhw6ZWpQNxa9VjZgGLgnp1Zazb21T1356VFEnxPrZ",
+      "time": "2019-09-28T13:12:51Z",
+      "height": 627343,
+      "cycle": 153,
+      "counter": 0,
+      "op_n": 0,
+      "op_c": 0,
+      "op_i": 0,
+      "status": "applied",
+      "is_success": true,
+      "is_contract": false,
+      "gas_limit": 0,
+      "gas_used": 0,
+      "gas_price": 0,
+      "storage_limit": 0,
+      "storage_size": 0,
+      "storage_paid": 0,
+      "volume": 0,
+      "fee": 0,
+      "reward": 2,
+      "deposit": 64,
+      "burned": 0,
+      "is_internal": false,
+      "has_data": true,
+      "days_destroyed": 0,
+      "data": "524288",
+      "sender": "tz3NExpXn9aPNZPorRE4SdjJ2RGrfbJgMAaV",
+      "branch_id": 627343,
+      "branch_height": 627342,
+      "branch_depth": 1,
+      "branch": "BLWT4x43zqzbtRzWNShkuU1DaTjU9fX34Qs4V3Hku2ZgYxiEpPW"
+    },
+    // ...
+  ]
+}
+```
+
+Block data can be extended with an embeded list of operations. This endpoint is an optimization to fetch both the operation list and the related resource in one call. Use `limit` and `offset` (both integers) to page through operation lists. Operations are sorted by row_id in ascending order.
+
+### HTTP Request
+
+#### List Block Operations
+
+`GET https://api.tzstats.com/explorer/block/{hash,height,head}/op`
+
+
 
 ## Blockchain Config
 
@@ -1018,6 +1098,11 @@ curl "https://api.tzstats.com/explorer/contract/KT1QuofAgnsWffHzLA7D78rxytJruGHD
 Returns metadata about the smart contract. For more details call the [explorer account endpoint](#accounts) using the contract's KT1 address. Separate calls support querying contract code, storage type and entrypoint specifications, storage contents and calls.
 
 
+### **SECURITY WARNING**
+
+Unlike other on-chain data where values and ranges are predictable the contents of **call parameters**, **storage keys/values** and **code/type annotations** is entirely user-controlled and unpredictable. IT MAY CONTAIN MALICIOUS DATA INTENDED TO ATTACK YOUR APPLICATIONS AND USERS! Be vigilant and sanitize all data before you process or display it.
+
+
 ### HTTP Request
 
 `GET https://api.tzstats.com/explorer/contract/{hash}`
@@ -1176,7 +1261,8 @@ Field              | Description
 
 `GET https://api.tzstats.com/explorer/contract/{hash}/calls`
 
-Returns calls (transactions) sent to the contract with embedded praramters, storage and bigmap updates. Use the optional `prim` (boolean) argument to embed Michelson primitive trees in addition to unboxed call data.
+Returns calls (transactions) sent to the contract with embedded praramters, storage and bigmap updates. Use the optional `prim` (boolean) argument to embed Michelson primitive trees in addition to unboxed call data. To query a calls until a specific block use the optional query argument `block` (int64|hash). Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter (defaults to ascending).
+
 
 ### Unboxed Call Parameters
 
@@ -1919,77 +2005,4 @@ Operation | Data Type | Specification
 `double_baking_evidence` | object | JSON array of double signed block headers
 `double_endorsemnt_evidence` | object | JSON array of double signed endorsements
 `transaction` | - | unused, see `parameters`, `storage` and `big_map_diff`
-
-
-### List Operations
-
-> Example request to list block operations.
-
-```shell
-curl "https://api.tzstats.com/explorer/block/head/op"
-```
-
-> **Example response.**
-
-```json
-{
-  "hash": "BLFjwCUTebnhw6ZWpQNxa9VjZgGLgnp1Zazb21T1356VFEnxPrZ",
-  "predecessor": "BLWT4x43zqzbtRzWNShkuU1DaTjU9fX34Qs4V3Hku2ZgYxiEpPW",
-  "baker": "tz1S1Aew75hMrPUymqenKfHo8FspppXKpW7h",
-  "height": 627343,
-  "cycle": 153,
-  // ...
-  "ops": [{
-      "hash": "oozRTWSPr2M2rr1EQKaU4uVgu4kP28UnTu1tMS24DoTAZiC3kx3",
-      "type": "endorsement",
-      "block": "BLFjwCUTebnhw6ZWpQNxa9VjZgGLgnp1Zazb21T1356VFEnxPrZ",
-      "time": "2019-09-28T13:12:51Z",
-      "height": 627343,
-      "cycle": 153,
-      "counter": 0,
-      "op_n": 0,
-      "op_c": 0,
-      "op_i": 0,
-      "status": "applied",
-      "is_success": true,
-      "is_contract": false,
-      "gas_limit": 0,
-      "gas_used": 0,
-      "gas_price": 0,
-      "storage_limit": 0,
-      "storage_size": 0,
-      "storage_paid": 0,
-      "volume": 0,
-      "fee": 0,
-      "reward": 2,
-      "deposit": 64,
-      "burned": 0,
-      "is_internal": false,
-      "has_data": true,
-      "days_destroyed": 0,
-      "data": "524288",
-      "sender": "tz3NExpXn9aPNZPorRE4SdjJ2RGrfbJgMAaV",
-      "branch_id": 627343,
-      "branch_height": 627342,
-      "branch_depth": 1,
-      "branch": "BLWT4x43zqzbtRzWNShkuU1DaTjU9fX34Qs4V3Hku2ZgYxiEpPW"
-    },
-    // ...
-  ]
-}
-```
-
-Block and account info can be extended with an embeded list of operations. This endpoint is an optimization to fetch both the operation list and the related resource in one call. Use `limit` and `offset` (both integers) to page through operation lists. Operations are sorted by row_id in ascending order.
-
-
-
-### HTTP Request
-
-#### List Block Operations
-
-`GET https://api.tzstats.com/explorer/block/{hash,height,head}/op`
-
-#### List Account Operations
-
-`GET https://api.tzstats.com/explorer/account/{hash}/op`
 
