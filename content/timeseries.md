@@ -166,7 +166,7 @@ curl "https://api.tzstats.com/series/flow?start_date=today&collapse=1d&category=
 
 Lists aggregate data about flows. Filters are the same as on the [flow table](#flow-table), but response fields are limited to numeric data that can be aggregated over time. Aggregation function for all fields is **sum**.
 
-In interesting feature of flow series is that you can reconstruct the entire balance and delegation history of an account. You can either start at account creation time assuming zero balances or start at the current account state and work your way backwards through flows.
+An interesting feature of flow series is that you can reconstruct the entire balance and delegation history of an account. You can either start at account creation time assuming zero balances or start at the current account state and work your way backwards through flows.
 
 ### HTTP Request
 

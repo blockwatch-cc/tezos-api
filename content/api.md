@@ -14,7 +14,7 @@ Babylonnet: https://api.babylonnet.tzstats.com
 Carthagenet: https://api.carthagenet.tzstats.com
 ```
 
-TzStats provides a powerful API to access fully indexed raw data and statistics collected from the Tezos blockchain. You may use this API free of charge and without limits for non-commercial projects. To inquire about commerial use send an email to info@tzstats.com.
+TzStats provides a powerful API to access fully indexed raw data and statistics collected from the Tezos blockchain. You may use this API free of charge and without limits for non-commercial projects. To inquire about commercial use send an email to info@tzstats.com.
 
 This API reference provides information on all public API endpoints and the different schemes of calling them. Access to the API does not require authentication and we do not enforce daily rate limits right now, but we monitor usage and may apply limits later to guarantee fair usage for everybody.
 
@@ -47,7 +47,7 @@ Table and time-series endpoints stream data, that is, they immediately return re
     ECDHE-RSA-AES256-SHA384
     ECDHE-RSA-AES128-SHA256
 
-The API supports secure connections via **TLS v1.3**, **v1.2** and **v1.1** with Perfect Forward Secrecy based on Eliptic Curves and Diffie Helman key exchange. Insecure HTTP requests to port 80 are automatically redirected to HTTPS on port 443.
+The API supports secure connections via **TLS v1.3**, **v1.2** and **v1.1** with Perfect Forward Secrecy based on Elliptic Curves and Diffie Helman key exchange. Insecure HTTP requests to port 80 are automatically redirected to HTTPS on port 443.
 
 ### API Response Headers
 
@@ -158,7 +158,7 @@ The TzStats Data API responds with regular HTTP status codes in the `2xx` range 
 - `409 Conflict` Resource state conflict
 - `429 Too Many Requests` Request limit exceeded
 - `500 Internal Server` Something went wrong
-- `502 Bad Gateway` Your connection is beeing throttled or the service is under maintenance
+- `502 Bad Gateway` Your connection is being throttled or the service is under maintenance
 
 ### Error Responses
 
