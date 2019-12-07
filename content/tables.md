@@ -84,14 +84,14 @@ To filter tables use filter expressions of the form `<column>.<operator>=<arg>`.
 |---------|-----------|
 | `=`, `.eq=` | **Equal.** Matches rows where column values match exactly the filter value. |
 | `.ne=`  | **Not equal.** Matches rows where column values do not match the filter value. |
-| `.gt=`  | **Greater than.** matches columns who's value is strictly greater than the filter value. |
-| `.gte=` | **Greater than or equal.** matches columns who's value is greater than or equal to the filter value. |
-| `.lt=`  | **Less than.** matches columns who's value is strictly smaller than the filter value. |
-| `.lte=` | **Less than or equal.** matches columns who's value is strictly smaller than or equal to the filter value. |
-| `.in=` | **Inclusion in list.** matches columns who's value is equal to one of the filter values. Multiple values must be separated by comma. |
-| `.nin=` | **Not included in list.** matches columns who's value is not equal to one of the filter values. Multiple values may be separated by comma. |
-| `.rg=` | **Range.** matches columns who's value is between the provided filter values, boundary inclusive. Requires exactly two values separated by comma. (This is similar to, but faster than using `.gte=` and `.lte=` in combination.) |
-| `.re=` | **Regexp.** matches columns who's value matches the regular expression. Can only be used on string-type columns (not enum or hash). Non-URL-safe characters must be properly escaped. |
+| `.gt=`  | **Greater than.** matches columns whose value is strictly greater than the filter value. |
+| `.gte=` | **Greater than or equal.** matches columns whose value is greater than or equal to the filter value. |
+| `.lt=`  | **Less than.** matches columns whose value is strictly smaller than the filter value. |
+| `.lte=` | **Less than or equal.** matches columns whose value is strictly smaller than or equal to the filter value. |
+| `.in=` | **Inclusion in list.** matches columns whose value is equal to one of the filter values. Multiple values must be separated by comma. |
+| `.nin=` | **Not included in list.** matches columns whose value is not equal to one of the filter values. Multiple values may be separated by comma. |
+| `.rg=` | **Range.** matches columns whose value is between the provided filter values, boundary inclusive. Requires exactly two values separated by comma. (This is similar to, but faster than using `.gte=` and `.lte=` in combination.) |
+| `.re=` | **Regexp.** matches columns whose value matches the regular expression. Can only be used on string-type columns (not enum or hash). Non-URL-safe characters must be properly escaped. |
 
 
 
@@ -523,9 +523,9 @@ Field              | Description
 `n_funded_accounts` *int64*     | Count of accounts that were funded by operations (this includes all new accounts plus previously cleared accounts that were funded again).
 `gas_limit` *int64*             | Total gas limit defined by operations.
 `gas_used` *int64*              | Total gas consumed by operations.
-`gas_price` *float*           | Avergae price of one gas unit in mutez.
+`gas_price` *float*           | Average price of one gas unit in mutez.
 `storage_size` *int64*          | Total sum of new storage allocated by operations.
-`days_destroyed` *float*      | Token days destroyed (`tokens transfered * token idle time`).
+`days_destroyed` *float*      | Token days destroyed (`tokens transferred * token idle time`).
 `pct_account_reuse` *float*   | Portion of seen accounts that existed before.
 `baker` *hash*                | Address of the block baker account, base58check encoded.
 
@@ -1051,7 +1051,7 @@ Field              | Description
 `storage` *bytes*         | Updated contract storage as hex-encoded binary data serialized according to Micheline serialization for protocol v005 Babylon, contract-only.
 `big_map_diff` *bytes*    | Inserted, updated or deleted bigmap entries as hex-encoded binary data serialized according to Micheline serialization for protocol v005 Babylon, contract-only.
 `errors` *bytes*          | When failed, contains details about the reason as escaped JSON string.
-`days_destroyed` *float*  | Token days destroyed by this operation (`tokens transfered * token idle time`).
+`days_destroyed` *float*  | Token days destroyed by this operation (`tokens transferred * token idle time`).
 `branch_id` *uint64*      | Row id of the branch block this op refers to.
 `branch_height` *int64*   | Height of the branch block this op refers to.
 `branch_depth` *int64*    | Count of blocks between branch block and block including this op.
@@ -1166,7 +1166,7 @@ Field              | Description
 `is_stolen` *bool*          | Flag indicating a baking right was stolen from another baker. This flag appears on the right relating to the actual baking priority.
 `is_missed` *bool*          | Flag indicating an endorser missed endorsing a slot.
 `is_seed_required` *bool*   | Flag indicating a baker is required to publish a seed_nonce_revelation in the next cycle.
-`is_seed_revealed` *bool*   | Flag indicating whether the baker actualy revealed the required seed nonce.
+`is_seed_revealed` *bool*   | Flag indicating whether the baker actually revealed the required seed nonce.
 `address` *hash*            | Address of the baker who owns this right.
 `time` *datetime*           | Past or estimated future block time for this right.
 
@@ -1207,7 +1207,7 @@ curl "https://api.tzstats.com/tables/snapshot?address=tz2TSvNTh2epDMhZHrw73nV9pi
 ]
 ```
 
-List network-wide staking status across all bakers and delegators at snapshot blocks. this table contains all snapshots regardless of them beeing later chosen as cycle snapshot or not.
+List network-wide staking status across all bakers and delegators at snapshot blocks. this table contains all snapshots regardless of them being later chosen as cycle snapshot or not.
 
 ### HTTP Request
 
@@ -1303,11 +1303,11 @@ Field              | Description
 `cycle` *int64*                     | Cycle the current row refers to.
 `time` *int64*                      | Block time the current row refers to.
 `total` *float64*                 | Total supply, i.e. all coins in existence.
-`activated` *money*             | Acitivated fundraiser supply.
+`activated` *money*             | Activated fundraiser supply.
 `unclaimed` *money*             | Unclaimed fundraiser supply.
 `vested` *money*                | Vested genesis supply, i.e. spendable supply owned by vesting contracts.
 `unvested` *money*              | Unvested genesis supply, i.e. supply that is still locked in vesting contracts.
-`circulating` *money*           | Circulating supply, i.e. all immediatly spendable supply.
+`circulating` *money*           | Circulating supply, i.e. all immediately spendable supply.
 `delegated` *money*             | Delegated supply, i.e. all spendable supply owned by delegators.
 `staking` *money*               | Staking supply, i.e. delegated supply and supply owned by bakers in form of spendable balances, frozen deposits and frozen fees. Frozen rewards are explicitly excluded because they can be slashed.
 `active_delegated` *money*      | Portion of delegated supply that is delegated to active delegates.
@@ -1418,7 +1418,7 @@ Field              | Description
 `is_open` *bool*                  | Flag indicating the vote is in progress.
 `is_failed` *bool*                | Flag indicating the vote has failed to select or activate a new protocol.
 `is_draw` *bool*                  | Flag indication the reason for failure was a draw between two proposals in the proposal period.
-`no_proposal` *bool*              | Flag indication the reason for failure was no submotted proposal in the proposal period.
+`no_proposal` *bool*              | Flag indication the reason for failure was no submitted proposal in the proposal period.
 `no_quorum` *bool*                | Flag indication the reason for failure was participation below the required quorum.
 `no_majority` *bool*              | Flag indication the reason for failure was acceptance below the required supermajority.
 `proposal` *int64*                | Hash of the proposal that is voted on, if any.

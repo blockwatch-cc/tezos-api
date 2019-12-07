@@ -14,7 +14,7 @@ Most explorer endpoints take different kinds of path arguments to define the obj
 - a block `height` (a.k.a level in Tezos)
 - a sequence `number` for cycles and elections
 
-Some endpoints support a simple pagination scheme to walk lists of result (i.e. for related operations or accounts). To paginate append `limit` and `offset`, both are positive integers. Limit defaults to 20 and is capped to a maximum value of 100. Results are always sorted by `row_id` of the underlying table. If you require a different sort order, you have to do this client-side.
+Some endpoints support a simple pagination scheme to walk lists of results (i.e. for related operations or accounts). To paginate append `limit` and `offset`, both are positive integers. Limit defaults to 20 and is capped to a maximum value of 100. Results are always sorted by `row_id` of the underlying table. If you require a different sort order, you have to do this client-side.
 
 ### List of supported endpoints
 
@@ -257,7 +257,7 @@ Bigmaps are key-value stores where smart contracts can store large amounts of da
 
 **Pagination** The Bigmap API support paginated queries for keys, values and updates using `limit` and `offset`.
 
-**Time-lock** To query a bigmap at a certain point in time (ie. a specific block) use the optional query argument `block` (int64|hash) to specific a height or block hash. Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash).
+**Time-lock** To query a bigmap at a certain point in time (ie. a specific block) use the optional query argument `block` (int64|hash) to specify a height or block hash. Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash).
 
 ### **SECURITY WARNING**
 
@@ -345,7 +345,7 @@ curl "https://api.tzstats.com/explorer/bigmap/1/type"
 }
 ```
 
-Returns bigmap type description in Michelson JSON format, both for keys and values. Keys are simple scalar types and values can have a simple or complex type. Use `prim` (boolean) to embed original Michelson primities for key and value type definitions.
+Returns bigmap type description in Michelson JSON format, both for keys and values. Keys are simple scalar types and values can have a simple or complex type. Use `prim` (boolean) to embed original Michelson primitives for key and value type definitions.
 
 ### HTTP Request
 
@@ -399,7 +399,7 @@ curl "https://api.tzstats.com/explorer/bigmap/12/keys"
 ]
 ```
 
-Lists bigmap keys only. Supports paging with `limit` and `offset` and locking calls to a specific `block` height (int64) or hash (hash). Use `prim` (boolean) to embed original Michelson primities and `unpack` (boolean) to unpack packed keys.
+Lists bigmap keys only. Supports paging with `limit` and `offset` and locking calls to a specific `block` height (int64) or hash (hash). Use `prim` (boolean) to embed original Michelson primitives and `unpack` (boolean) to unpack packed keys.
 
 ### HTTP Request
 
@@ -469,13 +469,13 @@ curl "https://api.tzstats.com/explorer/bigmap/382/values"
 ]
 ```
 
-Lists key/value pairs contained in bigmap. This endpoint supports paging with `limit` and `offset` and also allows locking paginated calls to a specific `block` height (int64) or hash (hash). Use `prim` (boolean) to embed original Michelson primities and `unpack` (boolean) to unpack packed keys and values.
+Lists key/value pairs contained in bigmap. This endpoint supports paging with `limit` and `offset` and also allows locking paginated calls to a specific `block` height (int64) or hash (hash). Use `prim` (boolean) to embed original Michelson primitives and `unpack` (boolean) to unpack packed keys and values.
 
 ### HTTP Request
 
 `GET https://api.tzstats.com/explorer/bigmap/{id}/values`
 
-Lists all values contained in the bigmap at present time, ie. at blockchain head. Can return bigmap contents at a specific block in the past using the optional paramater `block` height (int64) or hash (hash).
+Lists all values contained in the bigmap at present time, ie. at blockchain head. Can return bigmap contents at a specific block in the past using the optional parameter `block` height (int64) or hash (hash).
 
 `GET https://api.tzstats.com/explorer/bigmap/{id}/{key}`
 
@@ -547,7 +547,7 @@ curl "https://api.tzstats.com/explorer/bigmap/382/updates"
 ]
 ```
 
-List historic updates to a bigmap in chronological order, including keys that have been deleted. Returns an array of objects. This endpoint supports paging with `limit` and `offset`. Use the optional `since` (int64|hash) parameter to return updates newer or equal to a specific block. Use `prim` (boolean) to embed original Michelson primities and `unpack` (boolean) to unpack packed keys and values.
+List historic updates to a bigmap in chronological order, including keys that have been deleted. Returns an array of objects. This endpoint supports paging with `limit` and `offset`. Use the optional `since` (int64|hash) parameter to return updates newer or equal to a specific block. Use `prim` (boolean) to embed original Michelson primitives and `unpack` (boolean) to unpack packed keys and values.
 
 ### HTTP Request
 
@@ -732,9 +732,9 @@ Field              | Description
 `n_funded_accounts` *int64*    | Count of accounts that were funded by operations (this includes all new accounts plus previously cleared accounts that were funded again).
 `gas_limit` *int64*            | Total gas limit defined by operations.
 `gas_used` *int64*             | Total gas consumed by operations.
-`gas_price` *float*            | Avergae price of one gas unit in mutez.
+`gas_price` *float*            | Average price of one gas unit in mutez.
 `storage_size` *int64*         | Total sum of new storage allocated by operations.
-`days_destroyed` *float*       | Token days destroyed (`tokens transfered * token idle time`).
+`days_destroyed` *float*       | Token days destroyed (`tokens transferred * token idle time`).
 `pct_account_reuse` *float*    | Portion of seen accounts that existed before.
 `endorsers` *array[hash]*      | List of delegates with rights to endorse this block in slot order.
 
@@ -797,7 +797,7 @@ curl "https://api.tzstats.com/explorer/block/head/op"
 }
 ```
 
-Block data can be extended with an embeded list of operations. This endpoint is an optimization to fetch both the operation list and the related resource in one call. Use `limit` and `offset` (both integers) to page through operation lists. Operations are sorted by row_id in ascending order.
+Block data can be extended with an embedded list of operations. This endpoint is an optimization to fetch both the operation list and the related resource in one call. Use `limit` and `offset` (both integers) to page through operation lists. Operations are sorted by row_id in ascending order.
 
 ### HTTP Request
 
@@ -1261,7 +1261,7 @@ Field              | Description
 
 `GET https://api.tzstats.com/explorer/contract/{hash}/calls`
 
-Returns calls (transactions) sent to the contract with embedded praramters, storage and bigmap updates. Use the optional `prim` (boolean) argument to embed Michelson primitive trees in addition to unboxed call data. To query a calls until a specific block use the optional query argument `block` (int64|hash). Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter (defaults to ascending).
+Returns calls (transactions) sent to the contract with embedded parameters, storage and bigmap updates. Use the optional `prim` (boolean) argument to embed Michelson primitive trees in addition to unboxed call data. To query calls until a specific block use the optional query argument `block` (int64|hash). Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter (defaults to ascending).
 
 
 ### Unboxed Call Parameters
@@ -1424,7 +1424,7 @@ curl "https://api.tzstats.com/explorer/cycle/head"
 }
 ```
 
-Provides information about a consensus cycle, the past roll snapshot cycle and the future cycle who's rights are deterined by the current cycle. This endpoint accepts `head` and a cycle `number` as path parameters.
+Provides information about a consensus cycle, the past roll snapshot cycle and the future cycle whose rights are determined by the current cycle. This endpoint accepts `head` and a cycle `number` as path parameters.
 
 ### HTTP Request
 
@@ -1685,14 +1685,14 @@ Shows full detail about a past or current election including up to four voting p
 Field              | Description
 -------------------|--------------------------------------------------
 `election_id` *int64*     | Sequence number of the election.
-`num_periods` *int64*     | Number of voting periods activated durin this election (min 1, max 4)
+`num_periods` *int64*     | Number of voting periods activated during this election (min 1, max 4)
 `num_proposals` *int64*   | Total number of submitted proposals.
 `start_time` *int64*      | Time of the first block in the election.
 `end_time` *int64*        | Time of the last block in the election (when open this is an approximation of the latest possible end assuming all voting periods are used and all remaining blocks are produced at priority zero).
 `start_height` *int64*    | First block of the election period.
 `end_height` *bool*      | Last block of the election (when open this is an approximation of the full duration assuming all voting periods are used).
-`is_empty` *bool*        | Flag indicating the election has not seen and proposal beeing submitted.
-`is_open` *bool*         | Flag indicating the election is onging.
+`is_empty` *bool*        | Flag indicating the election has not seen and proposal being submitted.
+`is_open` *bool*         | Flag indicating the election is ongoing.
 `is_failed` *bool*       | Flag indicating the election has failed to select or activate a new protocol.
 `no_quorum` *bool*       | Flag indicating the election has failed because no quorum could be reached.
 `no_majority` *bool*     | Flag indicating the election has failed because no majority could be reached.
@@ -1730,7 +1730,7 @@ Field              | Description
 `is_open` *bool*             | Flag indicating the voting period is currently open.
 `is_failed` *bool*           | Flag indicating the voting period has failed to select or activate a new protocol.
 `is_draw` *bool*             | Flag indication the reason for failure was a draw between two proposals in the proposal period.
-`no_proposal` *bool*         | Flag indication the reason for failure was no submotted proposal in the proposal period.
+`no_proposal` *bool*         | Flag indication the reason for failure was no submitted proposal in the proposal period.
 `no_quorum` *bool*           | Flag indication the reason for failure was participation below the required quorum.
 `no_majority` *bool*         | Flag indication the reason for failure was acceptance below the required supermajority.
 `proposals` *array*         | List of submitted proposals (in proposal period) or the selected proposal.
@@ -1919,7 +1919,7 @@ curl "https://api.tzstats.com/explorer/op/ooxRwXAEM76NyMGyn4hHjS9D2Q8UkWVV6W2Esk
 ]
 ```
 
-Returns info about a single operation or a list of related operations. Because Tezos supports batch operations (multiple operatiosn sharing the same hash) and internal operations (created by smart contract calls in response to a transaction) this endpoint always returns an array of operation objects. In many cases this array contains one element only. Use the optional `prim` (boolean) parameter to embed Michelson primitive trees with smart contract calls.
+Returns info about a single operation or a list of related operations. Because Tezos supports batch operations (multiple operations sharing the same hash) and internal operations (created by smart contract calls in response to a transaction) this endpoint always returns an array of operation objects. In many cases this array contains one element only. Use the optional `prim` (boolean) parameter to embed Michelson primitive trees with smart contract calls.
 
 ### HTTP Request
 
@@ -1960,7 +1960,7 @@ Field              | Description
 `storage` *object*       | Updated contract storage as embedded JSON object, contract-only.
 `big_map_diff` *object*  | Inserted, updated or deleted bigmap entries as embedded JSON object, contract-only.
 `errors` *object*        | When failed, contains details about the reason as JSON object.
-`days_destroyed` *float* | Token days destroyed by this operation (`tokens transfered * token idle time`).
+`days_destroyed` *float* | Token days destroyed by this operation (`tokens transferred * token idle time`).
 `parameters` *object*    | Contract call parameters.
 `storage` *object*       | Updated version of contract storage after call.
 `data` *object*          | Extra operation data (see below for content encoding).
