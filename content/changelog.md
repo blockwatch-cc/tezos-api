@@ -38,6 +38,7 @@ Recent changes and additions to the TzStats Data API.
 		- `/explorer/bigmap/{id}/updates` list bigmap updates
 		- `/explorer/bigmap/{id}/{key}` single bigmap value
 		- `/explorer/bigmap/{id}/{key}/updates` list updates for a single bigmap value
+	- listing account ops supports `order`, `block` and `since` query arguments
 - NEW TABLE FEATURES
 	- added [op table](#operation-table) fields `branch_id`, `branch_height`, `branch_depth`
 	- added [bigmap table](#bigmap-table) `/tables/bigmap` to access raw bigmap updates
