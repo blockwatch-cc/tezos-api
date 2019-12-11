@@ -1262,7 +1262,7 @@ curl "https://api.tzstats.com/tables/supply?time.gte=today&limit=1"
     84447120.970808,    // unclaimed
     27582743.428170,    // vested
     125280976.174350,   // unvested
-    543541320.887682,   // circulating
+    685888221.499699,   // circulating
     457526565.844116,   // delegated
     581437025.036545,   // staking
     456454601.645863,   // active_delegated
@@ -1307,7 +1307,7 @@ Field              | Description
 `unclaimed` *money*             | Unclaimed fundraiser supply.
 `vested` *money*                | Vested genesis supply, i.e. spendable supply owned by vesting contracts.
 `unvested` *money*              | Unvested genesis supply, i.e. supply that is still locked in vesting contracts.
-`circulating` *money*           | Circulating supply, i.e. all immediately spendable supply.
+`circulating` *money*           | Circulating supply, i.e. all immediately spendable supply (anything but unvested coins).
 `delegated` *money*             | Delegated supply, i.e. all spendable supply owned by delegators.
 `staking` *money*               | Staking supply, i.e. delegated supply and supply owned by bakers in form of spendable balances, frozen deposits and frozen fees. Frozen rewards are explicitly excluded because they can be slashed.
 `active_delegated` *money*      | Portion of delegated supply that is delegated to active delegates.

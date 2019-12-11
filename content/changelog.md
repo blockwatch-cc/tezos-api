@@ -7,7 +7,7 @@ title: Changelog | TzStats Data API
 
 Recent changes and additions to the TzStats Data API.
 
-## 2019-12-05
+## 2019-12-05 {#2019-12-05}
 
 - FIXES
 	- account `is_revealed` is now correctly reset when account balance becomes zero (in this case a Tezos node will remove all account data including a revealed pubkey from storage)
@@ -17,7 +17,8 @@ Recent changes and additions to the TzStats Data API.
     - fixed vote table  `period_start_height` and `period_end_height` field names
     - fixed empty fields in some CSV results
     - numeric filters on tables now fully support range, in and not-in argument lists
-    - corrected `missed_baking_income` when prio 0 blocks are lost
+    - corrected `income.missed_baking_income` when prio 0 blocks are lost
+    - corrected `supply.circulating` to contain all coins that can move next block (= total - unvested)
 - NEW EXPLORER FEATURES
 	- added [config](#blockchain-config) field `deployment` that contains a serial counter of protocol activations on the chain
 	- changed [config](#blockchain-config) field `version` to show the protocol implementation version (ie. 4 for Athens, 5 for Babylon, etc)
@@ -48,14 +49,14 @@ Recent changes and additions to the TzStats Data API.
 	- [contract](#contracts) field `ops` and endpoint `/explorer/contract/{addr}/op` will be removed (use `/explorer/account/{addr}/op` endpoint instead)
 	- [contract](#contracts) fields `delegate`, `manager`, `script` will be removed (new endpoints or related account)
 
-## 2019-11-01
+## 2019-11-01 {#2019-11-01}
 
 - DEPRECATION NOTICE: income field `efficiency_percent` will be removed with the next release
 - replaced income field `efficiency_percent` with `performance_percent` (value range `[-Inf,+Inf]`) to avoid confusion with existing benchmarking metrics that define baker efficiency as percentage or rights utilized
 - added new income field `contribution_percent` to measure a baker's contribution to consensus in terms of baking/endorsing rights utilized (value range `[0,100]`, baking/endorsing misses will lower contribution, steals will increase it)
 - cycle `n_double_baking` and `n_double_endorsement` count events instead of accusation operations now
 
-## 2019-10-26
+## 2019-10-26 {#2019-10-26}
 
 - renamed income table field `lost_baking_income` into `missed_baking_income` to align its name with `missed_endorsing_income`
 - renamed income table field `slashed_income` into `total_lost` because it includes not only income but also deposits that may be slashed
@@ -63,13 +64,13 @@ Recent changes and additions to the TzStats Data API.
 - added new supply field `burned_seed_miss` to capture supply burned by missed seed nonce revelations
 
 
-## 2019-10-24
+## 2019-10-24 {#2019-10-24}
 
 - add `n_endorsed_slots` to block table, series and explorer endpoint
 - support bigint in smart contract params, code, bigmaps and storage
 
 
-## 2019-10-20
+## 2019-10-20 {#2019-10-20}
 
 - changed some supply fields from `mined_*` to `minted_*`
 - add new supply field `minted_airdrop` for invoices and protocol upgrade airdrops

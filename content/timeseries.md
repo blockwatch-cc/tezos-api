@@ -3,7 +3,7 @@ weight: 50
 title: Time-Series | TzStats Data API
 ---
 
-# Time-Series Endpoints
+# Time-Series Endpoints {#time-series-endpoints}
 
 >  **Generic Time-Series Query**
 

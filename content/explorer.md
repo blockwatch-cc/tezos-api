@@ -969,7 +969,7 @@ curl "https://api.tzstats.com/explorer/tip"
     "unclaimed": 84629610.300311,
     "vested": 27582743.42817,
     "unvested": 125280976.17435,
-    "circulating": 536764651.120734,
+    "circulating": 685424731.813075,
     "delegated": 457179960.469034,
     "staking": 580619999.307627,
     "active_delegated": 455871344.805448,
