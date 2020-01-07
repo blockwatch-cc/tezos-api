@@ -7,6 +7,24 @@ title: Changelog | TzStats Data API
 
 Recent changes and additions to the TzStats Data API.
 
+## 2020-01-06-pre (pre-release candiate) {#2020-01-06}
+
+- UPGRADES
+    - supports Carthage protocol PsCARTHAGazKbHtnKfLzQg3kms52kSRpgnDY982a9oYsSXRLQEb
+    - supports new Carthage reward constants for Emmy+ called `baking_reward_per_endorsement` and `endorsement_reward` in the Tezos RPC
+    - updated expected income based on new rewards formula
+- NEW EXPLORER FEATURES
+    - `/explorer/config/{height}` now returns two additional float arrays `block_rewards_v6` and `endorsement_rewards_v6` containing the new Carthage reward constants; the previous fields `block_reward` and `endorsement_reward` remain unchanged and will contain the first elements from the corresponding v6 arrays
+    - add network health estimation based on recent 128 blocks (priority, endorsements, reorgs)
+- FIXES
+    - block operation list paging with offset/limit now properly counts internal and batch operations
+    - voting period start and end heights are no longer off by 1
+    - voting quorum, ema and eligible rolls calculations are corrected
+    - improved smart contract entrypoint detection so that annotated parent nodes in the parameter primitive tree are no longer shadowing valid entrypoints
+- DEPRECATION NOTICES
+	- removed deprecated [contract](#contracts) field `ops` and endpoint `/explorer/contract/{addr}/op` (use `/explorer/account/{addr}/op` endpoint instead)
+	- removed deprecated [contract](#contracts) fields `delegate`, `manager`, `script` (use new endpoints or related account endpoints instead)
+
 ## 2019-12-05 {#2019-12-05}
 
 - FIXES

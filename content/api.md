@@ -56,7 +56,7 @@ All our API responses are tagged with an API version that's included in the `X-A
 > **Current TzStats Mainnet Response Headers**
 
     # API version
-    X-Api-Version:   v005-2019-12-05
+    X-Api-Version:   v006-2020-01-06
 
     # Tezos Network (chain id)
     X-Network-Id:    NetXdQprcVkpaWU
@@ -144,7 +144,7 @@ Timestamps in queries can be expressed in multiple ways:
 - as UNIX timestamp in seconds or milliseconds, so `1536246000` and `1536246000000` are equal
 - as date without time, i.e. `2018`, `2018-09`, `2018-09-06` represents midnight at the first day of month and/or month of year
 - as static string such as `now`, `today`, or `yesterday` to reference a relative point in time
-- as static string expression to truncated and offset timepoints against now, eg. `now/d` for start of today or `now/d-30d` for start of day 30 days ago (expressions support `s`.`m`,`h`,`d` )
+- as static string expression to truncated and offset timepoints against `now`, eg. `now/d` for start of today or `now/d-30d` for start of day 30 days ago (expressions support `s`,`m`,`h`,`d`)
 
 
 ## Status Codes

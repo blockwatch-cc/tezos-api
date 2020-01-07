@@ -832,14 +832,14 @@ curl "https://api.tzstats.com/explorer/config/head"
   "security_deposit_ramp_up_cycles": 0,
   "decimals": 6,
   "units": 1000000,
-  "block_reward": 16,
+  "block_reward": 40,
   "block_security_deposit": 512,
   "blocks_per_commitment": 32,
   "blocks_per_cycle": 4096,
   "blocks_per_roll_snapshot": 256,
   "blocks_per_voting_period": 32768,
   "cost_per_byte": 1000,
-  "endorsement_reward": 2,
+  "endorsement_reward": 1.25,
   "endorsement_security_deposit": 64,
   "endorsers_per_block": 32,
   "hard_gas_limit_per_block": 8000000,
@@ -864,7 +864,15 @@ curl "https://api.tzstats.com/explorer/config/head"
   "test_chain_duration": 1966080,
   "min_proposal_quorum": 500,
   "quorum_min": 2000,
-  "quorum_max": 7000
+  "quorum_max": 7000,
+  "block_reward_v6": [
+    1.25,
+    0.1875
+  ],
+  "endorsement_reward_v6": [
+    1.25,
+    0.833333
+  ],
 }
 ```
 
@@ -884,7 +892,7 @@ Field                        | Description
 -----------------------------|--------------------------------------------------
 `name` *string*              | Blockchain name (`Tezos`).
 `symbol` *string*            | Ticker symbol (`XTZ`).
-`network` *string*           | Network name (e.g. `Mainnet`, `Zeronet`, `Babylonnet`, `Sandbox`).
+`network` *string*           | Network name (e.g. `Mainnet`, `Zeronet`, `Babylonnet`, `Labnet`, `Sandbox`).
 `chain_id` *hash*            | Chain hash.
 `version` *int64*            | Protocol version number.
 `deployment` *int64*         | Number of deployed protocols on this network.
@@ -922,9 +930,12 @@ Field                        | Description
 `time_between_blocks` *array[int64]*       | Target time between blocks in seconds.
 `tokens_per_roll` *int64*                  | Amount of Tezos per roll.
 `test_chain_duration` *int64*              | Test chain lifetime in seconds.
-`min_proposal_quorum` *int64*              | Minimum quorum to accept proposals in centile (i.e. 5% = 500).
-`quorum_min` *int64*                       | Minimum threshold for voting period quorum in centile.
-`quorum_max` *int64*                       | Maximum threshold for voting period quorum in centile.
+`min_proposal_quorum` *int64*              | (Babylon, v005) Minimum quorum to accept proposals in centile (i.e. 5% = 500).
+`quorum_min` *int64*                       | (Babylon, v005) Minimum threshold for voting period quorum in centile.
+`quorum_max` *int64*                       | (Babylon, v005) Maximum threshold for voting period quorum in centile.
+`block_reward_v6` *[2]money*               | (Carthage, v006) Block reward per included endorsement for prio 0 blocks [0] or >prio 0 blocks [1].
+`endorsement_reward_v6` *[2]money*         | (Carthage, v006) Reward per endorsement for a prio 0 block [0] or >prio 0 block [1].
+
 
 ## Blockchain Tip
 
@@ -1033,7 +1044,7 @@ Field                        | Description
 `funded_accounts_30d` *int64*  | Accounts (re)funded (new and previously empty) during the past 30 days.
 `inflation_1y` *money*       | Absolute inflation in tz.
 `inflation_rate_1y` *float*  | Relative annualized inflation in percent.
-`health` *int64*             | Blockchain and consensus health indicator with range [0..100].
+`health` *int64*             | Blockchain and consensus health indicator with range [0..100] based on recent 128 blocks (priority, endorsements, reorgs).
 `supply` *object*            | Coin supply statistics at current block height.
 `status` *object*            | Indexer status, embedded for efficiency.
 
