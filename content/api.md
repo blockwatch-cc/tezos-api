@@ -12,6 +12,7 @@ Mainnet: https://api.tzstats.com
 Zeronet: https://api.zeronet.tzstats.com
 Babylonnet: https://api.babylonnet.tzstats.com
 Carthagenet: https://api.carthagenet.tzstats.com
+Labnet: https://api.labnet.tzstats.com
 ```
 
 TzStats provides a powerful API to access fully indexed raw data and statistics collected from the Tezos blockchain. You may use this API free of charge and without limits for non-commercial projects. To inquire about commercial use send an email to info@tzstats.com.

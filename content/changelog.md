@@ -7,7 +7,7 @@ title: Changelog | TzStats Data API
 
 Recent changes and additions to the TzStats Data API.
 
-## 2020-01-06-pre (pre-release candiate) {#2020-01-06}
+## 2020-01-06 {#2020-01-06}
 
 - UPGRADES
     - supports Carthage protocol PsCARTHAGazKbHtnKfLzQg3kms52kSRpgnDY982a9oYsSXRLQEb
