@@ -14,7 +14,7 @@ Most explorer endpoints take different kinds of path arguments to define the obj
 - a block `height` (a.k.a level in Tezos)
 - a sequence `number` for cycles and elections
 
-Some endpoints support a simple pagination scheme to walk lists of results (i.e. for related operations or accounts). To paginate append `limit` and `offset`, both are positive integers. Limit defaults to 20 and is capped to a maximum value of 100. Results are always sorted by `row_id` of the underlying table. If you require a different sort order, you have to do this client-side.
+Some endpoints support a simple pagination scheme to walk lists of results (i.e. for related operations or accounts). To paginate append `limit` and `offset`, both are positive integers. Limit defaults to 20 and is capped to a maximum value of 100. Results are always sorted by `row_id` of the underlying table. Sort direction can be controlled by `order` (asc, or desc). If you require sorting by a different field, you have to do this client-side.
 
 ### List of supported endpoints
 
@@ -71,36 +71,36 @@ curl "https://api.tzstats.com/explorer/account/tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9
   "pubkey": "sppk7bn9MKAWDUFwqowcxA1zJgp12yn2kEnMQJP3WmqSZ4W8WQhLqJN",
   "first_in": 360996,
   "first_out": 360997,
-  "last_in": 627433,
-  "last_out": 627433,
+  "last_in": 815396,
+  "last_out": 815396,
   "first_seen": 360996,
-  "last_seen": 627433,
+  "last_seen": 815396,
   "delegated_since": 0,
   "delegate_since": 361000,
   "first_in_time": "2019-03-20T23:10:52Z",
   "first_out_time": "2019-03-20T23:11:52Z",
-  "last_in_time": "2019-09-28T14:43:06Z",
-  "last_out_time": "2019-09-28T14:43:06Z",
+  "last_in_time": "2020-02-08T10:11:08Z",
+  "last_out_time": "2020-02-08T10:11:08Z",
   "first_seen_time": "2019-03-20T23:10:52Z",
-  "last_seen_time": "2019-09-28T14:43:06Z",
+  "last_seen_time": "2020-02-08T10:11:08Z",
   "delegated_since_time": "0001-01-01T00:00:00Z",
   "delegate_since_time": "2019-03-20T23:14:52Z",
-  "total_received": 4129917.992,
-  "total_sent": 1241985.094354,
+  "total_received": 4202918.18456,
+  "total_sent": 2512194.094354,
   "total_burned": 0,
-  "total_fees_paid": 0.041097,
-  "total_rewards_earned": 463712.421526,
-  "total_fees_earned": 51.817584,
+  "total_fees_paid": 0.103097,
+  "total_rewards_earned": 1232762.021346,
+  "total_fees_earned": 209.190761,
   "total_lost": 0,
-  "frozen_deposits": 2777472,
-  "frozen_rewards": 86384.999996,
-  "frozen_fees": 10.252118,
+  "frozen_deposits": 2397248,
+  "frozen_rewards": 74359.874998,
+  "frozen_fees": 22.40987,
   "unclaimed_balance": 0,
-  "spendable_balance": 487829.843545,
-  "total_balance": 3265312.095663,
-  "delegated_balance": 28092992.436557,
-  "total_delegations": 13,
-  "active_delegations": 8,
+  "spendable_balance": 452064.914348,
+  "total_balance": 2849335.3242180003,
+  "delegated_balance": 25265328.132026,
+  "total_delegations": 32,
+  "active_delegations": 14,
   "is_funded": true,
   "is_activated": false,
   "is_vesting": false,
@@ -111,38 +111,38 @@ curl "https://api.tzstats.com/explorer/account/tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9
   "is_delegate": true,
   "is_active_delegate": true,
   "is_contract": false,
-  "blocks_baked": 5867,
-  "blocks_missed": 40,
-  "blocks_stolen": 127,
-  "blocks_endorsed": 97968,
-  "slots_endorsed": 185547,
-  "slots_missed": 332,
-  "n_ops": 98177,
+  "blocks_baked": 15852,
+  "blocks_missed": 53,
+  "blocks_stolen": 342,
+  "blocks_endorsed": 251413,
+  "slots_endorsed": 497424,
+  "slots_missed": 543,
+  "n_ops": 252190,
   "n_ops_failed": 0,
-  "n_tx": 38,
+  "n_tx": 74,
   "n_delegation": 1,
   "n_origination": 0,
-  "n_proposal": 1,
-  "n_ballot": 1,
+  "n_proposal": 2,
+  "n_ballot": 3,
   "token_gen_min": 2,
-  "token_gen_max": 4875,
-  "grace_period": 159,
-  "staking_balance": 31358304.53222,
-  "rolls": 3919,
-  "rich_rank": 25,
+  "token_gen_max": 8144,
+  "grace_period": 205,
+  "staking_balance": 28114663.456244,
+  "rolls": 3514,
+  "rich_rank": 33,
   "traffic_rank": 0,
   "flow_rank": 0,
-  "last_bake_height": 627422,
-  "last_bake_block": "BLeU7pnXhFRKsjvc3XYQ2gByCqwAALpKc7vZSoTeVNeUgHWDZ3V",
-  "last_bake_time": "2019-09-28T14:32:01Z",
-  "last_endorse_height": 627433,
-  "last_endorse_block": "BLapVsFS7DB9H76njHSoFyGTTSfMn7ZJvUzB1KekUvtUk8KeXMy",
-  "last_endorse_time": "2019-09-28T14:43:06Z",
-  "next_bake_height": 627464,
+  "last_bake_height": 815365,
+  "last_bake_block": "BMR7ApaErqeM6cEuzZG7G6evq8CvDXuKMtSw3ZvXjzSeDPRFaX3",
+  "last_bake_time": "2020-02-08T09:39:28Z",
+  "last_endorse_height": 815396,
+  "last_endorse_block": "BMGFNGsDPKYVyHKfszQv65mxkHk8BPwTxYGia9LpPn8oo1hwCKV",
+  "last_endorse_time": "2020-02-08T10:11:08Z",
+  "next_bake_height": 815436,
   "next_bake_priority": 0,
-  "next_bake_time": "2019-09-28T15:14:06Z",
-  "next_endorse_height": 627434,
-  "next_endorse_time": "2019-09-28T14:44:06Z"
+  "next_bake_time": "2020-02-08T10:51:08Z",
+  "next_endorse_height": 815397,
+  "next_endorse_time": "2020-02-08T10:12:08Z"
 }
 ```
 
@@ -240,7 +240,7 @@ Field              | Description
 
 `GET https://api.tzstats.com/explorer/account/{hash}/op`
 
-Lists operations sent from and to an account (defaults to all types and ascending order). This endpoint supports pagination with `limit` and `offset`. Use `type` to filter for a specific operation type (e.g. transactions), `block` (int64|hash) to lock a call to a specific block height or hash (hash is reorg-aware and throws an error when block has become orphan). To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter.
+Lists operations sent from and to an account (defaults to all types and ascending order). This endpoint supports pagination with `limit` and `offset`. Use `type` to [filter](#query-filters) for a specific operation type (e.g. transaction), `block` (int64|hash) to lock a call to a specific block height or hash (hash is reorg-aware and throws an error when block has become orphan). To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter.
 
 
 ## Bigmaps
@@ -315,29 +315,38 @@ Field              | Description
 > **Example request.**
 
 ```shell
-curl "https://api.tzstats.com/explorer/bigmap/1/type"
+curl "https://api.tzstats.com/explorer/bigmap/17/type"
 ```
 
 > **Example response.**
 
 ```json
 {
-  "contract": "KT1R3uoZ6W1ZxEwzqtv75Ro7DhVY6UAcxuK2",
-  "bigmap_id": 1,
-  "key_type": "address",
+  "contract": "KT1ChNsEFxwyCbJyWGSL3KdjeXE28AY1Kaog",
+  "bigmap_id": 17,
+  "key_type": "key_hash",
   "key_encoding": "bytes",
   "value_type": {
-    "0": "string",
-    "1@option": "bytes",
-    "2": "mutez",
-    "3@or": {
-      "0": "unit",
-      "1@or": {
-        "0": "address",
-        "1": "unit"
-      }
+    "0@data@option": {
+      "0@bakerName": "bytes",
+      "1@openForDelegation": "bool",
+      "2@bakerOffchainRegistryUrl": "bytes",
+      "3@split": "nat",
+      "4@bakerPaysFromAccounts@list": {
+        "0": "address"
+      },
+      "5@minDelegation": "nat",
+      "6@subtractPayoutsLessThanMin": "bool",
+      "7@payoutDelay": "int",
+      "8@payoutFrequency": "nat",
+      "9@minPayout": "int",
+      "10@bakerChargesTransactionFee": "bool",
+      "11@paymentConfigMask": "nat",
+      "12@overDelegationThreshold": "nat",
+      "13@subtractRewardsFromUninvitedDelegation": "bool"
     },
-    "4": "timestamp"
+    "1@reporterAccount@option": "address",
+    "2@last_update": "timestamp"
   },
   "prim": {
     // ...
@@ -345,7 +354,7 @@ curl "https://api.tzstats.com/explorer/bigmap/1/type"
 }
 ```
 
-Returns bigmap type description in Michelson JSON format, both for keys and values. Keys are simple scalar types and values can have a simple or complex type. Use `prim` (boolean) to embed original Michelson primitives for key and value type definitions.
+Returns bigmap type description in Michelson JSON format, both for keys and values. Keys are simple scalar types and values can have a simple or complex type. JSON keys for bigmap type arguments now always follow the convention `<order>@<name>@<container-type>`, ie. they include an integer order number as first argument (starting at zero), followed by an optional `@` symbol, an optional name extracted from type annotations and in case the type is a container like list, map or set another `@` and the container type. JSON value contains a string with the michelson type name (if scalar) or a JSON object describing the nested type following the same naming conventions. Use `prim` (boolean) to embed original Michelson primitives for key and value type definitions.
 
 ### HTTP Request
 
@@ -583,92 +592,93 @@ curl "https://api.tzstats.com/explorer/block/627341"
 
 ```json
 {
-  "hash": "BLWT4x43zqzbtRzWNShkuU1DaTjU9fX34Qs4V3Hku2ZgYxiEpPW",
-  "predecessor": "BKqv8SBNabXEMXV9fsy21yx9BNsqWBKVVp9ca4KTMpGsF2Wi8Uj",
-  "successor": "BLFjwCUTebnhw6ZWpQNxa9VjZgGLgnp1Zazb21T1356VFEnxPrZ",
-  "baker": "tz1cZfFQpcYhwDp7y1njZXDsZqCrn2NqmVof",
-  "height": 627342,
+  "hash": "BKqv8SBNabXEMXV9fsy21yx9BNsqWBKVVp9ca4KTMpGsF2Wi8Uj",
+  "predecessor": "BKr3kjkbi5LndjDTDDSPUWubZjrdSBCWLJudmuGYuiVuG2j8fvj",
+  "successor": "BLWT4x43zqzbtRzWNShkuU1DaTjU9fX34Qs4V3Hku2ZgYxiEpPW",
+  "baker": "tz1SxEdtfkFChtqioi96hvMfisj4mt744rXi",
+  "height": 627341,
   "cycle": 153,
   "is_cycle_snapshot": false,
-  "time": "2019-09-28T13:11:51Z",
+  "time": "2019-09-28T13:10:51Z",
   "solvetime": 60,
   "version": 4,
   "validation_pass": 4,
-  "fitness": 19846458,
+  "fitness": 19846425,
   "priority": 0,
-  "nonce": 11996642917503807005,
+  "nonce": 16299522299,
   "voting_period_kind": "promotion_vote",
-  "endorsed_slots": 4294965247,
-  "n_endorsed_slots": 31,
-  "n_ops": 24,
+  "endorsed_slots": 4294967295,
+  "n_endorsed_slots": 32,
+  "n_ops": 28,
   "n_ops_failed": 0,
   "n_ops_contract": 0,
   "n_tx": 1,
   "n_activation": 0,
-  "n_seed_nonce_revelation": 0,
-  "n_double_baking_evidence": 0,
-  "n_double_endorsement_evidence": 0,
-  "n_endorsement": 23,
+  "n_seed_nonce_revelations": 0,
+  "n_double_baking_evidences": 0,
+  "n_double_endorsement_evidences": 0,
+  "n_endorsement": 26,
   "n_delegation": 0,
-  "n_reveal": 0,
+  "n_reveal": 1,
   "n_origination": 0,
   "n_proposal": 0,
   "n_ballot": 0,
-  "volume": 2.434174,
-  "fees": 0.00142,
-  "rewards": 80,
-  "deposits": 2560,
+  "volume": 2047.9,
+  "fees": 0.01142,
+  "rewards": 16,
+  "deposits": 512,
   "unfrozen_fees": 0,
   "unfrozen_rewards": 0,
   "unfrozen_deposits": 0,
   "activated_supply": 0,
   "burned_supply": 0,
-  "n_accounts": 26,
+  "n_accounts": 30,
   "n_new_accounts": 0,
   "n_new_implicit": 0,
   "n_new_managed": 0,
   "n_new_contracts": 0,
   "n_cleared_accounts": 0,
   "n_funded_accounts": 0,
-  "gas_limit": 10300,
-  "gas_used": 10200,
-  "gas_price": 0.13922,
+  "gas_limit": 20400,
+  "gas_used": 20200,
+  "gas_price": 0.56535,
   "storage_size": 0,
-  "days_destroyed": 0.003381,
+  "days_destroyed": 203.367847,
   "pct_account_reuse": 100,
+  "n_ops_implicit": 1,
   "endorsers": [
-    "tz1LLNkQK4UQV6QcFShiXJ2vT2ELw449MzAA",
-    "tz1isXamBXpTUgbByQ6gXgZQg4GWNW7r6rKE",
-    "tz1gk3TDbU7cJuiBRMhwQXVvgDnjsxuWhcEA",
-    "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m",
-    "tz1MXFrtZoaXckE41bjUCSjAjAap3AFDSr3N",
-    "tz1dZhK4HMbGTPUucpKy1rNG1WfYLqdRMs6Z",
     "tz3bvNMQ95vfAYtG8193ymshqjSvmxiCUuR5",
-    "tz1KtvGSYU5hdKD288a1koTBURWYuADJGrLE",
-    "tz1TaLYBeGZD3yKVHQGBM857CcNnFFNceLYh",
-    "tz3RB4aoyjov4KEVRbuhvQ1CKJgBJMWhaeB8",
+    "tz1PeZx7FXy7QRuMREGXGxeipb24RsMMzUNe",
     "tz3bTdwZinP8U1JmSweNzVKhmwafqWmFWRfk",
-    "tz1Ukm38BsGU58drCoJ31u3w6kgPo4oda4gL",
-    "tz1TzaNn7wSQSP5gYPXCnNzBCpyMiidCq1PX",
-    "tz1UHxJUMWHY4FxK3RxgbSdwMXAhEzmoLVWA",
-    "tz3bTdwZinP8U1JmSweNzVKhmwafqWmFWRfk",
-    "tz1NPbgLoqoct15RfrGu29DhUw41sVvTmqjP",
-    "tz1VQnqCCqX4K5sP3FNkVSNKTdCAMJDd3E1n",
-    "tz1T7duV5gZWSTq4YpBGbXNLTfznCLDrFxvs",
-    "tz3RB4aoyjov4KEVRbuhvQ1CKJgBJMWhaeB8",
+    "tz1bLwpPfr3xqy1gWBF4sGvv8bLJyPHR11kx",
     "tz3NExpXn9aPNZPorRE4SdjJ2RGrfbJgMAaV",
-    "tz3bTdwZinP8U1JmSweNzVKhmwafqWmFWRfk",
-    "tz3VEZ4k6a4Wx42iyev6i2aVAptTRLEAivNN",
-    "tz3VEZ4k6a4Wx42iyev6i2aVAptTRLEAivNN",
-    "tz1LmaFsWRkjr7QMCx5PtV6xTUz3AmEpKQiF",
-    "tz1VmiY38m3y95HqQLjMwqnMS7sdMfGomzKi",
-    "tz1ajgycuHmd2z2JbTSJxKv7x6cok2KuNSk1",
     "tz1bHzftcTKZMTZgLLtnrXydCm6UEqf4ivca",
-    "tz3bTdwZinP8U1JmSweNzVKhmwafqWmFWRfk",
+    "tz3RB4aoyjov4KEVRbuhvQ1CKJgBJMWhaeB8",
+    "tz3UoffC7FG7zfpmvmjUmUeAaHvzdcUvAj6r",
+    "tz1TzaNn7wSQSP5gYPXCnNzBCpyMiidCq1PX",
+    "tz1VmiY38m3y95HqQLjMwqnMS7sdMfGomzKi",
+    "tz1PesW5khQNhy4revu2ETvMtWPtuVyH2XkZ",
+    "tz3NExpXn9aPNZPorRE4SdjJ2RGrfbJgMAaV",
+    "tz1Ldzz6k1BHdhuKvAtMRX7h5kJSMHESMHLC",
+    "tz1Xek93iSXXckyQ6aYLVS5Rr2tge2en7ZxS",
+    "tz1NpWrAyDL9k2Lmnyxcgr9xuJakbBxdq7FB",
+    "tz1bHzftcTKZMTZgLLtnrXydCm6UEqf4ivca",
+    "tz1TzaNn7wSQSP5gYPXCnNzBCpyMiidCq1PX",
+    "tz3WMqdzXqRWXwyvj5Hp2H7QEepaUuS7vd9K",
+    "tz1c5vSjZDMsgx7NCQapHjmSM5Wv9bjbwP9B",
+    "tz3bvNMQ95vfAYtG8193ymshqjSvmxiCUuR5",
+    "tz3WMqdzXqRWXwyvj5Hp2H7QEepaUuS7vd9K",
+    "tz1aJS7Pk9uWR3wWyFf1i3RwhYxN84G7stom",
+    "tz1TzaNn7wSQSP5gYPXCnNzBCpyMiidCq1PX",
+    "tz3WMqdzXqRWXwyvj5Hp2H7QEepaUuS7vd9K",
+    "tz1LH4L6XYT2JNPhvWYC4Zq3XEiGgEwzNRvo",
+    "tz1NpWrAyDL9k2Lmnyxcgr9xuJakbBxdq7FB",
+    "tz1Vd1rXpV8hTHbFXCXN3c3qzCsgcU5BZw1e",
+    "tz1NortRftucvAkD1J58L32EhSVrQEWJCEnB",
+    "tz1Vd1rXpV8hTHbFXCXN3c3qzCsgcU5BZw1e",
     "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m",
-    "tz1irJKkXS2DBWkU1NnmFQx1c1L7pbGg4yhk",
-    "tz1cmvE9SbB63z9GB1h64P3YawsMqiBmQpCG",
-    "tz3VEZ4k6a4Wx42iyev6i2aVAptTRLEAivNN"
+    "tz1TaLYBeGZD3yKVHQGBM857CcNnFFNceLYh",
+    "tz1abTjX2tjtMdaq5VCzkDtBnMSCFPW2oRPa"
   ]
 }
 ```
@@ -703,6 +713,7 @@ Field              | Description
 `n_ops` *int64*                | Count of operations contained in this block.
 `n_ops_failed` *int64*         | Count of failed operations.
 `n_ops_contract` *int64*       | Count of smart contract operations (transactions sent to contracts and internal operations sent by contracts).
+`n_ops_implicit` *int64*       | Count of implicit events, ie. operations and state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop` and `invoice`.
 `n_tx` *int64*                 | Count of `transaction` operations.
 `n_activation` *int64*         | Count of `activate_account` operations.
 `n_seed_nonce_revelation` *int64*  | Count of `seed_nonce_revelation` operations.
@@ -715,9 +726,9 @@ Field              | Description
 `n_proposal` *int64*           | Count of `proposals` operations.
 `n_ballot` *int64*             | Count of `ballot` operations.
 `volume` *money*             | Total amount of tokens moved between accounts.
-`fees` *money*               | Total fees paid (and frozen) by all operations.
-`rewards` *money*            | Total rewards earned (and frozen) by baker and endorsers.
-`deposits` *money*           | Total deposits frozen by baker and endorsers.
+`fees` *money*               | Fees paid (and frozen) by all operations.
+`rewards` *money*            | Rewards earned (and frozen) by the block baker.
+`deposits` *money*           | Deposits frozen by the block baker.
 `unfrozen_fees` *money*      | Total unfrozen fees (at end of a cycle).
 `unfrozen_rewards` *money*   | Total unfrozen rewards (at end of a cycle).
 `unfrozen_deposits` *money*  | Total unfrozen deposits (at end of a cycle).
@@ -768,6 +779,8 @@ curl "https://api.tzstats.com/explorer/block/head/op"
       "op_n": 0,
       "op_c": 0,
       "op_i": 0,
+      "op_l": 0,
+      "op_p": 0,
       "status": "applied",
       "is_success": true,
       "is_contract": false,
@@ -797,7 +810,7 @@ curl "https://api.tzstats.com/explorer/block/head/op"
 }
 ```
 
-Block data can be extended with an embedded list of operations. This endpoint is an optimization to fetch both the operation list and the related resource in one call. Use `limit` and `offset` (both integers) to page through operation lists. Operations are sorted by row_id in ascending order.
+Block data can be extended with an embedded list of operations. This endpoint is an optimization to fetch both the operation list and the related resource in one call. Use `limit` and `offset` (both integers) to page through operation lists. Operations are sorted by row_id in ascending order. Use `order` to switch between `asc` or `desc`. Allows filtering operations by `type` using [query filters](#query-filters).
 
 ### HTTP Request
 
@@ -1170,6 +1183,8 @@ Field              | Description
 `GET https://api.tzstats.com/explorer/contract/{hash}/script`
 
 Returns the native Michelson JSON encoding of the deployed smart contract code as well as type specifications for call parameters, storage and bigmaps. Also contains decoded entrypoints and unboxed storage type.
+
+JSON keys for entrypoint arguments always follow the convention `<order>@<name>`, ie. they include an integer order number as first argument, followed by an optional `@` symbol and an optional argument name extracted from type annotations.
 
 ### Unboxed Contract Script
 
@@ -1898,6 +1913,8 @@ curl "https://api.tzstats.com/explorer/op/ooxRwXAEM76NyMGyn4hHjS9D2Q8UkWVV6W2Esk
     "op_n": 26,
     "op_c": 0,
     "op_i": 0,
+    "op_l": 0,
+    "op_p": 0,
     "status": "applied",
     "is_success": true,
     "is_contract": false,
@@ -1925,16 +1942,17 @@ curl "https://api.tzstats.com/explorer/op/ooxRwXAEM76NyMGyn4hHjS9D2Q8UkWVV6W2Esk
     "branch_id": 627341,
     "branch_height": 627340,
     "branch_depth": 1,
-    "branch": "BKr3kjkbi5LndjDTDDSPUWubZjrdSBCWLJudmuGYuiVuG2j8fvj"
+    "branch": "BKr3kjkbi5LndjDTDDSPUWubZjrdSBCWLJudmuGYuiVuG2j8fvj",
+    "is_implicit": false
   }
 ]
 ```
 
-Returns info about a single operation or a list of related operations. Because Tezos supports batch operations (multiple operations sharing the same hash) and internal operations (created by smart contract calls in response to a transaction) this endpoint always returns an array of operation objects. In many cases this array contains one element only. Use the optional `prim` (boolean) parameter to embed Michelson primitive trees with smart contract calls.
+Returns info about a single operation or a list of related operations. Because Tezos supports batch operations (multiple operations sharing the same hash), internal operations (created by smart contract calls in response to a transaction) and implicit events (state changes that do not have an operation hash) this endpoint always returns an array of operation objects. In many cases this array contains one element only. Use the optional `prim` (boolean) parameter to embed Michelson primitive trees with smart contract calls.
 
 ### HTTP Request
 
-`GET https://api.tzstats.com/explorer/op/{hash}`
+`GET https://api.tzstats.com/explorer/op/{hash|id}`
 
 ### HTTP Response
 
@@ -1947,7 +1965,9 @@ Field              | Description
 `height` *int64*         | Block height at which the operation was included on-chain.
 `cycle` *int64*          | Cycle in which the operation was included on-chain.
 `counter` *int64*        | Unique sender account 'nonce' value.
-`op_n` *int64*           | Operation position in block. (Tezos defines 4 arrays used for the different op verification steps. The `op_n` value represents the global operation position across all these arrays.)
+`op_n` *int64*           | In block operation counter.
+`op_l` *int64*           | Tezos RPC operation list number (0..3).
+`op_p` *int64*           | Tezos RPC operation list position.
 `op_c` *int64*           | Bulk operation list position.
 `op_i` *int64*           | Internal operation list position.
 `status` *enum*          | Operation status `applied`, `failed`, `backtracked`, `skipped`.
@@ -1959,12 +1979,13 @@ Field              | Description
 `storage_limit` *int64*  | Caller-defined storage limit.
 `storage_size` *int64*   | Actual storage size allocated.
 `storage_paid` *int64*   | Part of the storage the operation paid for.
-`volume` *money*         | Amount of tokens transferred in tz.
-`fee` *money*            | Fees paid in tz.
-`reward` *money*         | Rewards earned in tz.
-`deposit` *money*        | Amount of deposited tokens in tz.
+`volume` *money*         | Amount of tokens transferred in tz. In denunciation operations, this field contains the accuser reward.
+`fee` *money*            | Fees paid in tz. In denunciation operations, this field contains the offender loss as negative value.
+`reward` *money*         | Rewards earned in tz. In denunciation operations, this field contains the offender loss as negative value.
+`deposit` *money*        | Amount of deposited tokens in tz. In denunciation operations, this field contains the offender loss as negative value.
 `burned` *money*         | Amount of burned tokens in tz.
 `is_internal` *bool*     | Flag indicating if this operation was sent be a smart contract.
+`is_implicit` *bool*     | Flag indicating implicit on-chain events, ie. state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop` and `invoice`.
 `has_data` *bool*        | Flag indicating if extra data or parameters are present.
 `data` *polymorph*       | Extra type-dependent operation data. See below.
 `parameters` *object*    | Call parameters as embedded JSON object, contract-only.
@@ -1977,10 +1998,10 @@ Field              | Description
 `data` *object*          | Extra operation data (see below for content encoding).
 `big_map_diff` *array*   | List of bigmap updates.
 `errors` *object*        | Embedded native Tezos RPC error object.
-`sender` *hash*          | Operation sender, always set.
-`receiver` *hash*        | Transaction receiver, may be empty.
+`sender` *hash*          | Operation sender.
+`receiver` *hash*        | Transaction receiver, may be empty. For `activate_account` the source account is referenced when the activation merged coins from a second blinded account (ie. when a fundraiser signed up twice). For `delegation` the previous delegate is referenced. For `seed_nonce_revelation` the actual seed publisher is referenced.
 `delegate` *hash*        | New Delegate, only used by `origination` and `delegation`. When empty for a `delegation` the operation was a delegate withdrawal.
-`manager` *hash*         | Contract manager, `origination` only.
+`manager` *hash*         | Contains contract manager (Athens) or creator (Babylon+) on `origination`. For internal `transactions`, the original sender of the external transaction is referenced.
 `branch_id` *uint64*     | Row id of the branch block this op refers to.
 `branch_height` *int64*  | Height of the branch block this op refers to.
 `branch_depth` *int64*   | Count of blocks between branch block and block including this op.
@@ -1999,7 +2020,11 @@ Field              | Description
 - `endorsement`
 - `proposals`
 - `ballot`
-
+- `bake` (implict, no hash, block header event `op_n = -1`)
+- `unfreeze` (implict, no hash, block header event `op_n = -1`)
+- `seed_slash` (implict, no hash, block header event `op_n = -1`)
+- `airdrop` (implict, no hash, protocol upgrade event `op_n = -2`)
+- `invoice` (implict, no hash, protocol upgrade event `op_n = -2`)
 
 ### Decoding Operation Data
 

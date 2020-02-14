@@ -783,8 +783,14 @@ curl "https://api.tzstats.com/tables/flow?address=tz2TSvNTh2epDMhZHrw73nV9piBX7k
     360996,        // height
     88,            // cycle
     1553123452000, // time
+    8361752,       // op_id
+    24,            // op_n
+    0,             // op_l
+    0,             // op_p
+    0,             // op_c
+    0,             // op_i
     278469,        // account_id
-    31922,         // origin_id
+    31922,         // counterparty_id
     "secp256k1",   // address_type
     "balance",     // category
     "transaction", // operation
@@ -798,12 +804,13 @@ curl "https://api.tzstats.com/tables/flow?address=tz2TSvNTh2epDMhZHrw73nV9piBX7k
     1194,          // token_gen_max
     60,            // token_age
     "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m", // address
-    "tz1Yju7jmmsaUiG9qQLoYv35v5pHgnWoLWbt"  // origin
+    "tz1Yju7jmmsaUiG9qQLoYv35v5pHgnWoLWbt", // counterparty
+    "opPdGCS8cgW5j1id7WH485NuwjGnD4rVsJTaTZo4ftaT9jatFKJ" // op
   ]
 ]
 ```
 
-List balance updates on all sub-accounts and different categories. Our categories go beyond on-chain types and include baking, denounciations, vesting contracts and the invoicing feature of protocol upgrades.
+List balance updates on all sub-accounts and different categories. Our categories go beyond on-chain types and include baking, denunciations, vesting contracts and the invoicing feature of protocol upgrades.
 
 ### HTTP Request
 
@@ -816,12 +823,17 @@ Field              | Description
 `row_id` *uint64*        | Unique row identifier.
 `height` *int64*         | Block height at which this flow was created.
 `cycle` *int64*          | Cycle at which this flow was created.
-`time` *datetime*      | Block time at which this flow was created.
+`time` *datetime*        | Block time at which this flow was created.
+`op_n` *int64*           | Related operation position in block.
+`op_l` *int64*           | Tezos RPC operation list (0..3).
+`op_p` *int64*           | Tezos RPC operation list position.
+`op_c` *int64*           | Related bulk operation list position.
+`op_i` *int64*           | Related internal operation list position.
 `account_id` *uint64*    | Unique row_id of the account this flow relates to.
-`origin_id` *uint64*     | Unique row_id of the source account that initiated the flow.
+`counterparty_id` *uint64*  | Unique row_id of the counterparty that initiated/received the flow.
 `address_type` *enum*  | Account address type `ed25519` (tz1), `secp256k1` (tz2), `p256` (tz3), `contract` (KT1) or `blinded` (btz1).
 `category` *enum*      | Flow category (i.e. sub-account) `rewards`, `deposits`, `fees`, `balance`, `delegation`.
-`operation` *enum*     | Operation creating this flow `activation`, `denounciation`, `transaction`, `origination`, `delegation`, `reveal`, `endorsement`, `baking`, `noncerevelation`, `internal`, `vest`, `pour`, `invoice`, `airdrop`.
+`operation` *enum*     | Operation creating this flow `activation`, `denunciation`, `transaction`, `origination`, `delegation`, `reveal`, `endorsement`, `baking`, `noncerevelation`, `internal`, `vest`, `pour`, `invoice`, `airdrop`.
 `amount_in` *money*    | Incoming amount in tz.
 `amount_out` *money*   | Outgoing amount in tz.
 `is_fee` *bool*        | Flag indicating this flow is a fee payment.
@@ -832,9 +844,7 @@ Field              | Description
 `token_gen_max` *int64*  | Maximum generation number of tokens moved.
 `token_age` *float*    | Age of tokens moved in days.
 `address` *hash*       | Address of the related account.
-`origin` *hash*        | Address of the flow initiating account.
-
-
+`counterparty` *hash*  | Address of the counterparty of this flow.
 
 
 ## Income Table
@@ -888,7 +898,9 @@ curl "https://api.tzstats.com/tables/income?address=tz2TSvNTh2epDMhZHrw73nV9piBX
     0.000000,         // lost_accusation_deposits
     0.000000,         // lost_revelation_fees
     0.000000,         // lost_revelation_rewards
-    "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m"  // address
+    "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m",  // address
+    1568887343000,    // start_time
+    1569136305000     // end_time
   ]
 ]
 ```
@@ -914,7 +926,7 @@ Field              | Description
 `n_endorsing_rights` *int64*      | Count of endorsing rights in this cycle.
 `luck` *money*                    | Absolute luck in coins, i.e. the amount of extra coins that can be earned because randomization allocated more rights than the fair share of rolls.
 `luck_percent` *float*            | Relation between actual random rights allocated vs. ideal rights gainable by rolls. Neutral luck is 100%, lower values indicated less rights than fair share, higher values indicate more rights.
-`performance_percent` *float*      | Effectiveness of a baker in generating expected rewards. Optimal performance is 100%. The value is lower when blocks or endorsements are missed, low value blocks/endorsements are published or the baker is slashed and higher when extra income was generated from stolen blocks or denounciations. NOTE: This value is not ratio scale nor interval scale. CANNOT be used as benchmark between bakers.
+`performance_percent` *float*      | Effectiveness of a baker in generating expected rewards. Optimal performance is 100%. The value is lower when blocks or endorsements are missed, low value blocks/endorsements are published or the baker is slashed and higher when extra income was generated from stolen blocks or denunciations. NOTE: This value is not ratio scale nor interval scale. CANNOT be used as benchmark between bakers.
 `contribution_percent` *float*    | Effectiveness of a baker in utilizing all rights assigned and contribute to consensus. Optimal contribution is 100%. The value is lower when blocks or endorsements are missed and higher when blocks are stolen. NOTE: This value is ratio scale. It can be used as benchmark for baker availability or participation in consensus. It is strongly correlated to generated income, but does not capture low priority blocks, endorsements or slashing.
 `n_blocks_baked` *int64*            | Number of blocks baked in this cycle.
 `n_blocks_lost` *int64*             | Number of blocks lost in this cycle.
@@ -935,14 +947,15 @@ Field              | Description
 `missed_baking_income` *money*    | Missed income from lost blocks.
 `missed_endorsing_income` *money* | Missed income due to missed endorsements.
 `stolen_baking_income` *money*    | Extra income from stolen blocks.
-`total_lost` *money*              | Total lost income due to denounciations or unpublished seed nonces. NOTE: This does not automatically reduce `total_income` above.
-`lost_accusation_fees` *money*     | Lost fees due to a denounciation.
-`lost_accusation_rewards` *money*  | Lost rewards due to a denounciation.
-`lost_accusation_deposits` *money* | Lost income due to a denounciation.
+`total_lost` *money*              | Total lost income due to denunciations or unpublished seed nonces. NOTE: This does not automatically reduce `total_income` above.
+`lost_accusation_fees` *money*     | Lost fees due to a denunciation.
+`lost_accusation_rewards` *money*  | Lost rewards due to a denunciation.
+`lost_accusation_deposits` *money* | Lost income due to a denunciation.
 `lost_revelation_fees` *money*     | Lost fees due to an unpublished seed nonce.
 `lost_revelation_rewards` *money*  | Lost block rewards due to an unpublished seed nonce.
 `address` *hash*                   | Account address base58check encoded.
-
+`start_time` *datetime*            | Income cycle start time.
+`end_time` *datetime*              | Income cycle end time.
 
 
 
@@ -966,6 +979,8 @@ curl "https://api.tzstats.com/tables/op?time.gte=today&limit=1"
     "opGz2Sg1QiXchJMyz9v1rV9VN7mQadmkL81KVwteANQWZpgV5ew", // hash
     0,                // counter
     0,                // op_n
+    0,                // op_l
+    0,                // op_p
     0,                // op_c
     0,                // op_i
     "endorsement",    // type
@@ -998,6 +1013,7 @@ curl "https://api.tzstats.com/tables/op?time.gte=today&limit=1"
     689942,           // branch_id
     689941,           // branch_height
     1,                // branch_depth
+    0,                // is_implicit
     "tz1Z2jXfEXL7dXhs6bsLmyLFLfmAkXBzA9WE",  // sender
     null,             // receiver
     null,             // manager
@@ -1022,7 +1038,9 @@ Field              | Description
 `cycle` *int64*             | Cycle in which the operation was included on-chain.
 `hash` *hash*               | Operation hash.
 `counter` *int64*           | Unique sender account 'nonce' value.
-`op_n` *int64*              | Operation position in block. (Tezos defines 4 arrays used for the different op verification steps. The `op_n` value represents the global operation position across all these arrays.)
+`op_n` *int64*              | Operation position in block.
+`op_l` *int64*              | Tezos RPC operation list (0..3).
+`op_p` *int64*              | Tezos RPC operation list position.
 `op_c` *int64*              | Bulk operation list position.
 `op_i` *int64*              | Internal operation list position.
 `type` *enum*               | Operation type, one of `activate_account`, `double_baking_evidence`, `double_endorsement_evidence`, `seed_nonce_revelation`, `transaction`, `origination`, `delegation`, `reveal`, `endorsement`, `proposals`, `ballot`.
@@ -1055,6 +1073,7 @@ Field              | Description
 `branch_id` *uint64*      | Row id of the branch block this op refers to.
 `branch_height` *int64*   | Height of the branch block this op refers to.
 `branch_depth` *int64*    | Count of blocks between branch block and block including this op.
+`is_implicit` *bool*      | Flag indicating implicit on-chain events, ie. state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop` and `invoice`.
 `sender` *hash*           | Address of the operation sender, always set.
 `receiver` *hash*         | Address of the receiver of a transaction, may be empty.
 `manager` *hash*          | Address of the new contract manager account, may be empty.
