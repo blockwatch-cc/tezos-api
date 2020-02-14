@@ -2,6 +2,11 @@
     clear: both;
 }
 
+.content > h1 ~ h2,
+.content > h2 ~ h3 {
+	margin-top: 0;
+}
+
 .content table em {
     display: block;
 }
