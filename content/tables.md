@@ -437,9 +437,9 @@ curl https://api.tzstats.com/tables/block?time.gte=today&limit=1
     0,                  // n_proposal
     0,                  // n_ballot
     10529.635160,       // volume
-    0.004140,           // fees
-    80.000000,          // rewards
-    2560.000000,        // deposits
+    0.004140,           // fee
+    80.000000,          // reward
+    2560.000000,        // deposit
     0.000000,           // unfrozen_fees
     0.000000,           // unfrozen_rewards
     0.000000,           // unfrozen_deposits
@@ -506,9 +506,9 @@ Field              | Description
 `n_proposal` *int64*            | Count of `proposals` operations.
 `n_ballot` *int64*              | Count of `ballot` operations.
 `volume` *money*              | Total amount of tokens moved between accounts.
-`fees` *money*                | Total fees paid (and frozen) by all operations.
-`rewards` *money*             | Total rewards earned (and frozen) by baker and endorsers.
-`deposits` *money*            | Total deposits frozen by baker and endorsers.
+`fee` *money*                 | Total fees paid (and frozen) by all operations.
+`reward` *money*              | Reward earned (and frozen) by baker.
+`deposit` *money*             | Deposit frozen by baker.
 `unfrozen_fees` *money*       | Total unfrozen fees (at end of a cycle).
 `unfrozen_rewards` *money*    | Total unfrozen rewards (at end of a cycle).
 `unfrozen_deposits` *money*   | Total unfrozen deposits (at end of a cycle).

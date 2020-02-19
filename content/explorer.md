@@ -624,9 +624,9 @@ curl "https://api.tzstats.com/explorer/block/627341"
   "n_proposal": 0,
   "n_ballot": 0,
   "volume": 2047.9,
-  "fees": 0.01142,
-  "rewards": 16,
-  "deposits": 512,
+  "fee": 0.01142,
+  "reward": 16,
+  "deposit": 512,
   "unfrozen_fees": 0,
   "unfrozen_rewards": 0,
   "unfrozen_deposits": 0,
@@ -726,9 +726,9 @@ Field              | Description
 `n_proposal` *int64*           | Count of `proposals` operations.
 `n_ballot` *int64*             | Count of `ballot` operations.
 `volume` *money*             | Total amount of tokens moved between accounts.
-`fees` *money*               | Fees paid (and frozen) by all operations.
-`rewards` *money*            | Rewards earned (and frozen) by the block baker.
-`deposits` *money*           | Deposits frozen by the block baker.
+`fee` *money*                | Total fee paid (and frozen) by all operations.
+`reward` *money*             | Reward earned (and frozen) by the block baker.
+`deposit` *money*            | Deposit frozen by the block baker.
 `unfrozen_fees` *money*      | Total unfrozen fees (at end of a cycle).
 `unfrozen_rewards` *money*   | Total unfrozen rewards (at end of a cycle).
 `unfrozen_deposits` *money*  | Total unfrozen deposits (at end of a cycle).
@@ -1243,7 +1243,7 @@ Field              | Description
 
 `GET https://api.tzstats.com/explorer/contract/{hash}/storage`
 
-Returns the most recent content of the contract's storage or, when using the optional `height` (int64) or block `hash` (hash) argument, a prior state at the specified block. Use the optional `prim` (boolean) argument to embed Michelson JSON primitives.
+Returns the most recent content of the contract's storage or, when using the optional `block` (int64|hash) argument, a prior state at the specified block. Use the optional `prim` (boolean) argument to embed Michelson JSON primitives.
 
 
 

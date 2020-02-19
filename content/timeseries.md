@@ -79,9 +79,9 @@ curl "https://api.tzstats.com/series/block.json?start_date=today&collapse=1d"
     0,                  // n_proposal
     6,                  // n_ballot
     1489819.569887,     // volume
-    2.223532,           // fees
-    79822.000000,       // rewards
-    2565504.000000,     // deposits
+    2.223532,           // fee
+    79822.000000,       // reward
+    2565504.000000,     // deposit
     0.000000,           // unfrozen_fees
     0.000000,           // unfrozen_rewards
     0.000000,           // unfrozen_deposits
@@ -126,9 +126,9 @@ Field              | Description
 `n_proposal` *int*             | Count of `proposals` operations.
 `n_ballot` *int*               | Count of `ballot` operations.
 `volume` *int*                 | Count of amount of tokens moved between accounts.
-`fees` *float*                 | Total fees paid (and frozen) by all operations.
-`rewards` *float*              | Total rewards earned (and frozen) by baker and endorsers.
-`deposits` *float*             | Total deposits frozen by baker and endorsers.
+`fee` *float*                  | Total fee paid (and frozen) by all operations.
+`reward` *float*               | Reward earned (and frozen) by baker.
+`deposit` *float*              | Deposit frozen by baker.
 `unfrozen_fees` *float*        | Total unfrozen fees (at end of a cycle).
 `unfrozen_rewards` *float*     | Total unfrozen rewards (at end of a cycle).
 `unfrozen_deposits` *float*    | Total unfrozen deposits (at end of a cycle).
@@ -363,13 +363,13 @@ curl "https://api.tzstats.com/series/supply?start_date=today&collapse=1d"
     63141775.537532,  // unclaimed
     27582743.428170,  // vested
     125280976.174350, // unvested
-    699889185.554441, // circulatingunvested)
+    699889185.554441, // circulating
     516489777.211404, // delegated
     660867550.008684, // staking
     514264193.700025, // active_delegated
-    649473768.198626, // active_stakingdelegates
+    649473768.198626, // active_staking
     2225583.511379,   // inactive_delegated
-    11393781.810058,  // inactive_stakingdelegates
+    11393781.810058,  // inactive_staking
     61045504.551923,  // minted
     12446481.404808,  // minted_baking
     48595263.514794,  // minted_endorsing

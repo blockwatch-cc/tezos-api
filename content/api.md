@@ -57,7 +57,7 @@ All our API responses are tagged with an API version that's included in the `X-A
 > **Current TzStats Mainnet Response Headers**
 
     # API version
-    X-Api-Version:   v006-2020-01-06
+    X-Api-Version:   v006-2020-02-12
 
     # Tezos Network (chain id)
     X-Network-Id:    NetXdQprcVkpaWU
@@ -135,7 +135,7 @@ We use the following data types and encoding conventions throughout the API:
 | **uint64** | an unsigned 64-bit integer (Range: 0 through 18,446,744,073,709,551,615) |
 | **enum** | enumerable values expressed as strings, usually used for types |
 | **hash** | on-chain hashes encoded as base58-check strings |
-| **money** | monetary quantities are expressed as `float64` with 6 decimal points (the Tezos coin unit precision); market endpoints use 5 or more decimal points depending of the fiat or crypto pairs |
+| **money** | monetary quantities are expressed as `float64` with 6 decimal points (the Tezos coin unit precision); market endpoints use 5 or more decimal points depending on the fiat or crypto pairs |
 
 For efficiency reasons, timestamps in JSON bulk arrays are encoded as UNIX time at millisecond resolution. That is, value `0` represents `Jan 1, 1970 00:00:00 UTC`. Timestamps in explorer responses are encoded according to [RFC 3339](https://tools.ietf.org/html/rfc3339) (`2018-09-06T08:07:38Z`) for convenience and human readability.
 
