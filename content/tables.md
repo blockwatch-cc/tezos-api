@@ -176,7 +176,8 @@ curl "https://api.tzstats.com/tables/account?address=tz2TSvNTh2epDMhZHrw73nV9piB
     1553123692000,      // delegate_since_time
     0,                  // rich_rank
     0,                  // flow_rank
-    0                   // traffic_rank
+    0,                  // traffic_rank
+    "000000"            // call_stats
   ]
 ]
 ```
@@ -259,7 +260,7 @@ Field              | Description
 `rich_rank` *int64*               | Global rank on rich list by total balance.
 `flow_rank` *int64*               | Global rank on 24h most active accounts by transactions sent/received.
 `traffic_rank` *int64*            | Global rank on 24h most active accounts by volume sent/received.
-
+`call_stats` *bytes*              | Big-endian uint32 call statistic counters per entrypoint. Only used on smart contracts.
 
 ## Ballot Table
 
@@ -665,11 +666,15 @@ curl "https://api.tzstats.com/tables/contract?address=KT1REHQ183LzfoVoqiDR87mCrt
     4082,        // storage_limit
     3805,        // storage_size
     3805,        // storage_paid
-    "000008b002000008...",  // script
-    0,           // is_spendable
+    "00000eb30200000eae...",  // script
+    1,           // is_spendable
     0,           // is_delegatable
+    3,           // op_l
+    5,           // op_p
+    0,           // op_i
+    "5f89baed",  // iface_hash
     "KT1REHQ183LzfoVoqiDR87mCrt7CLUH1MbcV", // address
-    "tz1N74dH3VSeRTeKobbXUbyU82G8pqT2YYEM"  // manager
+    "tz1N74dH3VSeRTeKobbXUbyU82G8pqT2YYEM" // manager
   ]
 ]
 ```
@@ -695,12 +700,15 @@ Field              | Description
 `storage_limit` *int64*     | Storage limit defined on contract origination op.
 `storage_size` *int64*      | Storage size allocated in bytes.
 `storage_paid` *int64*      | Storage bytes paid for in bytes.
-`script` *bytes*          | Binary encoded Michelson script and initial contract storage.
-`is_spendable` *bool*     | Flag indicating the contract balance is spendable (deprecated in v005 Babylon).
-`is_delegatable` *bool*   | Flag indicating the contract is delegatable (deprecated in v005 Babylon).
-`address` *hash*          | Contract address base58check encoded.
-`manager` *hash*          | Contract manager address base58check encoded.
-
+`script` *bytes*            | Binary encoded Michelson script and initial contract storage.
+`is_spendable` *bool*       | Flag indicating the contract balance is spendable (deprecated in v005 Babylon).
+`is_delegatable` *bool*     | Flag indicating the contract is delegatable (deprecated in v005 Babylon).
+`op_l` *int64*              | Origination block operation list number (0..3).
+`op_p` *int64*              | Origination block operation list position.
+`op_i` *int64*              | Internal origination operation list position.
+`iface_hash` *bytes*        | Short hash to uniquely identify the contract interface, first 4 bytes of the SHA256 hash over binary encoded Michelson script parameters.
+`address` *hash*            | Contract address base58check encoded.
+`manager` *hash*            | Contract manager address base58check encoded.
 
 
 ## Election Table
@@ -1014,6 +1022,7 @@ curl "https://api.tzstats.com/tables/op?time.gte=today&limit=1"
     689941,           // branch_height
     1,                // branch_depth
     0,                // is_implicit
+    0,                // entrypoint_id
     "tz1Z2jXfEXL7dXhs6bsLmyLFLfmAkXBzA9WE",  // sender
     null,             // receiver
     null,             // manager
@@ -1074,6 +1083,7 @@ Field              | Description
 `branch_height` *int64*   | Height of the branch block this op refers to.
 `branch_depth` *int64*    | Count of blocks between branch block and block including this op.
 `is_implicit` *bool*      | Flag indicating implicit on-chain events, ie. state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop` and `invoice`.
+`entrypoint_id` *int64*  | Serial id of the called entrypoint, only relevant if the operation was a transaction, the receiver is a smart contract and call parameters are present.
 `sender` *hash*           | Address of the operation sender, always set.
 `receiver` *hash*         | Address of the receiver of a transaction, may be empty.
 `manager` *hash*          | Address of the new contract manager account, may be empty.

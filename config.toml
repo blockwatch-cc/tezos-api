@@ -46,7 +46,7 @@ title = "API Reference | TzStats"
 
 # Left sidebar footer items. Use HTMl or Markdown.
 toc_footers = [
-	"API v006-2020-02-12",
+	"API v006-2020-02-24",
 ]
 
 [languages.en.blackfriday]

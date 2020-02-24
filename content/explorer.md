@@ -31,7 +31,7 @@ Endpoint | Is Paged | Filter | Comment
 `GET /explorer/account/{hash}/op`         | x | `type`, `block`, `since` | account info with embedded list of related operations |
 `GET /explorer/account/{hash}/ballots`    | x |   | list proposals and ballots |
 `GET /explorer/contract/{hash}`           |   |   | smart contract metadata |
-`GET /explorer/contract/{hash}/calls`     | x | `block`, `since` | list contract calls |
+`GET /explorer/contract/{hash}/calls`     | x | `block`, `since`, `entrypoint` | list contract calls |
 `GET /explorer/contract/{hash}/manager`   |   |   | contract manager (pre-babylon) or originator |
 `GET /explorer/contract/{hash}/script`    |   |   | smart contract code, storage and parameter spec |
 `GET /explorer/contract/{hash}/storage`   |   |   | smart contract storage |
@@ -1082,6 +1082,9 @@ curl "https://api.tzstats.com/explorer/contract/KT1QuofAgnsWffHzLA7D78rxytJruGHD
   "manager": "",
   "delegate": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
   "height": 1,
+  "op_l": 3,
+  "op_p": 2,
+  "op_i": 0,
   "fee": 0,
   "gas_limit": 0,
   "gas_used": 0,
@@ -1115,7 +1118,12 @@ curl "https://api.tzstats.com/explorer/contract/KT1QuofAgnsWffHzLA7D78rxytJruGHD
   "n_origination": 0,
   "token_gen_min": 0,
   "token_gen_max": 0,
-  "bigmap_ids": []
+  "bigmap_ids": [],
+  "iface_hash": "4ff4b751",
+  "call_stats": [
+    0,
+    2
+  ]
 }
 ```
 
@@ -1140,6 +1148,9 @@ Field              | Description
 `manager` *hash*   | Manager account (deprecated in v005 Babylon).
 `delegate` *hash*  | Delegate (may be empty).
 `height` *int64*     | Origination block height.
+`op_l` *int64*           | Origination block operation list number (0..3).
+`op_p` *int64*           | Origination block operation list position.
+`op_i` *int64*           | Internal origination operation list position.
 `fee` *money*           | Fee paid on contract origination.
 `gas_limit` *int64*       | Gas limit on contract origination.
 `gas_used` *int64*        | Gas used on contract origination.
@@ -1174,7 +1185,8 @@ Field              | Description
 `token_gen_min` *int64*        | Minimum generation number of all tokens owned.
 `token_gen_max` *int64*        | Maximum generation number of all tokens owned.
 `bigmap_ids` *[]int64*         | Array of bigmap ids owned by this contract.
-
+`iface_hash` *bytes*           | Short hash to uniquely identify the contract interface, first 4 bytes of the SHA256 hash over binary encoded Michelson script parameters.
+`call_stats` *array*           | Per-entrypoint call statistics, an integer array containing running totals for each entrypoint in id order.
 
 ### Related HTTP Requests
 
@@ -1287,7 +1299,7 @@ Field              | Description
 
 `GET https://api.tzstats.com/explorer/contract/{hash}/calls`
 
-Returns calls (transactions) sent to the contract with embedded parameters, storage and bigmap updates. Use the optional `prim` (boolean) argument to embed Michelson primitive trees in addition to unboxed call data. To query calls until a specific block use the optional query argument `block` (int64|hash). Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter (defaults to ascending).
+Returns calls (transactions) sent to the contract with embedded parameters, storage and bigmap updates. Use the optional `prim` (boolean) argument to embed Michelson primitive trees in addition to unboxed call data. To query calls until a specific block use the optional query argument `block` (int64|hash). Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter (defaults to ascending). Use the optional `entrypoint` (int64|string) argument to filter calls by entrypoint. This argument takes either an id value (eg. 7), a name (eg. "mint") or the branch (eg. "RRR").
 
 
 ### Unboxed Call Parameters
@@ -1299,6 +1311,7 @@ Returns calls (transactions) sent to the contract with embedded parameters, stor
 "parameters": {
   "entrypoint": "default",
   "branch": "RRR",
+  "call": "mint",
   "id": 7,
   "value": {
     //...
@@ -1316,6 +1329,7 @@ Field              | Description
 -------------------|--------------------------------------------------
 `entrypoint` *string* | Named entrypoint into the smart contract, e.g. 'default' or '__entry_00__.
 `branch` *string*     | Path of left (L) or right \(R) branches to reach the entrypoint's code in the Michelson code tree.
+`call` *string*       | Name of the actaully called entrypoint. This is useful if parameters contain a call to default or root entrypoints and specify the real entrypoint by branching only.
 `id` *int64*          | Position of the entrypoint in the Michelson parameter tree.
 `value` *object*      | Call parameters in order of type definition.
 `prim` *object*       | Michelson JSON encoded representation of call parameters (hidden by default, enable with `prim=true`).
@@ -1943,7 +1957,8 @@ curl "https://api.tzstats.com/explorer/op/ooxRwXAEM76NyMGyn4hHjS9D2Q8UkWVV6W2Esk
     "branch_height": 627340,
     "branch_depth": 1,
     "branch": "BKr3kjkbi5LndjDTDDSPUWubZjrdSBCWLJudmuGYuiVuG2j8fvj",
-    "is_implicit": false
+    "is_implicit": false,
+    "entrypoint_id": 0
   }
 ]
 ```
@@ -2006,6 +2021,7 @@ Field              | Description
 `branch_height` *int64*  | Height of the branch block this op refers to.
 `branch_depth` *int64*   | Count of blocks between branch block and block including this op.
 `branch` *hash*          | Block hash of the branch this op refers to.
+`entrypoint_id` *int64*  | Serial id of the called entrypoint, only relevant if the operation was a transaction, the receiver is a smart contract and call parameters are present.
 
 ### List of supported operation types
 
