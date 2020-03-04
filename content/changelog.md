@@ -15,10 +15,11 @@ Recent changes and additions to the TzStats Data API.
 - **etl/model:** fixed spelling of `denunciation` type in flow table
 - **chain:** use protocol constants for snapshot block calculations (was a fixed offset value before that only worked on mainnet)
 - **chain:** tolerate arbitrary padding after binary address values in contract storage (when manually packed into type bytes inside a contract one can add an optional annotation which now gets stripped to obtain a valid address)
-- **etl/index:** fix performance on zero rights to avoid edge case in 3rd party reputation algorithms that penalized bakers without rights, no income still yields 100% performance now
+- **etl/index:** fix baker performance on zero rights to avoid edge case in 3rd party reputation algorithms that penalized bakers without rights, no income still yields 100% performance now
 - **micheline/entrypoint:** fix detecting named Unit entrypoints
 - **etl/index:** fix empty bigmap operation that deletes all keys and allocates a new bigmap, added `is_removed` bool field to explorer/bigmap endpoint
 - **micheline/bigmap:** refactor to support pairs as key type
+- **micheline/bigmap:** render empty optional values, use inner type in keys when option annotation is missing
 
 ### NEW FEATURES
 
@@ -31,22 +32,25 @@ Recent changes and additions to the TzStats Data API.
 - **api/op:** explorer operation lists now support `prim` and `unpack` query arguments to simplify working with contract calls
 - **api/op:** added new field `entrypoint_id` to operations which contains the sequence number (id) of the called entrypoint; filter by entrypoint on table endpoints is also supported
 - **api/op:** added new field `call` to embedded operation `parameters` to identify the actual named entrypoint that was called, this is useful if parameters call the default or root entrypoint and specify the real one by branching
+- **api/op:** `unpack=1` now recursively unpacks all packed binary data
 - **api/contract:** added new field `iface_hash` (first 4 bytes of the SHA256 hash over binary encoded Michelson script parameters)
 - **api/contract:** added new field `call_stats` with per-entrypoint call statistics (an array containing running totals)
 - **api/contract:** added new fields `op_l`, `op_p` and `op_i` to reference the position of the contract's origination operation in a block.
 - **api/contract:** contract calls now support `entrypoint` filters using entrypoint name, branch or id
 - **etl/model:** added cycle `start_time` and `end_time` to baker income (estimated when start or end is in the future)
 - **api/series:** new time-series endpoints for `chain` and `supply` tables that will return the first value per collapse interval (ie. first value per hour or day)
+- **flow table:** added new fields `op` (hash), `op_id` (uint64), `op_n`, `op_l`, `op_p`, `op_c`, `op_i` (int) which contain metadata about the operation the flow relates to
+- **operation table:** added new fields `op_l`, `op_p` containing Tezos RPC operation list positions, and `is_implicit` for non-operation events as well as `entrypoint_id`
 
 ### BREAKING CHANGES
 
 - **block:** replaced fields `deposits`, `fees`, `rewards` (plural) which included total sums of all baking and endorsing activity in a block with `deposit`, `fee`, `reward` (singular form) to only cover baking activity
 - **flow:** replaced  fields `origin_id` and `origin` with `counterparty_id` and `counterparty`; origin used to contain the source of a flow but was too restrictive since on-way only, now counterparty can hold either party (sender or receiver) who has caused or received a flow, on in-flows (amount_in > 0) the counterparty is the sender, on out-flows (amount_out > 0) counterparty it receiver
-- **flow:** changed data for `denunciation` operations, now losses incured by the offender are kept in `reward`, `fee`, and `deposit` **as negative values**, reward for the accuser is stored in `volume` as positive value
+- **flow:** JSON bulk array list positions shift because of new fields in the inner array
+- **operation:** changed data for `denunciation` operations, now losses incured by the offender are kept in `reward`, `fee`, and `deposit` **as negative values**, reward for the accuser is stored in `volume` as positive value
+- **operation:** JSON bulk array list positions shift because of new fields in the inner array. Changed `op_n` to contain a unique per-block operation counter across all implicit and regular operations.
 - **contract/script:** JSON keys for entrypoint arguments now always follow the convention `<order>@<name>`, ie. they include an integer order number as first argument, followed by an optional `@` symbol and an optional argument name extracted from type annotations. This way argument order is no longer lost when a name is defined.
 - **bigmap/type:** JSON keys for bigmap type arguments now always follow the convention `<order>@<name>@<container-type>`, ie. they include an integer order number as first argument, followed by an optional `@` symbol, an optional name extracted from type annotations and in case the type is a container like list, map or set another `@` and the container type. This way type argument order is no longer lost when a name is defined.
-- **flow table:** added new fields `op` (hash), `op_id` (uint64), `op_n`, `op_l`, `op_p`, `op_c`, `op_i` (int) which contain metadata about the operation the flow relates to (Note: JSON bulk array list positions shift because these fields are not added to the end of the inner array)
-- **operation table:** added new fields `op_l`, `op_p` containing Tezos RPC operation list positions, and `is_implicit` for non-operation events as well as `entrypoint_id` (Note: JSON bulk array list positions shift because this field is not added to the end of the inner array). Changed `op_n` to contain a unique per-block operation counter for all events and regular operations.
 
 ## 2020-01-06 {#2020-01-06}
 

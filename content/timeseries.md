@@ -292,8 +292,7 @@ curl "https://api.tzstats.com/series/chain?start_date=today&collapse=1d"
 ]
 ```
 
-Lists aggregate data about operations. Filters are the same as on the [operation table](#op-table), but response fields are limited to numeric data that can be aggregated over time. Aggregation function for all fields is **sum**.
-
+Lists running totals and counters at each block. Collapse selects data from the **first** block in a time window.
 
 ### HTTP Request
 
@@ -389,12 +388,12 @@ curl "https://api.tzstats.com/series/supply?start_date=today&collapse=1d"
 ]
 ```
 
-Lists aggregate data about operations. Filters are the same as on the [operation table](#op-table), but response fields are limited to numeric data that can be aggregated over time. Aggregation function for all fields is **sum**.
+Lists running supply totals at each block. Collapse selects data from the **first** block in a time window.
 
 
 ### HTTP Request
 
-`GET https://api.tzstats.com/series/op?args`
+`GET https://api.tzstats.com/series/supply?args`
 
 ### HTTP Response
 
