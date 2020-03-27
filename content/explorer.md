@@ -2006,13 +2006,12 @@ Field              | Description
 `parameters` *object*    | Call parameters as embedded JSON object, contract-only.
 `storage` *object*       | Updated contract storage as embedded JSON object, contract-only.
 `big_map_diff` *object*  | Inserted, updated or deleted bigmap entries as embedded JSON object, contract-only.
-`errors` *object*        | When failed, contains details about the reason as JSON object.
 `days_destroyed` *float* | Token days destroyed by this operation (`tokens transferred * token idle time`).
 `parameters` *object*    | Contract call parameters.
 `storage` *object*       | Updated version of contract storage after call.
 `data` *object*          | Extra operation data (see below for content encoding).
 `big_map_diff` *array*   | List of bigmap updates.
-`errors` *object*        | Embedded native Tezos RPC error object.
+`errors` *array*         | Native Tezos RPC errors.
 `sender` *hash*          | Operation sender.
 `receiver` *hash*        | Transaction receiver, may be empty. For `activate_account` the source account is referenced when the activation merged coins from a second blinded account (ie. when a fundraiser signed up twice). For `delegation` the previous delegate is referenced. For `seed_nonce_revelation` the actual seed publisher is referenced.
 `delegate` *hash*        | New Delegate, only used by `origination` and `delegation`. When empty for a `delegation` the operation was a delegate withdrawal.
