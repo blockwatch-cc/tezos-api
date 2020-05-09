@@ -1,9 +1,11 @@
 TzStats - API Documentation
 ============================
 
-This is the markdown documentation for the TzStats Indexer API. Build with `hugo`
+This is the markdown documentation for the TzStats Indexer API, a blockchain explorer supported by [Blockwatch Data](https://blockwatch.cc). 
 
 ### Setup and Write
+
+Builds require `hugo`
 
 ```
 brew install hugo
