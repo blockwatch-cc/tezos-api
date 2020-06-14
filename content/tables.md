@@ -527,6 +527,7 @@ Field              | Description
 `gas_price` *float*           | Average price of one gas unit in mutez.
 `storage_size` *int64*          | Total sum of new storage allocated by operations.
 `days_destroyed` *float*      | Token days destroyed (`tokens transferred * token idle time`).
+`n_ops_implicit` *int64*      | Count of implicit protocol events.
 `pct_account_reuse` *float*   | Portion of seen accounts that existed before.
 `baker` *hash*                | Address of the block baker account, base58check encoded.
 
@@ -1048,11 +1049,11 @@ Field              | Description
 `hash` *hash*               | Operation hash.
 `counter` *int64*           | Unique sender account 'nonce' value.
 `op_n` *int64*              | Operation position in block.
-`op_l` *int64*              | Tezos RPC operation list (0..3).
-`op_p` *int64*              | Tezos RPC operation list position.
 `op_c` *int64*              | Bulk operation list position.
 `op_i` *int64*              | Internal operation list position.
-`type` *enum*               | Operation type, one of `activate_account`, `double_baking_evidence`, `double_endorsement_evidence`, `seed_nonce_revelation`, `transaction`, `origination`, `delegation`, `reveal`, `endorsement`, `proposals`, `ballot`.
+`op_l` *int64*              | Tezos RPC operation list (0..3).
+`op_p` *int64*              | Tezos RPC operation list position.
+`type` *enum*               | Operation type, one of `activate_account`, `double_baking_evidence`, `double_endorsement_evidence`, `seed_nonce_revelation`, `transaction`, `origination`, `delegation`, `reveal`, `endorsement`, `proposals`, `ballot` or implicit event type `bake`, `seed_slash`, `unfreeze`, `airdrop`, `invoice`.
 `status` *enum*             | Operation execution status `applied`, `failed`, `backtracked`, `skipped`.
 `is_success` *int64*        | Flag indicating operation was successfully applied.
 `is_contract` *bool*        | Flag indicating smart-contract calls.
