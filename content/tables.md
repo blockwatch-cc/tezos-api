@@ -113,6 +113,7 @@ curl "https://api.tzstats.com/tables/account?address=tz2TSvNTh2epDMhZHrw73nV9piB
     278469,             // row_id
     278469,             // delegate_id
     0,                  // manager_id
+    "sppk7bn9MKAWDUFwqowcxA1zJgp12yn2kEnMQJP3WmqSZ4W8WQhLqJN" // pubkey
     "secp256k1",        // address_type
     360996,             // first_in
     360997,             // first_out
@@ -122,6 +123,7 @@ curl "https://api.tzstats.com/tables/account?address=tz2TSvNTh2epDMhZHrw73nV9piB
     633203,             // last_seen
     0,                  // delegated_since
     361000,             // delegate_since
+    0,                  // delegate_until
     4129917.992000,     // total_received
     1241985.094354,     // total_sent
     0.000000,           // total_burned
@@ -166,7 +168,6 @@ curl "https://api.tzstats.com/tables/account?address=tz2TSvNTh2epDMhZHrw73nV9piB
     "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m", // address
     "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m", // delegate
     null,               // manager
-    "sppk7bn9MKAWDUFwqowcxA1zJgp12yn2kEnMQJP3WmqSZ4W8WQhLqJN", // pubkey
     1553123452000,      // first_seen_time
     1570032391000,      // last_seen_time
     1553123452000,      // first_in_time
@@ -174,10 +175,15 @@ curl "https://api.tzstats.com/tables/account?address=tz2TSvNTh2epDMhZHrw73nV9piB
     1553123512000,      // first_out_time
     0,                  // delegated_since_time
     1553123692000,      // delegate_since_time
+    0,                  // delegate_until_time
     0,                  // rich_rank
-    0,                  // flow_rank
+    0,                  // volume_rank
     0,                  // traffic_rank
-    "000000"            // call_stats
+    815436,             // next_bake_height
+    0,                  // next_bake_priority
+    1553123692000,      // next_bake_time
+    815397,             // next_endorse_height
+    1553123692000       // next_endorse_time
   ]
 ]
 ```
@@ -193,17 +199,19 @@ List information about the most recent state of implicit and smart contract acco
 Field              | Description
 -------------------|--------------------------------------------------
 `row_id` *uint64*                   | Unique row identifier.
-`delegate_id` *uint64*              | Account delegate unique row_id.
+`delegate_id` *uint64*              | Unique row_id of the delegate (baker) this account delegates to. If same as row_id, this is a baker account.
 `manager_id` *uint64*               | Account manager unique row_id.
 `address_type` *enum*               | Account address type `ed25519` (tz1), `secp256k1` (tz2), `p256` (tz3), `contract` (KT1) or `blinded` (btz1)
-`first_in` *int64*                  | Block height of first incoming transaction.
-`first_out` *int64*                 | Block height of first outgoing transaction.
-`last_in` *int64*                   | Block height of latest incoming transaction.
-`last_out` *int64*                  | Block height of latest outgoing transaction.
-`first_seen` *int64*                | Block height of account creation.
-`last_seen` *int64*                 | Block height of last activity.
-`delegated_since` *int64*           | Block height of most recent delegation.
-`delegate_since` *int64*            | Block height of registration as delegate.
+`pubkey` *hash*                   | Revealed public key base58check encoded.
+`first_in` *int64*                | Block height of first incoming transaction.
+`first_out` *int64*               | Block height of first outgoing transaction.
+`last_in` *int64*                 | Block height of latest incoming transaction.
+`last_out` *int64*                | Block height of latest outgoing transaction.
+`first_seen` *int64*              | Block height of account creation.
+`last_seen` *int64*               | Block height of last activity.
+`delegated_since` *int64*         | Block height of most recent delegation.
+`delegate_since` *int64*          | Block height of registration as delegate (baker).
+`delegate_until` *int64*          | Block height of most recent deactivation as delegate (baker).
 `total_received` *money*          | Lifetime total tokens received in transactions.
 `total_sent` *money*              | Lifetime total tokens sent in transactions.
 `total_burned` *money*            | Lifetime total tokens burned in tz.
@@ -248,7 +256,6 @@ Field              | Description
 `address` *hash*                  | Account address base58check encoded.
 `delegate` *hash*                 | Account delegate address base58check encoded.
 `manager` *hash*                  | Account manager address base58check encoded.
-`pubkey` *hash*                   | Revealed public key base58check encoded.
 `first_seen_time` *datetime*      | Block time of account creation.
 `last_seen_time` *datetime*       | Block time of last activity.
 `first_in_time` *datetime*        | Block time of first incoming transaction.
@@ -257,10 +264,15 @@ Field              | Description
 `last_out_time` *datetime*        | Block time of latest outgoing transaction.
 `delegated_since_time` *datetime* | Block time of most recent delegation.
 `delegate_since_time` *datetime*  | Block time of registration as delegate.
+`delegate_until_time` *datetime*  | Block time of the most recent baker deactivation.
 `rich_rank` *int64*               | Global rank on rich list by total balance.
-`flow_rank` *int64*               | Global rank on 24h most active accounts by transactions sent/received.
-`traffic_rank` *int64*            | Global rank on 24h most active accounts by volume sent/received.
-`call_stats` *bytes*              | Big-endian uint32 call statistic counters per entrypoint. Only used on smart contracts.
+`volume_rank` *int64*             | Global rank on 1D most active accounts by transactions sent/received.
+`traffic_rank` *int64*            | Global rank on 1D most active accounts by volume sent/received.
+`next_bake_height` *int64*        | Height of next block baking right.
+`next_bake_priority` *int64*      | Priority of next baking right (fixed at zero currently).
+`next_bake_time` *datetime*       | Approximate time of next block baking right.
+`next_endorse_height` *int64*     | Height of next block endorsing right.
+`next_endorse_time` *datetime*    | Approximate time of next block endorsing right.
 
 ## Ballot Table
 
@@ -675,7 +687,8 @@ curl "https://api.tzstats.com/tables/contract?address=KT1REHQ183LzfoVoqiDR87mCrt
     0,           // op_i
     "5f89baed",  // iface_hash
     "KT1REHQ183LzfoVoqiDR87mCrt7CLUH1MbcV", // address
-    "tz1N74dH3VSeRTeKobbXUbyU82G8pqT2YYEM" // manager
+    "tz1N74dH3VSeRTeKobbXUbyU82G8pqT2YYEM", // manager
+    "00000000"   // call stats
   ]
 ]
 ```
@@ -710,6 +723,7 @@ Field              | Description
 `iface_hash` *bytes*        | Short hash to uniquely identify the contract interface, first 4 bytes of the SHA256 hash over binary encoded Michelson script parameters.
 `address` *hash*            | Contract address base58check encoded.
 `manager` *hash*            | Contract manager address base58check encoded.
+`call_stats` *bytes*        | Big-endian uint32 call statistic counters per entrypoint. Only used on smart contracts.
 
 
 ## Election Table
@@ -1024,6 +1038,8 @@ curl "https://api.tzstats.com/tables/op?time.gte=today&limit=1"
     1,                // branch_depth
     0,                // is_implicit
     0,                // entrypoint_id
+    0,                // is_orphan
+    0,                // is_batch
     "tz1Z2jXfEXL7dXhs6bsLmyLFLfmAkXBzA9WE",  // sender
     null,             // receiver
     null,             // manager
@@ -1085,6 +1101,8 @@ Field              | Description
 `branch_depth` *int64*    | Count of blocks between branch block and block including this op.
 `is_implicit` *bool*      | Flag indicating implicit on-chain events, ie. state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop` and `invoice`.
 `entrypoint_id` *int64*  | Serial id of the called entrypoint, only relevant if the operation was a transaction, the receiver is a smart contract and call parameters are present.
+`is_orphan` *bool*        | Flag indication whether this op was included in a block that was orphaned.
+`is_batch` *bool*         | Flag indicating if this operation is part of a batch operation list.
 `sender` *hash*           | Address of the operation sender, always set.
 `receiver` *hash*         | Address of the receiver of a transaction, may be empty.
 `manager` *hash*          | Address of the new contract manager account, may be empty.
@@ -1170,6 +1188,7 @@ curl "https://api.tzstats.com/tables/rights?address=tz2TSvNTh2epDMhZHrw73nV9piBX
     0,            // is_missed
     0,            // is_seed_required
     0,            // is_seed_revealed
+    0,            // is_bond_miss
     "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m", // address
     1569885537000 // time
   ]
@@ -1197,6 +1216,7 @@ Field              | Description
 `is_missed` *bool*          | Flag indicating an endorser missed endorsing a slot.
 `is_seed_required` *bool*   | Flag indicating a baker is required to publish a seed_nonce_revelation in the next cycle.
 `is_seed_revealed` *bool*   | Flag indicating whether the baker actually revealed the required seed nonce.
+`is_bond_miss` *bool*       | Flag indicating a miss was caused by low balance to pay for deposits.
 `address` *hash*            | Address of the baker who owns this right.
 `time` *datetime*           | Past or estimated future block time for this right.
 

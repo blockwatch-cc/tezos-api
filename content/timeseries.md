@@ -17,6 +17,7 @@ Note that this time-series API does not fill gaps. That means when the underlyin
 
 Intervals between timestamps are equally spaced and can be controlled by the `collapse` query parameter, i.e. `1d` means each interval contains 24 hours of aggregated data. Time-series data can contain fields of all supported numeric data types (e.g. no strings or binary data). The aggregation function is fixed by the semantics of the data type. This may either be a sum, a count, first, last, min, max or mean value.
 
+On the free API tier historic access is restricted to 90 days.
 
 ### List of supported time-series
 
@@ -96,6 +97,7 @@ curl "https://api.tzstats.com/series/block.json?start_date=today&collapse=1d"
     8167612,            // gas_used
     214,                // storage_size
     17867256.383035008  // days_destroyed
+    1440,               // count
   ]
 ]
 ```
@@ -143,7 +145,7 @@ Field              | Description
 `gas_used` *int*               | Total gas consumed by operations.
 `storage_size` *int*           | Total sum of new storage allocated by operations.
 `days_destroyed` *float*       | Token days destroyed.
-
+`count` *int*                  | Number of aggregated rows for this time bucket.
 
 
 ## Flow Series
@@ -162,6 +164,7 @@ curl "https://api.tzstats.com/series/flow?start_date=today&collapse=1d&category=
     1570060800000, // time
     200650.535155, // amount_in
     246036.709877  // amount_out
+    12,            // count
   ]
 ]
 ```
@@ -181,6 +184,7 @@ Field              | Description
 `time` *datetime*    | Timestamp, start of interval.
 `amount_in` *float*  | Incoming amount during interval in tz.
 `amount_out` *float* | Outgoing amount during interval in tz.
+`count` *int*        | Number of aggregated rows for this time bucket.
 
 
 ## Operation Series
@@ -206,6 +210,7 @@ curl "https://api.tzstats.com/series/op?start_date=today&collapse=1d"
     2052480.000000,     // deposit
     42.148000,          // burned
     17867317.80054702   // days_destroyed
+    2000,               // count
   ]
 ]
 ```
@@ -231,6 +236,7 @@ Field              | Description
 `deposit` *float*        | Amount of deposited tokens by all operation in tz.
 `burned` *float*         | Amount of burned tokens by all operation in tz.
 `days_destroyed` *float* | Total token days destroyed by all operation.
+`count` *int*            | Number of aggregated rows for this time bucket.
 
 
 
@@ -288,6 +294,7 @@ curl "https://api.tzstats.com/series/chain?start_date=today&collapse=1d"
     255,           // multi_delegates
     81005,         // rolls
     433            // roll_owners
+    1,             // count
   ]
 ]
 ```
@@ -340,6 +347,7 @@ Field              | Description
 `multi_delegates` *int64*                    | current number of active delegates with >1 incoming delegations (delegation services)
 `rolls` *int64*                              | current number of rolls
 `roll_owners` *int64*                        | current number of distinct active delegates with rolls
+`count` *int*                                | Number of aggregated rows. This series does a selection, so count is always equal to 1.
 
 ## Supply Series
 
@@ -384,6 +392,7 @@ curl "https://api.tzstats.com/series/supply?start_date=today&collapse=1d"
     52997504.000000,  // frozen_deposits
     1641852.516645,   // frozen_rewards
     415.667530        // frozen_fees
+    1,                // count
   ]
 ]
 ```
@@ -429,6 +438,7 @@ Field              | Description
 `frozen_deposits` *money*       | current frozen deposits
 `frozen_rewards` *money*        | current frozen rewards
 `frozen_fees` *money*           | current frozen fees
+`count` *int*                   | Number of aggregated rows. This series does a selection, so count is always equal to 1.
 
 
 

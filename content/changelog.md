@@ -7,6 +7,64 @@ title: Changelog | TzStats Data API
 
 Recent changes and additions to the TzStats Data API.
 
+## 2020-06-24 {#2020-06-24}
+
+To handle the surge in volume we're optimizing a few of the most heavily used API endpoints. Our aim is to improve user experience and stabilty for everybody.
+
+The most important change is that we begin migrating operation listings on explorer endpoints from embedded arrays inside accounts/blocks to stand-alone arrays. Both flavors will be available in parallel for a while. For high-speed high-volume access, consider using the table API endpoints. Table access is much faster since data is streamed and requires less calls due to higher limits.
+
+As we keep adding new fields to tables and time-series the default order of JSON bulk arrays may change over time. To ensure that our API always returns the field order you expect, use the `columns` query argument. The order of columns you specify is exactly the order that's returned.
+
+
+### DEPRECATION NOTICES
+- **api/account:** listing operations with `/explorer/account/{hash}/ops` and the embedded `ops` array will be removed in the next API release
+- **api/block:** listing operations with `/explorer/block/{hash}/ops` and the embedded `ops` array will be removed in the next API release
+
+### BREAKING CHANGES
+- **api/block:** `nonce` is now returned as hex string
+- **api/cycle:** renamed `active_{bakers|endorsers}` to `working_{bakers|endorsers}`, also note the change in meaning of `active_bakers` as described below
+- **api/account:** renamed explorer and table field `flow_rank` to `volume_rank`
+- **api/account:** moved `call_stats` from account table to contract table
+- **api/account:** we're now hiding unused baker fields from non-baker accounts
+- **api/account:** changed `/explorer/account/{hash}/ballots` return value from an account object with embedded `ballots` field to a ballots array
+
+### FIXES
+- **api/account:** fixed traffic and volume rank sorting
+- **api/account:** return origination only when no entrypoint filter is used
+- **api/account:** fixed `since` off-by-one bug on contract call and account operation lists
+- **api/account:** fixed `until` param not limiting call/operation lists for recently active accounts
+- **api/account:** fixed duplicates in account operation list
+- **api/operation:** fixed return data from bigmap copy and bigmap delete operations
+- **api/cache:** fixed cache expiration time on account, contract, rights
+- **etl/income:** don't count unfrozen rewards into end-of-cycle snapshots
+- **etl/income:** use max block reward for counting missed rewards on priority zero baker and max endorsement reward for missed endorsement slots
+- **etl/statistics:** fixed active delegation counting for foundation bakers
+- **etl/statistics:** fixed block volume counting for failed ops
+- **etl/account:** fixed pubkey updates on reveal that caused some keys to be scrambled
+- **api/deployments:** fixed protocol version lookup and deployment info
+
+### NEW FEATURES
+- **api/operation:** `delegation` operations now have `volume` field set to the initial delegated balance
+- **api/operation:** new fields `is_batch` and `batch_volume` on first operation in an explorer batch list
+- **api/operation:** added new implicit activation and delegation operations from genesis bootstrap
+- **api/operation:** `bake` and `unfreeze` implicit operations now contain the baker as sender and receiver to allow listing bake/endorse/unfreeze ops with a single operation table call
+- **api/operation:** added implicit baker registrations in protocols v001 (due to a protocol bug) and v002 (at migration)
+- **api/series:** new virtual column `count` that contains the number of aggregated entries per bucket
+- **api/account:** support query arguments `limit`, `cursor`, `order` on ballot lists
+- **api/account:** new explorer fields `avg_luck_64`, `avg_performance_64`, `avg_contribution_64`, `baker_version`, `delegate_until` and `delegate_until_time`
+- **api/cycle:** new explorer fields `snapshot_time`, `active_bakers` and `active_delegators` for a total number of all registered bakers and funded delegators at cycle snapshot
+- **api/account:** new table fields `next_bake_height`, `next_bake_priority`, `next_bake_time`, `next_endorse_height`, `next_endorse_time` that will be set for active bakers
+- **api/ballot:** new table filter modes `ne`, `in`, `nin` for `ballot`
+- **api/rights:** new table filter modes `ne`, `in`, `nin` for `type`
+- **api/rights:** new flag `is_bond_miss` to differentiate loss events between low bonds and other failures
+- **new** explorer endpoints `/explorer/rank/balances` (rich list), `/explorer/rank/traffic` (1D transaction counts), `/explorer/rank/volume` (1D transaction volume)
+- **new** explorer endpoint `/explorer/election/:id/:stage/voters` to list all voters
+- **new** explorer endpoint `/explorer/election/:id/:stage/ballots` to list all ballots cast during a voting period
+- **new** explorer endpoint `/explorer/account/{hash}/operations` (replaces embeds on `../ops`)
+- **new** explorer endpoint `/explorer/block/{hash}/operations` (replaces embeds on `../ops`)
+- support `filename` argument for CSV downloads from tables and time-series
+
+
 ## 2020-02-24 {#2020-02-24}
 
 ### FIXES

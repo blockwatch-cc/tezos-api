@@ -21,14 +21,16 @@ Some endpoints support a simple pagination scheme to walk lists of results (i.e.
 Endpoint | Is Paged | Filter | Comment
 ---------|----------|--------|----------
 `GET /explorer/status`                    |   |   | indexer status |
-`GET /explorer/config/{head,height}`      |   |   | blockchain config at head or height |
+`GET /explorer/config/{id}`      |   |   | blockchain config at `head` or `height` |
 `GET /explorer/tip`                       |   |   | blockchain tip info |
-`GET /explorer/block/{head,hash,height}`  |   |   | block info |
-`GET /explorer/block/{head,hash,height}/op`| x | `type` | list block operations |
-`GET /explorer/op/{hash}`                 |   |   |  operation info |
+`GET /explorer/block/{id}`  |   |   | block info at `head`, `hash`, of `height` |
+`GET /explorer/block/{id}/op` **DEPRECATED** | x | `type` |  list block operations at `head`, `hash`, or `height` |
+`GET /explorer/block/{id}/operations` **NEW** | x | `type` |list block operations at `head`, `hash`, or `height` |
+`GET /explorer/op/{hash}`                 |   |   | operation info |
 `GET /explorer/account/{hash}`            |   |   | account info |
 `GET /explorer/account/{hash}/managed`    | x |   | list of contracts managed by this account |
-`GET /explorer/account/{hash}/op`         | x | `type`, `block`, `since` | account info with embedded list of related operations |
+`GET /explorer/account/{hash}/op` **DEPRECATED**         | x | `type`, `block`, `since` | account info with embedded list of related operations |
+`GET /explorer/account/{hash}/operations` **NEW** | x | `type`, `block`, `since` | account info with embedded list of related operations |
 `GET /explorer/account/{hash}/ballots`    | x |   | list proposals and ballots |
 `GET /explorer/contract/{hash}`           |   |   | smart contract metadata |
 `GET /explorer/contract/{hash}/calls`     | x | `block`, `since`, `entrypoint` | list contract calls |
@@ -42,10 +44,15 @@ Endpoint | Is Paged | Filter | Comment
 `GET /explorer/bigmap/{id}/updates`       | x |   | list of bigmap updates |
 `GET /explorer/bigmap/{id}/{key}`         |   |   | single bigmap value |
 `GET /explorer/bigmap/{id}/{key}/updates` | x |   | list of bigmap updates related to a key|
-`GET /explorer/cycle/{head,num}`          |   |   | active cycle or cycle N info
-`GET /explorer/election/{head,num,height}`|   |   | election info (num ::= [1,1024] |
+`GET /explorer/cycle/{id}`                |   |   | cycle info for `head` or `cycle`
+`GET /explorer/election/{id}`             |   |   | election metadata and results at `head`, `num` or protocol `hash` |
+`GET /explorer/election/{id}/{stage}/voters`| x |   | election voter lists |
+`GET /explorer/election/{id}/{stage}/ballots`| x |   | election ballots lists |
+`GET /explorer/rank/balances` **NEW**     | x |   | accounts ranked by balance |
+`GET /explorer/rank/volume` **NEW**       | x |   | accounts ranked by 1D transaction volume |
+`GET /explorer/rank/traffic` **NEW**      | x |   | accounts ranked by 1D traffic |
 `GET /markets`                            |   |   | list of known exchanges and markets |
-`GET /markets/tickers`                    |   |   | list of 24h market tickers |
+`GET /markets/tickers`                    |   |   | list of 1D market tickers |
 `GET /markets/{exchange}`                 |   |   | exchange status |
 `GET /markets/{exchange}/{market}`        |   |   | market status |
 `GET /markets/{exchange}/{market}/ticker` |   |   | single market ticker |
@@ -54,55 +61,50 @@ Endpoint | Is Paged | Filter | Comment
 
 ## Accounts
 
-> **Example request.**
+> **Example request for baker accounts.**
 
 ```shell
-curl "https://api.tzstats.com/explorer/account/tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m"
+curl "https://api.tzstats.com/explorer/account/tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9"
 ```
 
-> **Example response.**
+> **Example response for baker accounts.**
 
 ```json
 {
-  "address": "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m",
-  "address_type": "secp256k1",
-  "delegate": "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m",
-  "manager": "",
-  "pubkey": "sppk7bn9MKAWDUFwqowcxA1zJgp12yn2kEnMQJP3WmqSZ4W8WQhLqJN",
-  "first_in": 360996,
-  "first_out": 360997,
-  "last_in": 815396,
-  "last_out": 815396,
-  "first_seen": 360996,
-  "last_seen": 815396,
-  "delegated_since": 0,
-  "delegate_since": 361000,
-  "first_in_time": "2019-03-20T23:10:52Z",
-  "first_out_time": "2019-03-20T23:11:52Z",
-  "last_in_time": "2020-02-08T10:11:08Z",
-  "last_out_time": "2020-02-08T10:11:08Z",
-  "first_seen_time": "2019-03-20T23:10:52Z",
-  "last_seen_time": "2020-02-08T10:11:08Z",
-  "delegated_since_time": "0001-01-01T00:00:00Z",
-  "delegate_since_time": "2019-03-20T23:14:52Z",
-  "total_received": 4202918.18456,
-  "total_sent": 2512194.094354,
+  "address": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
+  "address_type": "p256",
+  "delegate": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
+  "pubkey": "p2pk67wVncLFS1DQDm2gVR45sYCzQSXTtqn3bviNYXVCq6WRoqtxHXL",
+  "first_in": 30,
+  "first_out": 4097,
+  "last_in": 217012,
+  "last_out": 217012,
+  "first_seen": 1,
+  "last_seen": 217012,
+  "delegate_since": 1,
+  "first_in_time": "2018-06-30T18:11:27Z",
+  "first_out_time": "2018-07-03T14:17:12Z",
+  "last_in_time": "2018-12-07T00:59:38Z",
+  "last_out_time": "2018-12-07T00:59:38Z",
+  "first_seen_time": "2018-06-30T17:39:57Z",
+  "last_seen_time": "2018-12-07T00:59:38Z",
+  "delegate_since_time": "2018-06-30T17:39:57Z",
+  "total_received": 3199041.301565,
+  "total_sent": 0,
   "total_burned": 0,
-  "total_fees_paid": 0.103097,
-  "total_rewards_earned": 1232762.021346,
-  "total_fees_earned": 209.190761,
-  "total_lost": 0,
-  "frozen_deposits": 2397248,
-  "frozen_rewards": 74359.874998,
-  "frozen_fees": 22.40987,
-  "unclaimed_balance": 0,
-  "spendable_balance": 452064.914348,
-  "total_balance": 2849335.3242180003,
-  "delegated_balance": 25265328.132026,
-  "total_delegations": 32,
-  "active_delegations": 14,
+  "total_fees_paid": 0,
+  "total_rewards_earned": 786850.44285,
+  "total_fees_earned": 47.500561,
+  "frozen_deposits": 2085185,
+  "frozen_rewards": 81375.379532,
+  "frozen_fees": 4.363968,
+  "spendable_balance": 1819374.501477,
+  "total_balance": 3904563.865445,
+  "delegated_balance": 15908943.391749,
+  "total_delegations": 7,
+  "active_delegations": 6,
   "is_funded": true,
-  "is_activated": false,
+  "is_activated": true,
   "is_vesting": false,
   "is_spendable": true,
   "is_delegatable": false,
@@ -111,42 +113,104 @@ curl "https://api.tzstats.com/explorer/account/tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9
   "is_delegate": true,
   "is_active_delegate": true,
   "is_contract": false,
-  "blocks_baked": 15852,
-  "blocks_missed": 53,
-  "blocks_stolen": 342,
-  "blocks_endorsed": 251413,
-  "slots_endorsed": 497424,
-  "slots_missed": 543,
-  "n_ops": 252190,
+  "blocks_baked": 13503,
+  "blocks_missed": 469,
+  "blocks_stolen": 424,
+  "blocks_endorsed": 166900,
+  "slots_endorsed": 377390,
+  "slots_missed": 57309,
+  "n_ops": 167379,
   "n_ops_failed": 0,
-  "n_tx": 74,
-  "n_delegation": 1,
+  "n_tx": 3,
+  "n_delegation": 0,
   "n_origination": 0,
-  "n_proposal": 2,
-  "n_ballot": 3,
-  "token_gen_min": 2,
-  "token_gen_max": 8144,
-  "grace_period": 205,
-  "staking_balance": 28114663.456244,
-  "rolls": 3514,
-  "rich_rank": 33,
+  "n_proposal": 0,
+  "n_ballot": 0,
+  "token_gen_min": 1,
+  "token_gen_max": 1,
+  "grace_period": 58,
+  "staking_balance": 19813507.257194,
+  "rolls": 1981,
+  "rich_rank": 19,
   "traffic_rank": 0,
-  "flow_rank": 0,
-  "last_bake_height": 815365,
-  "last_bake_block": "BMR7ApaErqeM6cEuzZG7G6evq8CvDXuKMtSw3ZvXjzSeDPRFaX3",
-  "last_bake_time": "2020-02-08T09:39:28Z",
-  "last_endorse_height": 815396,
-  "last_endorse_block": "BMGFNGsDPKYVyHKfszQv65mxkHk8BPwTxYGia9LpPn8oo1hwCKV",
-  "last_endorse_time": "2020-02-08T10:11:08Z",
-  "next_bake_height": 815436,
+  "volume_rank": 0,
+  "last_bake_height": 216999,
+  "last_bake_block": "BLcnJmEyNicviLBdiaCgCrCAmb1NCbvyigUdMtVdcVvRTeCL5Tj",
+  "last_bake_time": "2018-12-07T00:42:53Z",
+  "last_endorse_height": 217012,
+  "last_endorse_block": "BL7CdVSb8NNtm3EVXfZegmYNmp6jdL6oeLcLvZgugVwYhdBSNxt",
+  "last_endorse_time": "2018-12-07T00:59:38Z",
+  "next_bake_height": 217080,
   "next_bake_priority": 0,
-  "next_bake_time": "2020-02-08T10:51:08Z",
-  "next_endorse_height": 815397,
-  "next_endorse_time": "2020-02-08T10:12:08Z"
+  "next_bake_time": "2018-12-07T02:07:38Z",
+  "next_endorse_height": 217013,
+  "next_endorse_time": "2018-12-07T01:00:38Z",
+  "avg_luck_64": 9953,
+  "avg_performance_64": 9861,
+  "avg_contribution_64": 9309,
+  "baker_version": "00000003"
 }
 ```
 
-Provides information about the most recent state of implicit and smart contract accounts.
+> **Example request for non-baker accounts and contracts.**
+
+```shell
+curl "https://api.tzstats.com/explorer/account/KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG"
+```
+
+> **Example response for non-baker accounts and contracts.**
+
+```json
+{
+  "address": "KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG",
+  "address_type": "contract",
+  "delegate": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
+  "pubkey": "",
+  "first_in": 30,
+  "first_out": 30,
+  "last_in": 30,
+  "last_out": 30,
+  "first_seen": 1,
+  "last_seen": 30,
+  "delegated_since": 1,
+  "first_in_time": "2018-06-30T18:11:27Z",
+  "first_out_time": "2018-06-30T18:11:27Z",
+  "last_in_time": "2018-06-30T18:11:27Z",
+  "last_out_time": "2018-06-30T18:11:27Z",
+  "first_seen_time": "2018-06-30T17:39:57Z",
+  "last_seen_time": "2018-06-30T18:11:27Z",
+  "delegated_since_time": "2018-06-30T17:39:57Z",
+  "total_received": 0,
+  "total_sent": 199041.301565,
+  "total_burned": 0,
+  "total_fees_paid": 0,
+  "unclaimed_balance": 9354941.173593,
+  "spendable_balance": 0,
+  "total_balance": 0,
+  "is_funded": true,
+  "is_activated": false,
+  "is_vesting": true,
+  "is_spendable": false,
+  "is_delegatable": false,
+  "is_delegated": true,
+  "is_revealed": false,
+  "is_delegate": false,
+  "is_active_delegate": false,
+  "is_contract": true,
+  "n_ops": 3,
+  "n_ops_failed": 0,
+  "n_tx": 3,
+  "n_delegation": 0,
+  "n_origination": 0,
+  "token_gen_min": 0,
+  "token_gen_max": 0,
+  "rich_rank": 0,
+  "traffic_rank": 0,
+  "volume_rank": 0
+}
+```
+
+Provides information about the most recent state of accounts and smart contracts. Baker accounts contain addtional information.
 
 ### HTTP Request
 
@@ -156,11 +220,11 @@ Provides information about the most recent state of implicit and smart contract 
 
 Field              | Description
 -------------------|--------------------------------------------------
-`address` *hash*              |  Account address as base58-check encoded string.
-`address_type` *enum*         |  Account address type `ed25519` (tz1), `secp256k1` (tz2), `p256` (tz3), `contract` (KT1) or `blinded` (btz1).
-`delegate` *hash*             |  Current delegate (may be self when registered as delegate).
-`manager` *hash*              |  Contract manager account.
-`pubkey` *hash*               |  Revealed public key.
+`address` *hash*              | Account address as base58-check encoded string.
+`address_type` *enum*         | Account address type `ed25519` (tz1), `secp256k1` (tz2), `p256` (tz3), `contract` (KT1) or `blinded` (btz1).
+`delegate` *hash*             | Current delegate (may be self when registered as delegate).
+`manager` *hash*              | Contract manager account.
+`pubkey` *hash*               | Revealed public key.
 `first_in` *int64*            | Block height of first incoming transaction.
 `first_out` *int64*           | Block height of first outgoing transaction.
 `last_in` *int64*             | Block height of latest incoming transaction.
@@ -222,8 +286,8 @@ Field              | Description
 `grace_period` *int64*         | (delegate only) Current grace period before deactivation.
 `rolls` *int64*                | (delegate only) Currently owned rolls.
 `rich_rank` *int64*            | Global rank on rich list by total balance.
-`traffic_rank` *int64*         | Global rank on 24h most active accounts by transactions sent/received.
-`flow_rank` *int64*            | Global rank on 24h most active accounts by volume sent/received.
+`traffic_rank` *int64*         | Global rank on 1D most active accounts by transactions sent/received.
+`volume_rank` *int64*          | Global rank on 1D most active accounts by volume sent/received.
 `last_bake_height` *int64*     | Height of most recent block baked.
 `last_bake_block` *hash*       | Hash of most recent block baked.
 `last_bake_time` *datetime*    | Timestamp of most recent block baked.
@@ -235,12 +299,28 @@ Field              | Description
 `next_bake_time` *datetime*    | Approximate time of next block baking right.
 `next_endorse_height` *int64*  | Height of next block endorsing right.
 `next_endorse_time` *datetime* | Approximate time of next block endorsing right.
+`avg_luck_64` *float*          | Average luck to get random priority zero baking/endorsing rights for the past 64 cycles (182 days, 6 months).
+`avg_performance_64` *float*   | Average performance for the past 64 cycles (182 days, 6 months).
+`avg_contribution_64` *float*  | Average utilization of rights to bake/endorse blocks for the past 64 cycles. Since block rewards have become dynamic, a baker who fails to contribute to the consensus by utilizing 100% of their rights diminishes the income for other bakers.
+`baker_version` *hash*         | Software version run by the baker at the last seen block. This is the first 8 hex digits of the Git repository hash.
 
 ### List Account Operations
 
-`GET https://api.tzstats.com/explorer/account/{hash}/op`
+`GET https://api.tzstats.com/explorer/account/{hash}/operations`
 
-Lists operations sent from and to an account (defaults to all types and ascending order). This endpoint supports pagination with `limit` and `offset`. Use `type` to [filter](#query-filters) for a specific operation type (e.g. transaction), `block` (int64|hash) to lock a call to a specific block height or hash (hash is reorg-aware and throws an error when block has become orphan). To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter.
+Lists operations sent from and to an account (defaults to all types and ascending order). This endpoint supports pagination with `limit`, `offset` and `cursor`. Use `type` to [filter](#query-filters) for a specific operation type (e.g. transaction), `block` (int64|hash) to lock a call to a specific block height or hash (hash is reorg-aware and throws an error when block has become orphan). To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter.
+
+### List Managed and Created Contracts
+
+`GET https://api.tzstats.com/explorer/account/{hash}/managed`
+
+Lists all contracts this account has originated.
+
+### List Account Ballots
+
+`GET https://api.tzstats.com/explorer/account/{hash}/ballots`
+
+Lists all voting ballots the account has sent. This applies to bakers only.
 
 
 ## Bigmaps
@@ -755,68 +835,111 @@ Field              | Description
 > Example request to list block operations.
 
 ```shell
-curl "https://api.tzstats.com/explorer/block/head/op"
+curl "https://api.tzstats.com/explorer/block/head/operations"
 ```
 
 > **Example response.**
 
 ```json
-{
-  "hash": "BLFjwCUTebnhw6ZWpQNxa9VjZgGLgnp1Zazb21T1356VFEnxPrZ",
-  "predecessor": "BLWT4x43zqzbtRzWNShkuU1DaTjU9fX34Qs4V3Hku2ZgYxiEpPW",
-  "baker": "tz1S1Aew75hMrPUymqenKfHo8FspppXKpW7h",
-  "height": 627343,
-  "cycle": 153,
+[
+  {
+    "row_id": 4998272,
+    "hash": "",
+    "type": "bake",
+    "block": "BLWyvBDjfUPKdSf4PQYVvNmHqgwNccH3uRnb6CK9Rzyfr5vCwL1",
+    "time": "2018-12-15T09:24:47Z",
+    "height": 228352,
+    "cycle": 55,
+    "counter": 0,
+    "op_n": 0,
+    "op_l": -1,
+    "op_p": 0,
+    "op_c": 0,
+    "op_i": 0,
+    "status": "applied",
+    "is_success": true,
+    "is_contract": false,
+    "gas_limit": 0,
+    "gas_used": 0,
+    "gas_price": 0,
+    "storage_limit": 0,
+    "storage_size": 0,
+    "storage_paid": 0,
+    "volume": 0,
+    "fee": 0.002,
+    "reward": 16,
+    "deposit": 440,
+    "burned": 0,
+    "is_internal": false,
+    "has_data": false,
+    "days_destroyed": 0,
+    "sender": "tz1Vm5cfHncKGBo7YvZfHc4mmudY4qpWzvSB",
+    "receiver": "tz1Vm5cfHncKGBo7YvZfHc4mmudY4qpWzvSB",
+    "branch_id": 0,
+    "branch_height": 0,
+    "branch_depth": 0,
+    "branch": "",
+    "is_implicit": true,
+    "entrypoint_id": 0,
+    "is_orphan": false,
+    "is_batch": false
+  },
+  {
+    "row_id": 4998273,
+    "hash": "ooUeBLdSuEpdVxUKSNo8hVjjRa2eTVDPTbFYSaUFae8h6vBcHMV",
+    "type": "endorsement",
+    "block": "BLWyvBDjfUPKdSf4PQYVvNmHqgwNccH3uRnb6CK9Rzyfr5vCwL1",
+    "time": "2018-12-15T09:24:47Z",
+    "height": 228352,
+    "cycle": 55,
+    "counter": 0,
+    "op_n": 1,
+    "op_l": 0,
+    "op_p": 0,
+    "op_c": 0,
+    "op_i": 0,
+    "status": "applied",
+    "is_success": true,
+    "is_contract": false,
+    "gas_limit": 0,
+    "gas_used": 0,
+    "gas_price": 0,
+    "storage_limit": 0,
+    "storage_size": 0,
+    "storage_paid": 0,
+    "volume": 0,
+    "fee": 0,
+    "reward": 2,
+    "deposit": 55,
+    "burned": 0,
+    "is_internal": false,
+    "has_data": true,
+    "days_destroyed": 0,
+    "data": "64",
+    "sender": "tz1abTjX2tjtMdaq5VCzkDtBnMSCFPW2oRPa",
+    "branch_id": 228352,
+    "branch_height": 228351,
+    "branch_depth": 1,
+    "branch": "BLDpbGZpTefKV1eripBKuyVdDjHofXpyZE2amkHxt7dc6JPtMwJ",
+    "is_implicit": false,
+    "entrypoint_id": 0,
+    "is_orphan": false,
+    "is_batch": false
+  },
   // ...
-  "ops": [{
-      "hash": "oozRTWSPr2M2rr1EQKaU4uVgu4kP28UnTu1tMS24DoTAZiC3kx3",
-      "type": "endorsement",
-      "block": "BLFjwCUTebnhw6ZWpQNxa9VjZgGLgnp1Zazb21T1356VFEnxPrZ",
-      "time": "2019-09-28T13:12:51Z",
-      "height": 627343,
-      "cycle": 153,
-      "counter": 0,
-      "op_n": 0,
-      "op_c": 0,
-      "op_i": 0,
-      "op_l": 0,
-      "op_p": 0,
-      "status": "applied",
-      "is_success": true,
-      "is_contract": false,
-      "gas_limit": 0,
-      "gas_used": 0,
-      "gas_price": 0,
-      "storage_limit": 0,
-      "storage_size": 0,
-      "storage_paid": 0,
-      "volume": 0,
-      "fee": 0,
-      "reward": 2,
-      "deposit": 64,
-      "burned": 0,
-      "is_internal": false,
-      "has_data": true,
-      "days_destroyed": 0,
-      "data": "524288",
-      "sender": "tz3NExpXn9aPNZPorRE4SdjJ2RGrfbJgMAaV",
-      "branch_id": 627343,
-      "branch_height": 627342,
-      "branch_depth": 1,
-      "branch": "BLWT4x43zqzbtRzWNShkuU1DaTjU9fX34Qs4V3Hku2ZgYxiEpPW"
-    },
-    // ...
   ]
 }
 ```
 
-Block data can be extended with an embedded list of operations. This endpoint is an optimization to fetch both the operation list and the related resource in one call. Use `limit` and `offset` (both integers) to page through operation lists. Operations are sorted by row_id in ascending order. Use `order` to switch between `asc` or `desc`. Allows filtering operations by `type` using [query filters](#query-filters).
+Returns a list of operations in the corresponding block. Use `limit`, `offset` and/or `cursor` (all integers) to page through operation lists. Operations are sorted by row_id in ascending order. Cursor is the last row_id in sort order you have seen. Use `order` to switch between `asc` or `desc` order. Allows filtering operations by `type` using [query filters](#query-filters).
+
+The result contains information about all events that happen on-chain. Some of these events are signed operations with a proper operation hash, others are implicit events that have no corresponding representation, but are still required to correctly reconcile account balances and on-chain state/relationships. Important examples for implicit events are `bake` and `unfreeze` which change balances of bakers on their sub-accounts.
 
 ### HTTP Request
 
 #### List Block Operations
 
-`GET https://api.tzstats.com/explorer/block/{hash,height,head}/op`
+`GET https://api.tzstats.com/explorer/block/{hash,height,head}/operations`
 
 
 
@@ -836,10 +959,10 @@ curl "https://api.tzstats.com/explorer/config/head"
   "network": "Mainnet",
   "symbol": "XTZ",
   "chain_id": "NetXdQprcVkpaWU",
-  "version": 5,
   "deployment": 6,
-  "protocol": "PsBabyM1eUXZseaJdmXFApDSBqj8YBfwELoxZHHW77EMcAbbwAS",
-  "start_height": -1,
+  "version": 6,
+  "protocol": "PsCARTHAGazKbHtnKfLzQg3kms52kSRpgnDY982a9oYsSXRLQEb",
+  "start_height": 851969,
   "end_height": -1,
   "no_reward_cycles": 0,
   "security_deposit_ramp_up_cycles": 0,
@@ -855,8 +978,8 @@ curl "https://api.tzstats.com/explorer/config/head"
   "endorsement_reward": 1.25,
   "endorsement_security_deposit": 64,
   "endorsers_per_block": 32,
-  "hard_gas_limit_per_block": 8000000,
-  "hard_gas_limit_per_operation": 800000,
+  "hard_gas_limit_per_block": 10400000,
+  "hard_gas_limit_per_operation": 1040000,
   "hard_storage_limit_per_operation": 60000,
   "max_operation_data_length": 16384,
   "max_proposals_per_delegate": 20,
@@ -878,14 +1001,14 @@ curl "https://api.tzstats.com/explorer/config/head"
   "min_proposal_quorum": 500,
   "quorum_min": 2000,
   "quorum_max": 7000,
-  "block_reward_v6": [
+  "block_rewards_v6": [
     1.25,
     0.1875
   ],
-  "endorsement_reward_v6": [
+  "endorsement_rewards_v6": [
     1.25,
     0.833333
-  ],
+  ]
 }
 ```
 
@@ -963,69 +1086,128 @@ curl "https://api.tzstats.com/explorer/tip"
 ```json
 {
   "name": "Tezos",
-  "symbol": "XTZ",
   "network": "Mainnet",
+  "symbol": "XTZ",
   "chain_id": "NetXdQprcVkpaWU",
   "genesis_time": "2018-06-30T16:07:32Z",
-  "block_hash": "BL326wcsdVU2Gp1PqnEgbP26dzM1crnevoTJXDQnPPJ1LAqVwv3",
-  "timestamp": "2019-09-27T21:23:47Z",
-  "height": 626408,
-  "cycle": 152,
-  "total_accounts": 333538,
-  "funded_accounts": 298038,
-  "total_ops": 15059205,
-  "delegators": 17007,
-  "delegates": 481,
-  "rolls": 71897,
-  "roll_owners": 459,
-  "new_accounts_30d": 9848,
-  "cleared_accounts_30d": 2195,
-  "funded_accounts_30d": 9326,
-  "inflation_1y": 39223088.146111,
-  "inflation_rate_1y": 5.098069887192244,
-  "health": 100,
+  "block_hash": "BLatWAoqAdnrVGg84P5JjmBd94mhJTP2EH1RcKwvU4NY9oc18Ud",
+  "timestamp": "2020-06-25T12:01:04Z",
+  "height": 1012215,
+  "cycle": 247,
+  "deployments": [
+    {
+      "protocol": "PrihK96nBAFSxVL1GLJTVhu9YnzkMFiBeuJRPA8NwuZVZCE1L6i",
+      "version": -1,
+      "deployment": -1,
+      "start_height": 0,
+      "end_height": 0
+    },
+    {
+      "protocol": "Ps9mPmXaRzmzk35gbAYNCAw6UXdE2qoABTHbN2oEEc1qM7CwT9P",
+      "version": 0,
+      "deployment": 0,
+      "start_height": 1,
+      "end_height": 1
+    },
+    {
+      "protocol": "PtCJ7pwoxe8JasnHY8YonnLYjcVHmhiARPJvqcC6VfHT5s8k8sY",
+      "version": 1,
+      "deployment": 1,
+      "start_height": 2,
+      "end_height": 28082
+    },
+    {
+      "protocol": "PsYLVpVvgbLhAhoqAkMFUo6gudkJ9weNXhUYCiLDzcUpFpkk8Wt",
+      "version": 2,
+      "deployment": 2,
+      "start_height": 28083,
+      "end_height": 204761
+    },
+    {
+      "protocol": "PsddFKi32cMJ2qPjf43Qv5GDWLDPZb3T3bF6fLKiF5HtvHNU7aP",
+      "version": 3,
+      "deployment": 3,
+      "start_height": 204762,
+      "end_height": 458752
+    },
+    {
+      "protocol": "Pt24m4xiPbLDhVgVfABUjirbmda3yohdN82Sp9FeuAXJ4eV9otd",
+      "version": 4,
+      "deployment": 4,
+      "start_height": 458753,
+      "end_height": 655360
+    },
+    {
+      "protocol": "PsBabyM1eUXZseaJdmXFApDSBqj8YBfwELoxZHHW77EMcAbbwAS",
+      "version": 5,
+      "deployment": 5,
+      "start_height": 655361,
+      "end_height": 851968
+    },
+    {
+      "protocol": "PsCARTHAGazKbHtnKfLzQg3kms52kSRpgnDY982a9oYsSXRLQEb",
+      "version": 6,
+      "deployment": 6,
+      "start_height": 851969,
+      "end_height": -1
+    }
+  ],
+  "total_accounts": 637981,
+  "funded_accounts": 581073,
+  "total_ops": 26968187,
+  "delegators": 54432,
+  "delegates": 447,
+  "rolls": 84176,
+  "roll_owners": 423,
+  "new_accounts_30d": 55305,
+  "cleared_accounts_30d": 7591,
+  "funded_accounts_30d": 58011,
+  "inflation_1y": 40008551.634743,
+  "inflation_rate_1y": 4.998041680321219,
+  "health": 99,
   "supply": {
-    "height": 626408,
-    "cycle": 152,
-    "time": "2019-09-27T21:23:47Z",
-    "total": 810708076.643151,
-    "activated": 526825268.109869,
-    "unclaimed": 84629610.300311,
-    "vested": 27582743.42817,
-    "unvested": 125280976.17435,
-    "circulating": 685424731.813075,
-    "delegated": 457179960.469034,
-    "staking": 580619999.307627,
-    "active_delegated": 455871344.805448,
-    "active_staking": 576682219.775331,
-    "inactive_delegated": 1308615.663586,
-    "inactive_staking": 3937779.532296,
-    "minted": 46545468.745557,
-    "minted_baking": 9685699.106655,
-    "minted_endorsing": 36857356.263902,
-    "minted_seeding": 2413.375,
-    "minted_airdrop": 100,
-    "burned": 155990.115106,
-    "burned_double_baking": 103509.825621,
+    "row_id": 1012216,
+    "height": 1012215,
+    "cycle": 247,
+    "time": "2020-06-25T12:01:04Z",
+    "total": 840493105.260388,
+    "activated": 562049955.565323,
+    "unclaimed": 49404922.844857,
+    "vested": 46582751.428168,
+    "unvested": 106280968.174352,
+    "circulating": 734212137.086036,
+    "delegated": 538761123.695065,
+    "staking": 683877151.19962,
+    "active_delegated": 533927971.023448,
+    "active_staking": 674670384.951156,
+    "inactive_delegated": 4833152.671617,
+    "inactive_staking": 9206766.248464,
+    "minted": 76426268.580089,
+    "minted_baking": 19259188.538139,
+    "minted_endorsing": 57162555.40963,
+    "minted_seeding": 3924.625,
+    "minted_airdrop": 600.00732,
+    "burned": 251761.332401,
+    "burned_double_baking": 114197.267834,
     "burned_double_endorse": 31838.219485,
-    "burned_origination": 6574.002,
-    "burned_implicit": 14068.068,
-    "burned_seed_miss": 2576.671187,
-    "frozen": 64032839.047756,
-    "frozen_deposits": 62097662,
-    "frozen_rewards": 1934957.146609,
-    "frozen_fees": 219.901147
+    "burned_origination": 7715.422,
+    "burned_implicit": 94244.588,
+    "burned_seed_miss": 3765.835082,
+    "frozen": 55126202.081035,
+    "frozen_deposits": 53462976,
+    "frozen_rewards": 1662378.415212,
+    "frozen_fees": 847.665823
   },
   "status": {
     "status": "synced",
-    "blocks": 626408,
-    "indexed": 626408,
+    "blocks": 1012215,
+    "indexed": 1012215,
     "progress": 1
   }
 }
 ```
 
-Returns info about the most recent block as well as some on-chain and supply statistics.
+Returns info about the most recent block, indexer status, protocol deployments and supply statistics.
 
 ### HTTP Request
 
@@ -1060,10 +1242,7 @@ Field                        | Description
 `health` *int64*             | Blockchain and consensus health indicator with range [0..100] based on recent 128 blocks (priority, endorsements, reorgs).
 `supply` *object*            | Coin supply statistics at current block height.
 `status` *object*            | Indexer status, embedded for efficiency.
-
-
-
-
+`deployments` *object*       | Protocol deployment information such as protocol hash, protocol version id, deployment order, start and end blocks. The most recent protocol deployment has -1 as end height.
 
 
 ## Contracts
@@ -1420,41 +1599,44 @@ curl "https://api.tzstats.com/explorer/cycle/head"
 
 ```json
 {
-  "cycle": 153,
-  "start_height": 626689,
-  "end_height": 630784,
-  "start_time": "2019-09-28T02:13:20Z",
-  "end_time": "2019-09-30T22:53:57Z",
-  "progress": 58.935546875,
+  "cycle": 247,
+  "start_height": 1011713,
+  "end_height": 1015808,
+  "start_time": "2020-06-25T03:36:14Z",
+  "end_time": "2020-06-27T23:54:04Z",
+  "progress": 13.2568359375,
   "is_complete": false,
   "is_snapshot": false,
   "is_active": true,
   "snapshot_height": -1,
   "snapshot_index": -1,
-  "rolls": 71965,
-  "roll_owners": 458,
-  "staking_supply": 581115775.293209,
-  "staking_percent": 71.66191388216313,
-  "active_bakers": 200,
-  "active_endorsers": 421,
-  "missed_priorities": 22,
-  "missed_endorsements": 459,
+  "snapshot_time": "0001-01-01T00:00:00Z",
+  "rolls": 84176,
+  "roll_owners": 423,
+  "active_delegators": 54434,
+  "active_bakers": 447,
+  "staking_supply": 674670196.013393,
+  "staking_percent": 80.2706912175752,
+  "working_bakers": 117,
+  "working_endorsers": 300,
+  "missed_priorities": 4,
+  "missed_endorsements": 115,
   "n_double_baking": 0,
   "n_double_endorsement": 0,
   "n_orphans": 0,
   "solvetime_min": 60,
-  "solvetime_max": 285,
-  "solvetime_mean": 60.72990886495457,
+  "solvetime_max": 100,
+  "solvetime_mean": 60.327808471454915,
   "priority_min": 0,
-  "priority_max": 3,
-  "priority_mean": 0.009113504556752305,
-  "endorsement_rate": 99.4055636137588,
+  "priority_max": 1,
+  "priority_mean": 0.007366482504604053,
+  "endorsement_rate": 99.33694649446494,
   "endorsements_min": 25,
   "endorsements_max": 32,
-  "endorsements_mean": 31.80978035640282,
-  "seed_rate": 168,
-  "worst_baked_block": 626689,
-  "worst_endorsed_block": 626689,
+  "endorsements_mean": 31.78782287822878,
+  "seed_rate": 100,
+  "worst_baked_block": 1011950,
+  "worst_endorsed_block": 1011819,
   "snapshot_cycle": {
     // ... same data as cycle
   },
@@ -1485,12 +1667,15 @@ Field              | Description
 `is_active` *bool*           | Flag indicating the cycle is currently active.
 `snapshot_height` *int64*    | Height of the snapshot block.
 `snapshot_index` *int64*     | Index of the snapshot block.
+`snapshot_time` *datetime*   | Time the snapshot block was taken.
 `rolls` *int64*              | Number of rolls at selected snapshot block or most recent snapshot block.
 `roll_owners` *int64*        | Number of unique roll owners (delegates) at selected snapshot block or most recent snapshot block.
 `staking_supply` *money*     | Total staked supply at selected snapshot block or most recent snapshot block.
 `staking_percent` *float*    | Percent of total supply staked at selected snapshot block or most recent snapshot block.
-`active_bakers` *int64*        | Number of unique bakers seen.
-`active_endorsers` *int64*     | Number of unique endorsers seen.
+`active_bakers` *int64*        | Number of actively registered bakers.
+`active_delegators` *int64*    | Number of non-zero accounts delegating to active bakers.
+`working_bakers` *int64*       | Number of bakers seen during this cycle. Its expected for this number to be lower than `active_bakers` because some may have no rolls, others may not contribute.
+`working_endorsers` *int64*    | Number of unique endorsers seen during this cycle. Its expected for this number to be lower than `active_bakers` because some may have no rolls, others may not contribute.
 `missed_priorities` *int64*    | Total count of missed block priorities.
 `missed_endorsements` *int64*  | Total count of missed endorsement slots.
 `n_double_baking` *int64*      | Count of `double_baking_evidence` events.
@@ -1714,11 +1899,11 @@ curl "https://api.tzstats.com/explorer/election/head"
 }
 ```
 
-Shows full detail about a past or current election including up to four voting periods and detailed results. Elections represent metadata about each consecutive run of related voting periods. Elections may contain 4, 2 or 1 vote periods. They are called empty when only one empty proposal vote without a proposal exists. Votes represent on-chain voting periods, proposals represent individual proposals that are submitted by a source and upvoted by other bakers, ballots represent the individual ballot operations sent by bakers during votes.
+On-chain elections can be queried by proposal `hash` or sequence `number`. An election contains a complete set of data on a past or the currently ongoing (`head`) on-chain voting process, including up to four voting periods. Voting periods may be empty when no proposal has been published. Only the last voting period of the last election is open at eny point in time. Ballots represent the individual ballot operations sent by bakers during votes or the upvotes to a proposal during the first voting period.
 
 ### HTTP Request
 
-`GET https://api.tzstats.com/explorer/election/{head,number}`
+`GET https://api.tzstats.com/explorer/election/{head,hash,number}`
 
 ### HTTP Response
 
@@ -1788,8 +1973,45 @@ Field              | Description
 `rolls` *int64*       | Count of rolls voting for this proposal during the proposal period.
 `voters` *int64*      | Count of voters voting for this proposal during the proposal period.
 
+### List Voters
 
+`GET https://api.tzstats.com/explorer/election/{hash,number,head}/{stage}/voters`
 
+Lists all eligible voters for the current voting period where `stage` is the sequence number of the voting period `[1..4]`. The voter list supports pagination with `limit`, `offset` and `cursor`. To change the order of returned calls use the optional `order` (asc|desc) parameter.
+
+#### Voter Object
+
+Field              | Description
+-------------------|--------------------------------------------------
+`row_id` *int64*   | Internal account id for use with `cursor`.
+`address` *hash*   | Voter address.
+`rolls` *int64*    | Count of rolls the voter has during this voting period.
+`stake` *money*    | Staking balance the voter had at the beginning of this voting period.
+`has_voted` *bool* | Flag indicating if the account has already voted.
+`ballot` *enum*    | Ballot cast by the voter, either `yay`, `nay` or `pass`.
+`proposals` *array* | List of proposals (as hashes) the voter voted for.
+
+### List Ballots
+
+`GET https://api.tzstats.com/explorer/election/{hash,number,head}/{stage}/ballots`
+
+Lists all ballots cast during the current voting periodwhere `stage` is the sequence number of the voting period `[1..4]`. The voter list supports pagination with `limit`, `offset` and `cursor`. To change the order of returned calls use the optional `order` (asc|desc) parameter.
+
+### Ballot Object
+
+Field              | Description
+-------------------|--------------------------------------------------
+`row_id` *int64*   | Internal account id for use with `cursor`.
+`sender` *hash*    | Voter address.
+`height` *int64*   | Operation submission height.
+`time` *datetime*  | Operation submission time.
+`election_id` *int64*        | Sequence number of the election.
+`voting_period` *int64*      | Protocol-level voting period counter.
+`voting_period_kind` *enum*  | Period kind `proposal`, `testing_vote`, `testing`, `promotion_vote`.
+`proposal` *hash*  | Hash of the proposal the voter voted for. If the vote happend during the proposal period and the voter used to vote for multiple proposals either in a single `proposals` operation or with multiple `proposals` operations, multiple ballots exist.
+`op` *hash*        | Operation hash.
+`ballot` *enum*    | Ballot cast by the voter, either `yay`, `nay` or `pass`. During proposal period the ballot is always `yay` to decribe the only choice.
+`rolls` *int64*    | Count of rolls the voter has during this voting period.
 
 ## Indexer Status
 
@@ -1909,7 +2131,7 @@ Field              | Description
 > **Example request.**
 
 ```shell
-curl "https://api.tzstats.com/explorer/op/ooxRwXAEM76NyMGyn4hHjS9D2Q8UkWVV6W2Esk2LZaq2tzFBH3p"
+curl "https://api.tzstats.com/explorer/op/opSrt7oYHDTZcfGnhNt3BzGrrCQf364VuYmKo5ZQVQRfTnczjnf"
 ```
 
 > **Example response.**
@@ -1917,49 +2139,49 @@ curl "https://api.tzstats.com/explorer/op/ooxRwXAEM76NyMGyn4hHjS9D2Q8UkWVV6W2Esk
 ```json
 [
   {
-    "hash": "ooxRwXAEM76NyMGyn4hHjS9D2Q8UkWVV6W2Esk2LZaq2tzFBH3p",
+    "row_id": 28059456,
+    "hash": "opSrt7oYHDTZcfGnhNt3BzGrrCQf364VuYmKo5ZQVQRfTnczjnf",
     "type": "transaction",
-    "block": "BKqv8SBNabXEMXV9fsy21yx9BNsqWBKVVp9ca4KTMpGsF2Wi8Uj",
-    "time": "2019-09-28T13:10:51Z",
-    "height": 627341,
-    "cycle": 153,
-    "counter": 1946527,
-    "op_n": 26,
+    "block": "BL1PGezBat3BX1N2rnk1qycTJbCXdWJwYoGBChyeFyYJABGLyZ9",
+    "time": "2020-06-25T06:18:19Z",
+    "height": 1011875,
+    "cycle": 247,
+    "counter": 2187104,
+    "op_n": 22,
+    "op_l": 3,
+    "op_p": 3,
     "op_c": 0,
     "op_i": 0,
-    "op_l": 0,
-    "op_p": 0,
     "status": "applied",
     "is_success": true,
     "is_contract": false,
-    "gas_limit": 10300,
-    "gas_used": 10200,
-    "gas_price": 0.98039,
-    "storage_limit": 0,
+    "gas_limit": 15385,
+    "gas_used": 10207,
+    "gas_price": 0.17557,
+    "storage_limit": 257,
     "storage_size": 0,
     "storage_paid": 0,
-    "volume": 2047.9,
-    "fee": 0.01,
+    "volume": 0.040128,
+    "fee": 0.001792,
     "reward": 0,
     "deposit": 0,
     "burned": 0,
     "is_internal": false,
     "has_data": false,
-    "days_destroyed": 203.367847,
-    "parameters": null,
-    "storage": null,
-    "data": null,
-    "big_map_diff": null,
-    "errors": null,
-    "sender": "tz1bnaCyDdJNjD8TcZPLNc2kBfJsYhNe86Lm",
-    "receiver": "tz1a6WGHRq16ENkxbJVHbtGX4D6mUkCGo5sA",
-    "branch_id": 627341,
-    "branch_height": 627340,
+    "days_destroyed": 0.016302,
+    "sender": "tz1Ywgcavxq9D6hL32Q2AQWHAux9MrWqGoZC",
+    "receiver": "tz1ijyJy2QncvgDKZJARDgPqEYVRk6yTE5d7",
+    "branch_id": 1011875,
+    "branch_height": 1011874,
     "branch_depth": 1,
-    "branch": "BKr3kjkbi5LndjDTDDSPUWubZjrdSBCWLJudmuGYuiVuG2j8fvj",
+    "branch": "BKt5Lz42YyZNaSYkqfx3m9cmZ2qRoqw1duHqvygLUrgxCewYXoS",
     "is_implicit": false,
-    "entrypoint_id": 0
-  }
+    "entrypoint_id": 0,
+    "is_orphan": false,
+    "is_batch": true,
+    "batch_volume": 261.785412
+  },
+  // ...
 ]
 ```
 
@@ -1994,7 +2216,7 @@ Field              | Description
 `storage_limit` *int64*  | Caller-defined storage limit.
 `storage_size` *int64*   | Actual storage size allocated.
 `storage_paid` *int64*   | Part of the storage the operation paid for.
-`volume` *money*         | Amount of tokens transferred in tz. In denunciation operations, this field contains the accuser reward.
+`volume` *money*         | Amount of tokens transferred in tz. In denunciation operations, this field contains the accuser reward, in delegation operations this field contains the initially delegated balance.
 `fee` *money*            | Fees paid in tz. In denunciation operations, this field contains the offender loss as negative value.
 `reward` *money*         | Rewards earned in tz. In denunciation operations, this field contains the offender loss as negative value.
 `deposit` *money*        | Amount of deposited tokens in tz. In denunciation operations, this field contains the offender loss as negative value.
@@ -2021,6 +2243,9 @@ Field              | Description
 `branch_depth` *int64*   | Count of blocks between branch block and block including this op.
 `branch` *hash*          | Block hash of the branch this op refers to.
 `entrypoint_id` *int64*  | Serial id of the called entrypoint, only relevant if the operation was a transaction, the receiver is a smart contract and call parameters are present.
+`is_orphan` *bool*       | Flag indicating whether this operation was orphaned (not included in any block).
+`is_batch` *bool*        | Flag indicating if this operation is part of a batch operation list.
+`batch_volume` *money*   | Total amount transferred in a batch operation list. Only available of the first operation of a batch list and only when any transfers happened.
 
 ### List of supported operation types
 

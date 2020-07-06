@@ -9,15 +9,16 @@ title: General | TzStats Data API
 
 ```
 Mainnet: https://api.tzstats.com
+Mainnet Staging: https://api.staging.tzstats.com
 Zeronet: https://api.zeronet.tzstats.com
 Babylonnet: https://api.babylonnet.tzstats.com
 Carthagenet: https://api.carthagenet.tzstats.com
 Labnet: https://api.labnet.tzstats.com
 ```
 
-TzStats provides a powerful API to access fully indexed raw data and statistics collected from the Tezos blockchain. You may use this API free of charge and without limits for non-commercial projects. To inquire about commercial use send an email to info@tzstats.com.
+TzStats provides a powerful API to access fully indexed raw data and statistics collected from the Tezos blockchain. You may use this API free of charge and without limits for non-commercial projects. To inquire about commercial use send an email to license@blockwatch.cc.
 
-This API reference provides information on all public API endpoints and the different schemes of calling them. Access to the API does not require authentication and we do not enforce daily rate limits right now, but we monitor usage and may apply limits later to guarantee fair usage for everybody.
+This API reference provides information on all public API endpoints and the different schemes of calling them. Access to the API does not require authentication and we do not enforce rate limits right now, but we monitor usage and may apply limits later to guarantee fair usage for everybody.
 
 The API supports three different endpoint flavors to access the same underlying data in different ways:
 
@@ -27,9 +28,9 @@ The API supports three different endpoint flavors to access the same underlying 
 
 ## Calling the API
 
-TzStats Data API is read-only, i.e. the only supported HTTP methods are `GET` and `HEAD`. Query parameters must be properly URL encoded and appended as query arguments.
+TzStats Data API is read-only, i.e. the only supported HTTP methods are `GET`, `HEAD` and `OPTIONS`. Query parameters must be properly URL encoded and appended as query arguments.
 
-Table and time-series endpoints stream data, that is, they immediately return response headers after accepting and validating a request and then stream rows or aggregated data points as they are fetched from the underlying database.
+For high-speed high-volume access, always use the table API endpoints. Table and time-series endpoints stream data and have higher limits, that is, they immediately return response headers after accepting and validating a request and then stream rows or aggregated data points as they are fetched from the underlying database.
 
 ### Transport Security
 
@@ -72,7 +73,7 @@ TzStats Data API supports cross-origin HTTP requests, commonly referred as [CORS
 
 ### Rate Limits
 
-We do not enforce limits on the number of calls or the amount of data you can query from the API. We do, however, use SPAM protection measures that limit the number of connection attempts and HTTP calls over short time-frames. Try to slow down your call rate if you start seeing 429 status codes.
+We do not enforce limits on the number of calls or the amount of data you can query from the API. We do, however, use SPAM protection measures that limit the number of connection attempts and HTTP calls over short time-frames. Try to slow down your call rate if you start seeing 429 status codes. Be responsible with calls and retries, this API is a shared resource for everybody.
 
 ## Data Formats
 
@@ -115,9 +116,13 @@ Results are returned as `Content-Type` JSON ([RFC 7159](https://tools.ietf.org/h
 
 CSV files always include a header containing the requested column names in the requested order. Columns are separated by comma (ASCII 44, UTF-8 0x2C).
 
+When downloading a CSV file you may add an optional `filename` query argument (ASCII only, 128 characters max, no path separators) which will be used in the Content-Disposition header. Suffix `.csv` isautomatically appended if missing.
+
 ### JSON Bulk Arrays
 
-Large JSON results such as lists and time-series use a more optimized (less verbose) formatting. Instead of regular JSON objects with named key/value pairs we use **bulk arrays**, i.e. two levels of nested JSON arrays without keys. An outer array contains result rows or datapoints. The inner arrays contain lists of requested columns in requested order when using the `columns` query parameter or a fixed pre-defined order.
+Large JSON results such as lists and time-series use a more optimized (less verbose) formatting. Instead of regular JSON objects with named key/value pairs we use **bulk arrays**, i.e. two levels of nested JSON arrays without keys. An outer array contains result rows or datapoints. The inner arrays contain lists of columns. To control which columns are returned and their order use the `columns` query parameter.
+
+Note: As we keep adding new fields to tables and time-series the default order of JSON bulk arrays may change over time. To ensure that our API always returns the field order you expect, use the `columns` query argument. The order of columns you specify is exactly the order that's returned.
 
 ### JSON Data Types
 
@@ -137,7 +142,7 @@ We use the following data types and encoding conventions throughout the API:
 | **hash** | on-chain hashes encoded as base58-check strings |
 | **money** | monetary quantities are expressed as `float64` with 6 decimal points (the Tezos coin unit precision); market endpoints use 5 or more decimal points depending on the fiat or crypto pairs |
 
-For efficiency reasons, timestamps in JSON bulk arrays are encoded as UNIX time at millisecond resolution. That is, value `0` represents `Jan 1, 1970 00:00:00 UTC`. Timestamps in explorer responses are encoded according to [RFC 3339](https://tools.ietf.org/html/rfc3339) (`2018-09-06T08:07:38Z`) for convenience and human readability.
+For efficiency reasons, timestamps in JSON bulk arrays are encoded as UNIX time at millisecond resolution. That is, value `0` represents `Jan 1, 1970 00:00:00 UTC`. Timestamps in explorer responses and CSV output are encoded according to [RFC 3339](https://tools.ietf.org/html/rfc3339) (`2018-09-06T08:07:38Z`) for convenience and human readability.
 
 Timestamps in queries can be expressed in multiple ways:
 
@@ -145,7 +150,7 @@ Timestamps in queries can be expressed in multiple ways:
 - as UNIX timestamp in seconds or milliseconds, so `1536246000` and `1536246000000` are equal
 - as date without time, i.e. `2018`, `2018-09`, `2018-09-06` represents midnight at the first day of month and/or month of year
 - as static string such as `now`, `today`, or `yesterday` to reference a relative point in time
-- as static string expression to truncated and offset timepoints against `now`, eg. `now/d` for start of today or `now/d-30d` for start of day 30 days ago (expressions support `s`,`m`,`h`,`d`)
+- as static string expression with truncation and offset arguments against `now`, eg. `now/d` for start of today or `now/d-30d` for start of day 30 days ago (expressions support `s`, `m`, `h`, `d`)
 
 
 ## Status Codes
@@ -159,7 +164,8 @@ The TzStats Data API responds with regular HTTP status codes in the `2xx` range 
 - `409 Conflict` Resource state conflict
 - `429 Too Many Requests` Request limit exceeded
 - `500 Internal Server` Something went wrong
-- `502 Bad Gateway` Your connection is being throttled or the service is under maintenance
+- `502 Bad Gateway` Your request has reached a timeout and was cancelled, try to reduce the range of data in your request
+- `504 Gateway Timeout` Our backend is overloaded or down for maintenance, wait a while before retry
 
 ### Error Responses
 
