@@ -210,7 +210,7 @@ curl "https://api.tzstats.com/explorer/account/KT1QuofAgnsWffHzLA7D78rxytJruGHDe
 }
 ```
 
-Provides information about the most recent state of accounts and smart contracts. Baker accounts contain addtional information.
+Provides information about the most recent state of accounts and smart contracts. Baker accounts and delegator accounts contain additional state information. See the table below for details.
 
 ### HTTP Request
 
@@ -231,33 +231,35 @@ Field              | Description
 `last_out` *int64*            | Block height of latest outgoing transaction.
 `first_seen` *int64*          | Block height of account creation.
 `last_seen` *int64*           | Block height of last activity.
-`delegated_since` *int64*     | Block height of most recent delegation.
-`delegate_since` *int64*      | Block height of registration as delegate.
+`delegated_since` *int64* **delegator-only** | Block height of most recent delegation.
+`delegate_since` *int64* **baker-only**  | Block height of most recent baker registration.
+`delegate_until` *int64* **baker-only**  | Block height of most recent baker deactivation.
 `first_in_time` *datetime*    | Block time of first incoming transaction.
 `first_out_time` *datetime*   | Block time of first outgoing transaction.
 `last_in_time` *datetime*     | Block time of latest incoming transaction.
 `last_out_time` *datetime*    | Block time of latest outgoing transaction.
 `first_seen_time` *datetime*  | Block time of account creation.
 `last_seen_time` *datetime*   | Block time of last activity.
-`delegated_since_time` *datetime* | Block time of most recent delegation.
-`delegate_since_time` *datetime*  | Block time of registration as delegate.
+`delegated_since_time` *datetime* **delegator-only** | Block time of most recent delegation.
+`delegate_since_time` *datetime* **baker-only** | Block time of most recent baker registration.
+`delegate_until_time` *datetime* **baker-only** | Block time of most recent baker deactivation.
 `total_received` *money*       | Lifetime total tokens received in transactions.
 `total_sent` *money*           | Lifetime total tokens sent in transactions.
 `total_burned` *money*         | Lifetime total tokens burned in tz.
 `total_fees_paid` *money*      | Lifetime fees paid in tz.
-`total_rewards_earned` *money* | Lifetime rewards earned in tz.
-`total_fees_earned` *money*    | Lifetime fees earned in tz.
-`total_lost` *money*           | Lifetime total tokens lost in tz.
-`frozen_deposits` *money*      | Currently frozen deposits
-`frozen_rewards` *money*       | Currently frozen rewards.
-`frozen_fees` *money*          | Currently frozen fees.
+`total_rewards_earned` *money* **baker-only** | Lifetime rewards earned in tz.
+`total_fees_earned` *money* **baker-only**    | Lifetime fees earned in tz.
+`total_lost` *money* **baker-only**           | Lifetime total tokens lost in tz.
+`frozen_deposits` *money* **baker-only**      | Currently frozen deposits
+`frozen_rewards` *money* **baker-only**       | Currently frozen rewards.
+`frozen_fees` *money* **baker-only**          | Currently frozen fees.
 `unclaimed_balance` *money*    | Currently unclaimed balance (for vesting contracts and commitments).
 `spendable_balance` *money*    | Currently spendable balance.
 `total_balance` *money*        | Currently spendable and frozen balances (except frozen rewards).
-`delegated_balance` *money*    | (delegate only) Current incoming delegations.
-`staking_balance` *money*      | (delegate only) Current delegated and own total balance.
-`total_delegations` *int64*    | (delegate only) Lifetime count of delegations.
-`active_delegations` *int64*   | (delegate only) Currently active and non-zero delegations.
+`delegated_balance` *money* **baker-only**    | (delegate only) Current incoming delegations.
+`staking_balance` *money* **baker-only**      | (delegate only) Current delegated and own total balance.
+`total_delegations` *int64* **baker-only**    | (delegate only) Lifetime count of delegations.
+`active_delegations` *int64* **baker-only**   | (delegate only) Currently active and non-zero delegations.
 `is_funded` *bool*             | Flag indicating the account is funded.
 `is_activated` *bool*          | Flag indicating the account was activated from a commitment.
 `is_vesting` *bool*            | Flag indicating the account is a vesting contract.
@@ -268,41 +270,41 @@ Field              | Description
 `is_delegate` *bool*           | Flag indicating the account is a registered delegate.
 `is_active_delegate` *bool*    | Flag indicating the account is a registered and active delegate.
 `is_contract` *bool*           | Flag indicating the account is a smart contract.
-`blocks_baked` *int64*         | Lifetime total blocks baked.
-`blocks_missed` *int64*        | Lifetime total block baking missed.
-`blocks_stolen` *int64*        | Lifetime total block baked at priority > 0.
-`blocks_endorsed` *int64*      | Lifetime total blocks endorsed.
-`slots_endorsed` *int64*       | Lifetime total endorsemnt slots endorsed.
-`slots_missed` *int64*         | Lifetime total endorsemnt slots missed.
+`blocks_baked` *int64* **baker-only**         | Lifetime total blocks baked.
+`blocks_missed` *int64* **baker-only**        | Lifetime total block baking missed.
+`blocks_stolen` *int64* **baker-only**        | Lifetime total block baked at priority > 0.
+`blocks_endorsed` *int64* **baker-only**      | Lifetime total blocks endorsed.
+`slots_endorsed` *int64* **baker-only**       | Lifetime total endorsemnt slots endorsed.
+`slots_missed` *int64* **baker-only**         | Lifetime total endorsemnt slots missed.
 `n_ops` *int64*                | Lifetime total number of operations sent and received.
 `n_ops_failed` *int64*         | Lifetime total number of operations sent that failed.
 `n_tx` *int64*                 | Lifetime total number of transactions sent and received.
 `n_delegation` *int64*         | Lifetime total number of delegations sent.
 `n_origination` *int64*        | Lifetime total number of originations sent.
-`n_proposal` *int64*           | Lifetime total number of proposals (operations) sent.
-`n_ballot` *int64*             | Lifetime total number of ballots sent.
+`n_proposal` *int64* **baker-only**           | Lifetime total number of proposals (operations) sent.
+`n_ballot` *int64* **baker-only**             | Lifetime total number of ballots sent.
 `token_gen_min` *int64*        | Minimum generation number of all tokens owned.
 `token_gen_max` *int64*        | Maximum generation number of all tokens owned.
-`grace_period` *int64*         | (delegate only) Current grace period before deactivation.
-`rolls` *int64*                | (delegate only) Currently owned rolls.
+`grace_period` *int64* **baker-only**         | (delegate only) Current grace period before deactivation.
+`rolls` *int64* **baker-only**                | (delegate only) Currently owned rolls.
 `rich_rank` *int64*            | Global rank on rich list by total balance.
 `traffic_rank` *int64*         | Global rank on 1D most active accounts by transactions sent/received.
 `volume_rank` *int64*          | Global rank on 1D most active accounts by volume sent/received.
-`last_bake_height` *int64*     | Height of most recent block baked.
-`last_bake_block` *hash*       | Hash of most recent block baked.
-`last_bake_time` *datetime*    | Timestamp of most recent block baked.
-`last_endorse_height` *int64*  | Height of most recent block endorsed.
-`last_endorse_block` *hash*    | Hash of most recent block endorsed.
-`last_endorse_time` *datetime* | Timestamp of most recent block endorsed.
-`next_bake_height` *int64*     | Height of next block baking right.
-`next_bake_priority` *int64*   | Priority of next baking right (fixed at zero currently).
-`next_bake_time` *datetime*    | Approximate time of next block baking right.
-`next_endorse_height` *int64*  | Height of next block endorsing right.
-`next_endorse_time` *datetime* | Approximate time of next block endorsing right.
-`avg_luck_64` *float*          | Average luck to get random priority zero baking/endorsing rights for the past 64 cycles (182 days, 6 months).
-`avg_performance_64` *float*   | Average performance for the past 64 cycles (182 days, 6 months).
-`avg_contribution_64` *float*  | Average utilization of rights to bake/endorse blocks for the past 64 cycles. Since block rewards have become dynamic, a baker who fails to contribute to the consensus by utilizing 100% of their rights diminishes the income for other bakers.
-`baker_version` *hash*         | Software version run by the baker at the last seen block. This is the first 8 hex digits of the Git repository hash.
+`last_bake_height` *int64* **baker-only**     | Height of most recent block baked.
+`last_bake_block` *hash* **baker-only**       | Hash of most recent block baked.
+`last_bake_time` *datetime* **baker-only**    | Timestamp of most recent block baked.
+`last_endorse_height` *int64* **baker-only**  | Height of most recent block endorsed.
+`last_endorse_block` *hash* **baker-only**    | Hash of most recent block endorsed.
+`last_endorse_time` *datetime* **baker-only** | Timestamp of most recent block endorsed.
+`next_bake_height` *int64* **baker-only**     | Height of next block baking right.
+`next_bake_priority` *int64* **baker-only**   | Priority of next baking right (fixed at zero currently).
+`next_bake_time` *datetime* **baker-only**    | Approximate time of next block baking right.
+`next_endorse_height` *int64* **baker-only**  | Height of next block endorsing right.
+`next_endorse_time` *datetime* **baker-only** | Approximate time of next block endorsing right.
+`avg_luck_64` *float* **baker-only**          | Average luck to get random priority zero baking/endorsing rights for the past 64 cycles (182 days, 6 months).
+`avg_performance_64` *float* **baker-only**   | Average performance for the past 64 cycles (182 days, 6 months).
+`avg_contribution_64` *float* **baker-only**  | Average utilization of rights to bake/endorse blocks for the past 64 cycles. Since block rewards have become dynamic, a baker who fails to contribute to the consensus by utilizing 100% of their rights diminishes the income for other bakers.
+`baker_version` *hash* **baker-only**         | Software version run by the baker at the last seen block. This is the first 8 hex digits of the Git repository hash.
 
 ### List Account Operations
 

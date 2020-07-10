@@ -42,6 +42,7 @@ As we keep adding new fields to tables and time-series the default order of JSON
 - **etl/statistics:** fixed block volume counting for failed ops
 - **etl/account:** fixed pubkey updates on reveal that caused some keys to be scrambled
 - **api/deployments:** fixed protocol version lookup and deployment info
+- **etl/income:** fixed `total_income` to include all fees and decunciation rewards
 
 ### NEW FEATURES
 - **api/operation:** `delegation` operations now have `volume` field set to the initial delegated balance
