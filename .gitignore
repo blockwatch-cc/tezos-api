@@ -27,3 +27,4 @@ node_modules/
 
 # Hugo-specific build files
 public/
+resources/

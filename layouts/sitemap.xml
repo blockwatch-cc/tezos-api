@@ -1,0 +1,35 @@
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" | safeHTML }}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+    <loc>https://tzstats.com/docs/api/index.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1</priority>
+  </url>
+
+  <url>
+    <loc>https://tzstats.com/docs/api/index.html#explorer-endpoints</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://tzstats.com/docs/api/index.html#table-endpoints</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://tzstats.com/docs/api/index.html#time-series-endpoints</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://tzstats.com/docs/api/index.html#changelog</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

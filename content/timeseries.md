@@ -1,6 +1,7 @@
 ---
 weight: 50
-title: Time-Series | TzStats Data API
+title: Time-Series Endpoints
+priority: 0.7
 ---
 
 # Time-Series Endpoints {#time-series-endpoints}

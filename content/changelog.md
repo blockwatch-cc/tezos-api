@@ -1,6 +1,6 @@
 ---
 weight: 90
-title: Changelog | TzStats Data API
+title: Changelog
 ---
 
 # Changelog

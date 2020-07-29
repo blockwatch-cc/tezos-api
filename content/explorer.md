@@ -1,6 +1,6 @@
 ---
 weight: 30
-title: Explorer | TzStats Data API
+title: Explorer Endpoints
 ---
 
 # Explorer Endpoints

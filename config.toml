@@ -5,7 +5,7 @@ defaultContentLanguage = "en"
 baseurl = "https://tzstats.com/docs/api"
 
 #RelativeURLs = true
-title = "API Reference | TzStats"
+title = "Tezos API Reference | TzStats"
 
 disableKinds = ["taxonomyTerm"]
 
@@ -42,7 +42,7 @@ name = "Shell"
 [languages.en]
 languageName = "English"
 weight = 2
-title = "API Reference | TzStats"
+title = "Tezos API Reference | TzStats"
 
 # Left sidebar footer items. Use HTMl or Markdown.
 toc_footers = [
@@ -52,3 +52,10 @@ toc_footers = [
 [languages.en.blackfriday]
 angledQuotes = false
 hrefTargetBlank = true
+
+[sitemap]
+  changefreq = "monthly"
+  filename = "sitemap.xml"
+
+[permalinks]
+  "/" = "#:slug"

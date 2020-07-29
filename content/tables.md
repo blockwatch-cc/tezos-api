@@ -1,6 +1,6 @@
 ---
 weight: 40
-title: Tables | TzStats Data API
+title: Table Endpoints
 ---
 
 # Table Endpoints

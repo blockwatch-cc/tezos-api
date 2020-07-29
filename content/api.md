@@ -1,9 +1,9 @@
 ---
 weight: 20
-title: General | TzStats Data API
+title: Tezos API
 ---
 
-# Introduction
+# Tezos API
 
 > **API Endpoints**
 
@@ -16,7 +16,7 @@ Carthagenet: https://api.carthagenet.tzstats.com
 Labnet: https://api.labnet.tzstats.com
 ```
 
-TzStats provides a powerful API to access fully indexed raw data and statistics collected from the Tezos blockchain. You may use this API free of charge and without limits for non-commercial projects. To inquire about commercial use send an email to license@blockwatch.cc.
+TzStats provides a powerful Tezos API to access fully indexed raw data and statistics collected from the Tezos blockchain. You may use this API free of charge and without limits for non-commercial projects. To inquire about commercial use send an email to license@blockwatch.cc.
 
 This API reference provides information on all public API endpoints and the different schemes of calling them. Access to the API does not require authentication and we do not enforce rate limits right now, but we monitor usage and may apply limits later to guarantee fair usage for everybody.
 
@@ -28,7 +28,7 @@ The API supports three different endpoint flavors to access the same underlying 
 
 ## Calling the API
 
-TzStats Data API is read-only, i.e. the only supported HTTP methods are `GET`, `HEAD` and `OPTIONS`. Query parameters must be properly URL encoded and appended as query arguments.
+Our Tezos API is read-only at the moment, i.e. the only supported HTTP methods are `GET`, `HEAD` and `OPTIONS`. Query parameters must be properly URL encoded and appended as query arguments.
 
 For high-speed high-volume access, always use the table API endpoints. Table and time-series endpoints stream data and have higher limits, that is, they immediately return response headers after accepting and validating a request and then stream rows or aggregated data points as they are fetched from the underlying database.
 
@@ -51,7 +51,7 @@ For high-speed high-volume access, always use the table API endpoints. Table and
 
 The API supports secure connections via **TLS v1.3**, **v1.2** and **v1.1** with Perfect Forward Secrecy based on Elliptic Curves and Diffie Helman key exchange. Insecure HTTP requests to port 80 are automatically redirected to HTTPS on port 443.
 
-### API Response Headers
+### Tezos API Response Headers
 
 All our API responses are tagged with an API version that's included in the `X-Api-Version` HTTP header field as well as the Tezos network id and protocol.
 

@@ -1,7 +1,7 @@
-TzStats - API Documentation
-============================
+TzStats - Tezos API Documentation
+=================================
 
-This is the markdown documentation for the TzStats Indexer API, a blockchain explorer supported by [Blockwatch Data](https://blockwatch.cc). 
+This is the markdown documentation for the TzStats Indexer API, a blockchain explorer supported by [Blockwatch Data](https://blockwatch.cc).
 
 ### Setup and Write
 
