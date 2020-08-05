@@ -16,7 +16,7 @@ Carthagenet: https://api.carthagenet.tzstats.com
 Labnet: https://api.labnet.tzstats.com
 ```
 
-TzStats provides a powerful Tezos API to access fully indexed raw data and statistics collected from the Tezos blockchain. You may use this API free of charge and without limits for non-commercial projects. To inquire about commercial use send an email to license@blockwatch.cc.
+TzStats provides a powerful Tezos API to access fully indexed raw data and statistics collected from the Tezos blockchain. Made and supported by [Blockwatch Data](https://blockwatch.cc). You may use this API free of charge and without limits for non-commercial projects. To inquire about commercial use send an email to license@blockwatch.cc.
 
 This API reference provides information on all public API endpoints and the different schemes of calling them. Access to the API does not require authentication and we do not enforce rate limits right now, but we monitor usage and may apply limits later to guarantee fair usage for everybody.
 
