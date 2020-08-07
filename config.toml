@@ -3,7 +3,7 @@ contentDir = "content"
 languageCode = "en-us"
 defaultContentLanguage = "en"
 baseurl = "https://tzstats.com/docs/api"
-googleAnalytics = "<[[GOOGLE_ANALYTICS_API_KEY]]>"
+googleAnalytics = "[[[GOOGLE_ANALYTICS_API_KEY]]]"
 
 #RelativeURLs = true
 title = "Tezos API Reference | TzStats"
