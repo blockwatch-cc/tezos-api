@@ -1,6 +1,6 @@
 # Build container
 #
-FROM          idx.trimmer.io/serve:v1.2.3-alpine
+FROM          idx.trimmer.io/serve:v1.2.4-alpine
 MAINTAINER    Alexander Eichhorn <alex@blockwatch.cc>
 
 ARG           BUILD_VERSION
