@@ -10,6 +10,7 @@ title: Tezos API
 ```
 Mainnet: https://api.tzstats.com
 Mainnet Staging: https://api.staging.tzstats.com
+Delphinet: https://api.delphi.tzstats.com
 Carthagenet: https://api.carthagenet.tzstats.com
 ```
 
