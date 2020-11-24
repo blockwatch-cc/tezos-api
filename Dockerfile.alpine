@@ -25,7 +25,7 @@ RUN --mount=type=ssh,uid=500,gid=500  \
     git clone git@github.com:blockwatch-cc/${BUILD_ARTIFACT}.git ${BUILD_ARTIFACT} && \
     cd ${BUILD_ARTIFACT} && \
     git checkout ${BUILD_TAG} && \
-    npm --prefix ./themes/docuapi install ./themes/docuapi && \
+    npm install && \
     hugo
 
 
