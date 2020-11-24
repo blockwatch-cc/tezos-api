@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>{{ .Title }}</title>
     {{ partial "styles.html" . }}
+    {{ partial "js.html" . }}
     {{ partial "hook_head_end.html" . }}
 </head>
 <body class="index" data-languages="{{ with .Site.Params.language_tabs  }}[{{ range $i,$e := . }}{{- if $i -}}, {{ end -}}{{ printf " %q " $e.key }}{{end}}]{{ end }}">
@@ -24,7 +25,7 @@
             <a href="#" data-language-name="{{ .key }}">{{ .name  }}</a>
             {{ end }}
         </div>
-        {{ end }}
+        {{ end }} 
         {{ if .Site.Params.search }}
         <div class="search">
             <input type="search" class="search" id="input-search" placeholder='{{ T "search" . }}'>
@@ -36,9 +37,9 @@
             <ul class="toc-footer">
             <li class="toc-h1">{{ T "translations" (len .Translations ) }}</li>
             {{ partial "translations.html" . }}
-            </ul>
-
-        {{ end }}
+            </ul> 
+    
+        {{ end }} 
         {{ with .Site.Params.toc_footers }}
         <ul class="toc-footer">
             {{ range . }}
@@ -64,6 +65,5 @@
         </div>
     </div>
     {{ partial "hook_body_end.html" . }}
-    {{ partial "js.html" . }}
 </body>
 </html>
