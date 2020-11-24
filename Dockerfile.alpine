@@ -1,0 +1,52 @@
+# syntax=docker/dockerfile:experimental
+FROM        golang:1.14-alpine as tezos-api-builder
+MAINTAINER  Alexander Eichhorn <alex@blockwatch.cc>
+
+ARG BUILD_VERSION
+ARG BUILD_COMMIT
+ARG BUILD_DATE
+ARG BUILD_ID
+ARG BUILD_REPO
+ARG BUILD_ARTIFACT
+ARG BUILD_TAG
+
+ENV GOPATH /go
+ENV CGO_ENABLED 0
+ENV GO111MODULE on
+
+WORKDIR /home/build
+
+RUN apk add --no-cache openssh-client git hugo npm && \
+	mkdir -p -m 0700 ~/.ssh && \
+    ssh-keyscan github.com >> ~/.ssh/known_hosts && \
+    git config --global url."ssh://git@github.com/".insteadOf "https://github.com/"
+
+RUN --mount=type=ssh,uid=500,gid=500  \
+    git clone git@github.com:blockwatch-cc/${BUILD_ARTIFACT}.git ${BUILD_ARTIFACT} && \
+    cd ${BUILD_ARTIFACT} && \
+    git checkout ${BUILD_TAG} && \
+    npm --prefix ./themes/docuapi install ./themes/docuapi && \
+    hugo
+
+
+FROM        hub.bwd.cx/served:v1.0.1-alpine
+MAINTAINER  Alexander Eichhorn <alex@blockwatch.cc>
+
+ARG BUILD_VERSION
+ARG BUILD_COMMIT
+ARG BUILD_DATE
+ARG BUILD_ID
+ARG BUILD_REPO
+ARG BUILD_ARTIFACT
+
+LABEL 	vendor=Blockwatch\ Data\ Inc \
+		maintainer="Alexander Eichhorn <alex@blockwatch.cc>" \
+		name=${BUILD_ARTIFACT} \
+		cx.bwd.service=${BUILD_ARTIFACT} \
+		cx.bwd.arch="web" \
+		cx.bwd.os="any" \
+		cx.bwd.build-version=$BUILD_VERSION \
+		cx.bwd.build-date=$BUILD_DATE \
+		cx.bwd.build-id=$BUILD_ID
+
+COPY --from=tezos-api-builder --chown=www-data:www-data /home/build/${BUILD_ARTIFACT}/public/ /var/www/

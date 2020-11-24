@@ -1,4 +1,12 @@
 github.com/bep/empty-hugo-module v1.0.0 h1:aYc9RWea644CdYjg9zCy8nkVF4KjC3fwhUTvvcXXg8s=
 github.com/bep/empty-hugo-module v1.0.0/go.mod h1:whohinbSjMoFi/Skivj9kvdPs1tEgzYpZ4rXoQk/0/I=
+github.com/jquery/jquery-dist v0.0.0-20200504225046-4c0e4becb826 h1:JO+IS20NQ+R4nFQT4doRfL3hE75WJK/+XZbpSlBW92Y=
+github.com/jquery/jquery-dist v0.0.0-20200504225046-4c0e4becb826/go.mod h1:/lTfttEqFU0GWTaOOMIeNTzLGQ7yTIgyzjtkS/pYIoc=
 github.com/lord/slate v2.3.1+incompatible h1:uRy5iSKUWJdeozlS9RVWbeC1ZRyySLOCn20ve6iYw6A=
 github.com/lord/slate v2.3.1+incompatible/go.mod h1:ujwDH+XJN1hPpN4JfN8Cp65e5jk3DGf+Jz0/nbJxoUM=
+github.com/olivernn/lunr.js v1.0.0 h1:nuldPy15372Ci6wClojzr8+3h1ECR3nbZZClwWLjlsU=
+github.com/olivernn/lunr.js v2.3.9+incompatible h1:eH8iBnjlR4mwlYDdNuqy9PCNLjp2bEs6aoNnTSaccx0=
+github.com/olivernn/lunr.js v2.3.9+incompatible/go.mod h1:yEkQ1DUSMtNsn8n2CqvQXZd0ErWPEG8g9QRmblR+KS8=
+github.com/slatedocs/slate v1.3.3 h1:RHj0k8bkGDsCWj+XC00u51cyvWqAKE2PEL7lfYIHR/o=
+github.com/slatedocs/slate v2.8.0+incompatible h1:6sSttsSro5SqSzr9VD5kA5a6XpnRP6a7X7981ljS0bc=
+github.com/slatedocs/slate v2.8.0+incompatible/go.mod h1:n698aXLkExWIlF7prJey0Kq6wlKIKvj/stVb5oouZDM=
