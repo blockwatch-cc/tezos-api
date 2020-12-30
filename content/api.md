@@ -11,7 +11,7 @@ title: Tezos API
 Mainnet: https://api.tzstats.com
 Mainnet Staging: https://api.staging.tzstats.com
 Delphinet: https://api.delphi.tzstats.com
-Carthagenet: https://api.carthagenet.tzstats.com
+Edonet: https://api.edo.tzstats.com
 ```
 
 TzStats provides a powerful Tezos API to access fully indexed raw data and statistics collected from the Tezos blockchain. Made and supported by [Blockwatch Data](https://blockwatch.cc). You may use this API free of charge and without limits for non-commercial projects. To inquire about commercial use send an email to license@blockwatch.cc.
