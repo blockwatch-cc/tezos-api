@@ -67,7 +67,7 @@ All our API responses are tagged with an API version that's included in the `X-A
 
 ### CORS
 
-TzStats Data API supports cross-origin HTTP requests, commonly referred as [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS). This means that you can call the API using Javascript from any browser. Right now CORS support is limited to localhost and the tzstats.com domain. Send a request to info@tzstats.com if you have an interesting use case and like to get whitelisted.
+TzStats Data API supports cross-origin HTTP requests, commonly referred as [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS). This means that you can call the API using Javascript from any browser. Right now CORS support is limited to localhost and the tzstats.com domain. Send a request to tzstats@blockwatch.cc if you have an interesting use case and like to get whitelisted.
 
 ### Rate Limits
 
