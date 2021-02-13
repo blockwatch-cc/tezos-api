@@ -47,7 +47,8 @@ title = "Tezos API Reference | TzStats"
 
 # Left sidebar footer items. Use HTMl or Markdown.
 toc_footers = [
-	"API v006-2020-06-24",
+	"[API v008-2021-02-10](https://tzstats.com/docs/api)",
+	"[API v006-2020-06-24](https://github.com/blockwatch-cc/tezos-api/tree/006-2020-06-24)",
 ]
 
 [languages.en.blackfriday]

@@ -112,7 +112,7 @@ curl "https://api.tzstats.com/tables/account?address=tz2TSvNTh2epDMhZHrw73nV9piB
   [
     278469,             // row_id
     278469,             // delegate_id
-    0,                  // manager_id
+    0,                  // creator_id
     "sppk7bn9MKAWDUFwqowcxA1zJgp12yn2kEnMQJP3WmqSZ4W8WQhLqJN" // pubkey
     "secp256k1",        // address_type
     360996,             // first_in
@@ -141,9 +141,6 @@ curl "https://api.tzstats.com/tables/account?address=tz2TSvNTh2epDMhZHrw73nV9piB
     8,                  // active_delegations
     1,                  // is_funded
     0,                  // is_activated
-    0,                  // is_vesting
-    1,                  // is_spendable
-    0,                  // is_delegatable
     0,                  // is_delegated
     1,                  // is_revealed
     1,                  // is_delegate
@@ -165,9 +162,10 @@ curl "https://api.tzstats.com/tables/account?address=tz2TSvNTh2epDMhZHrw73nV9piB
     2,                  // token_gen_min
     4875,               // token_gen_max
     160,                // grace_period
+    "08c80261",         // baker_version
     "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m", // address
     "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m", // delegate
-    null,               // manager
+    null,               // creator
     1553123452000,      // first_seen_time
     1570032391000,      // last_seen_time
     1553123452000,      // first_in_time
@@ -200,7 +198,7 @@ Field              | Description
 -------------------|--------------------------------------------------
 `row_id` *uint64*                   | Unique row identifier.
 `delegate_id` *uint64*              | Unique row_id of the delegate (baker) this account delegates to. If same as row_id, this is a baker account.
-`manager_id` *uint64*               | Account manager unique row_id.
+`creator_id` *uint64*               | Contract creator unique row_id.
 `address_type` *enum*               | Account address type `ed25519` (tz1), `secp256k1` (tz2), `p256` (tz3), `contract` (KT1) or `blinded` (btz1)
 `pubkey` *hash*                   | Revealed public key base58check encoded.
 `first_in` *int64*                | Block height of first incoming transaction.
@@ -229,9 +227,6 @@ Field              | Description
 `active_delegations` *int64*      | (baker only) Currently active and non-zero delegations.
 `is_funded` *bool*                | Flag indicating the account is funded.
 `is_activated` *bool*             | Flag indicating the account was activated from a commitment.
-`is_vesting` *bool*               | Flag indicating the account is a vesting contract.
-`is_spendable` *bool*             | Flag indicating the account balance is spendable.
-`is_delegatable` *bool*           | Flag indicating the account is delegatable.
 `is_delegated` *bool*             | Flag indicating the account is currently delegated.
 `is_revealed` *bool*              | Flag indicating the account has a revealed public key .
 `is_delegate` *bool*              | Flag indicating the account is a registered delegate.
@@ -253,9 +248,10 @@ Field              | Description
 `token_gen_min` *int64*           | Minimum generation number of all tokens owned.
 `token_gen_max` *int64*           | Maximum generation number of all tokens owned.
 `grace_period` *int64*            | (baker only) Current grace period before deactivation.
+`baker_version` *string*          | (baker only) Git hash of software version run to generate the most recent block (from block nonce).
 `address` *hash*                  | Account address base58check encoded.
 `delegate` *hash*                 | Account delegate address base58check encoded.
-`manager` *hash*                  | Account manager address base58check encoded.
+`creator` *hash*                  | Account creator address base58check encoded.
 `first_seen_time` *datetime*      | Block time of account creation.
 `last_seen_time` *datetime*       | Block time of last activity.
 `first_in_time` *datetime*        | Block time of first incoming transaction.
@@ -430,7 +426,7 @@ curl https://api.tzstats.com/tables/block?time.gte=today&limit=1
     4,                  // validation_pass
     20007610,           // fitness
     0,                  // priority
-    14737939769,        // nonce
+    "d74e7b6dbd050900", // nonce
     "promotion_vote",   // voting_period_kind
     35034,              // baker_id
     4294967295,         // endorsed_slots
@@ -470,6 +466,7 @@ curl https://api.tzstats.com/tables/block?time.gte=today&limit=1
     0.136,              // gas_price
     0,                  // storage_size
     58.567415,          // days_destroyed
+    1,                  // n_ops_implicit
     100,                // pct_account_reuse
     "tz1hThMBD8jQjFt78heuCnKxJnJtQo9Ao25X" // baker
   ]
@@ -668,27 +665,21 @@ curl "https://api.tzstats.com/tables/contract?address=KT1REHQ183LzfoVoqiDR87mCrt
 ```json
 [
   [
-    80,          // row_id
-    289810,      // account_id
-    289790,      // manager_id
-    438378,      // height
-    0.013587,    // fee
-    96082,       // gas_limit
-    95982,       // gas_used
-    0.142,       // gas_price
-    4082,        // storage_limit
-    3805,        // storage_size
-    3805,        // storage_paid
-    "00000eb30200000eae...",  // script
-    1,           // is_spendable
-    0,           // is_delegatable
-    3,           // op_l
-    5,           // op_p
-    0,           // op_i
-    "5f89baed",  // iface_hash
-    "KT1REHQ183LzfoVoqiDR87mCrt7CLUH1MbcV", // address
-    "tz1N74dH3VSeRTeKobbXUbyU82G8pqT2YYEM", // manager
-    "00000000"   // call stats
+    28402,                                   // row_id
+    "KT1Puc9St8wdNoGtLiD2WXaHbWU7styaxYhD",  // address
+    818466,                                  // account_id
+    813541,                                  // creator_id
+    1149672,                                 // first_seen
+    1342907,                                 // last_seen
+    34600,                                   // storage_size
+    34608,                                   // storage_paid
+    "00002e850200002e80050007...",           // script
+    "cf9361e1",                              // iface_hash
+    "666dcc01",                              // code_hash
+    "000000000000026...",                    // call_stats
+    "set_delegate,transfer_tokens",          // features
+    "DEXTER",                                // interfaces
+    "tz1P7A3YFgeSsGgopKN9vUU86W3psgTMdtcJ"   // creator
   ]
 ]
 ```
@@ -704,26 +695,20 @@ List creation-time information about smart contracts with embedded code and init
 Field              | Description
 -------------------|--------------------------------------------------
 `row_id` *uint64*           | Unique row identifier.
+`address` *hash*            | Contract address base58check encoded.
 `account_id` *uint64*       | Unique row_id of related account entry.
-`manager_id` *uint64*       | Manager account row_id (deprecated in v005 Babylon).
-`height` *int64*            | Origination block height.
-`fee` *money*               | Fee paid on contract origination.
-`gas_limit` *int64*         | Gas limit on contract origination.
-`gas_used` *int64*          | Gas used on contract origination.
-`gas_price` *float*         | Gas price on contract origination.
-`storage_limit` *int64*     | Storage limit defined on contract origination op.
+`creator_id` *uint64*       | Manager account row_id (deprecated in v005 Babylon).
+`first_seen` *int64*        | Block height of contract creation.
+`last_seen` *int64*         | Block height of last activity.
 `storage_size` *int64*      | Storage size allocated in bytes.
 `storage_paid` *int64*      | Storage bytes paid for in bytes.
 `script` *bytes*            | Binary encoded Michelson script and initial contract storage.
-`is_spendable` *bool*       | Flag indicating the contract balance is spendable (deprecated in v005 Babylon).
-`is_delegatable` *bool*     | Flag indicating the contract is delegatable (deprecated in v005 Babylon).
-`op_l` *int64*              | Origination block operation list number (0..3).
-`op_p` *int64*              | Origination block operation list position.
-`op_i` *int64*              | Internal origination operation list position.
 `iface_hash` *bytes*        | Short hash to uniquely identify the contract interface, first 4 bytes of the SHA256 hash over binary encoded Michelson script parameters.
-`address` *hash*            | Contract address base58check encoded.
-`manager` *hash*            | Contract manager address base58check encoded.
+`code_hash` *bytes*         | Short hash to uniquely identify the contract code, first 4 bytes of the SHA256 hash over binary encoded Michelson script code.
 `call_stats` *bytes*        | Big-endian uint32 call statistic counters per entrypoint. Only used on smart contracts.
+`features` *string*         | Comma separated list of Michelson features used by this contract. Any of `account_factory`, `contract_factory`, `set_delegate`, `lambda`, `transfer_tokens`, `chain_id`, `ticket`, `sapling`.
+`interfaces` *string*       | Comma separated list of standard interfaces implemented by this contract. Any of `MANAGER`, `SET_DELEGATE`, `TZIP-005`, `TZIP-007`, `TZIP-012`, `DEXTER`, `WXTZ_VAULT`, `KOLIBRI_VAULT` (list will be extended).
+`creator` *hash*            | Contract creator address base58check encoded.
 
 
 ## Election Table
@@ -823,6 +808,8 @@ curl "https://api.tzstats.com/tables/flow?address=tz2TSvNTh2epDMhZHrw73nV9piBX7k
     0,             // is_burned
     0,             // is_frozen
     0,             // is_unfrozen
+    0,             // is_shielded
+    0,             // is_unshielded
     1,             // token_gen_min
     1194,          // token_gen_max
     60,            // token_age
@@ -863,6 +850,8 @@ Field              | Description
 `is_burned` *bool*     | Flag indicating this flow burns coins.
 `is_frozen` *bool*     | Flag indicating this flow goes towards a freezer sub-account.
 `is_unfrozen` *bool*   | Flag indicating this flow comes from a freezer sub-account.
+`is_shielded` *bool*   | Flag indicating this flow shielded coins in Sapling.
+`is_unshielded` *bool* | Flag indicating this flow unshielded coins from Sapling.
 `token_gen_min` *int64*  | Minimum generation number of tokens moved.
 `token_gen_max` *int64*  | Maximum generation number of tokens moved.
 `token_age` *float*    | Age of tokens moved in days.
@@ -1023,7 +1012,7 @@ curl "https://api.tzstats.com/tables/op?time.gte=today&limit=1"
     0.000000,         // burned
     18957,            // sender_id
     0,                // receiver_id
-    0,                // manager_id
+    0,                // creator_id
     0,                // delegate_id
     0,                // is_internal
     1,                // has_data
@@ -1040,9 +1029,10 @@ curl "https://api.tzstats.com/tables/op?time.gte=today&limit=1"
     0,                // entrypoint_id
     0,                // is_orphan
     0,                // is_batch
+    0,                // is_sapling
     "tz1Z2jXfEXL7dXhs6bsLmyLFLfmAkXBzA9WE",  // sender
     null,             // receiver
-    null,             // manager
+    null,             // creator
     null              // delegate
   ]
 ]
@@ -1103,9 +1093,10 @@ Field              | Description
 `entrypoint_id` *int64*  | Serial id of the called entrypoint, only relevant if the operation was a transaction, the receiver is a smart contract and call parameters are present.
 `is_orphan` *bool*        | Flag indication whether this op was included in a block that was orphaned.
 `is_batch` *bool*         | Flag indicating if this operation is part of a batch operation list.
+`is_sapling` *bool*       | Flag indicating if this transaction interacted with a Sapling account.
 `sender` *hash*           | Address of the operation sender, always set.
 `receiver` *hash*         | Address of the receiver of a transaction, may be empty.
-`manager` *hash*          | Address of the new contract manager account, may be empty.
+`creator` *hash*          | Address of the original source of a contract call, may be empty.
 `delegate` *hash*         | Address of the new delegate account, may be empty.
 
 
@@ -1183,6 +1174,7 @@ curl "https://api.tzstats.com/tables/rights?address=tz2TSvNTh2epDMhZHrw73nV9piBX
     154,          // cycle
     3,            // priority
     278469,       // account_id
+    1,            // is_used
     0,            // is_lost
     0,            // is_stolen
     0,            // is_missed
@@ -1211,6 +1203,7 @@ Field              | Description
 `cycle` *int64*             | Cycle this right relates to.
 `priority` *int64*          | Baking priority of this right.
 `account_id` *uint64*       | Unique row_id of the baker who owns this right.
+`is_used` *bool*            | Flag indicating a right was used as intended.
 `is_lost` *bool*            | Flag indicating a baking right was lost to another baker. This flag appears when a baker fails to produce a block at the designated priority and another baker bakes the block at higher priority.
 `is_stolen` *bool*          | Flag indicating a baking right was stolen from another baker. This flag appears on the right relating to the actual baking priority.
 `is_missed` *bool*          | Flag indicating an endorser missed endorsing a slot.
@@ -1303,37 +1296,38 @@ curl "https://api.tzstats.com/tables/supply?time.gte=today&limit=1"
 ```json
 [
   [
-    632250,             // row_id
-    632249,             // height
-    154,                // cycle
-    1569974422000,      // time
-    811171614.329775,   // total
-    527007757.439372,   // activated
-    84447120.970808,    // unclaimed
-    27582743.428170,    // vested
-    125280976.174350,   // unvested
-    685888221.499699,   // circulating
-    457526565.844116,   // delegated
-    581437025.036545,   // staking
-    456454601.645863,   // active_delegated
-    578069662.395001,   // active_staking
-    1071964.198253,     // inactive_delegated
-    3367362.641544,     // inactive_staking
-    47009247.412181,    // minted
-    9779155.106655,     // minted_baking
-    37227647.430526,    // minted_endorsing
-    2444.875000,        // minted_seeding
-    100,                // minted_airdrop
-    156231.095106,      // burned
-    103509.825621,      // burned_double_baking
-    31838.219485,       // burned_double_endorse
-    6599.299000,        // burned_origination
-    14283.751000,       // burned_implicit
-    0,                  // burned_seed_miss
-    57902196.296935,    // frozen
-    56149246.000000,    // frozen_deposits
-    1752733.604963,     // frozen_rewards
-    216.691972          // frozen_fees
+    1342246,             // row_id
+    1342245,             // height
+    327,                 // cycle
+    1613174407000,       // time
+    866116758.904542,    // total
+    576334364.096960,    // activated
+    35120514.313220,     // unclaimed
+    46582751.428168,     // vested
+    106280968.174352,    // unvested
+    759835790.730190,    // circulating
+    533295452.655376,    // delegated
+    684826946.710113,    // staking
+    0.000000,            // shielded
+    531009506.095934,    // active_delegated
+    681028249.309738,    // active_staking
+    2285946.559442,      // inactive_delegated
+    3798697.400375,      // inactive_staking
+    102153556.968822,    // minted
+    32054769.288139,     // minted_baking
+    70092988.673362,     // minted_endorsing
+    5199.000000,         // minted_seeding
+    600.007321,          // minted_airdrop
+    355396.076980,       // burned
+    132029.815883,       // burned_double_baking
+    31838.219485,        // burned_double_endorse
+    9210.716000,         // burned_origination
+    176835.688250,       // burned_implicit
+    5481.637362,         // burned_seed_miss
+    60264181.814994,     // frozen
+    58508544.000000,     // frozen_deposits
+    1754196.047913,      // frozen_rewards
+    1441.767081          // frozen_fees
   ]
 ]
 ```
@@ -1360,6 +1354,7 @@ Field              | Description
 `circulating` *money*           | Circulating supply, i.e. all immediately spendable supply (anything but unvested coins).
 `delegated` *money*             | Delegated supply, i.e. all spendable supply owned by delegators.
 `staking` *money*               | Staking supply, i.e. delegated supply and supply owned by bakers in form of spendable balances, frozen deposits and frozen fees. Frozen rewards are explicitly excluded because they can be slashed.
+`shielded` *money*              | Shielded supply held in Sapling contracts.
 `active_delegated` *money*      | Portion of delegated supply that is delegated to active delegates.
 `active_staking` *money*        | Portion of staking supply available to active delegates and used for securing consensus.
 `inactive_delegated` *money*    | Portion of delegated supply that is delegated to inactive delegates.
@@ -1379,7 +1374,6 @@ Field              | Description
 `frozen_deposits` *money*       | Currently frozen bonds.
 `frozen_rewards` *money*        | Currently frozen rewards.
 `frozen_fees` *money*           | Currently frozen fees.
-
 
 
 

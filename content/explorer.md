@@ -21,20 +21,23 @@ Some endpoints support a simple pagination scheme to walk lists of results (i.e.
 Endpoint | Is Paged | Filter | Comment
 ---------|----------|--------|----------
 `GET /explorer/status`                    |   |   | indexer status |
-`GET /explorer/config/{id}`      |   |   | blockchain config at `head` or `height` |
+`GET /explorer/config/{id}`               |   |   | blockchain config at `head` or `height` |
 `GET /explorer/tip`                       |   |   | blockchain tip info |
-`GET /explorer/block/{id}`  |   |   | block info at `head`, `hash`, of `height` |
-`GET /explorer/block/{id}/op` **DEPRECATED** | x | `type` |  list block operations at `head`, `hash`, or `height` |
-`GET /explorer/block/{id}/operations` **NEW** | x | `type` |list block operations at `head`, `hash`, or `height` |
+`GET /explorer/protocols` **NEW**         |   |   | list of deployed protocols |
+`GET /explorer/metadata` **NEW**          |   |   | account metadata |
+`GET /explorer/bakers` **NEW**            |   |   | baker list |
+`GET /explorer/block/{id}`                |   |   | block info at `head`, `hash`, of `height` |
+`GET /explorer/block/{id}/op` **LEGACY** | x | `type` |  list block operations at `head`, `hash`, or `height` |
+`GET /explorer/block/{id}/operations`     | x | `type` |list block operations at `head`, `hash`, or `height` |
 `GET /explorer/op/{hash}`                 |   |   | operation info |
 `GET /explorer/account/{hash}`            |   |   | account info |
-`GET /explorer/account/{hash}/managed`    | x |   | list of contracts managed by this account |
-`GET /explorer/account/{hash}/op` **DEPRECATED**         | x | `type`, `block`, `since` | account info with embedded list of related operations |
-`GET /explorer/account/{hash}/operations` **NEW** | x | `type`, `block`, `since` | account info with embedded list of related operations |
+`GET /explorer/account/{hash}/contracts` **RENAMED**  | x |   | list of contracts managed by this account |
+`GET /explorer/account/{hash}/op` **LEGACY**  | x | `type`, `block`, `since` | account info with embedded list of related operations |
+`GET /explorer/account/{hash}/operations` | x | `type`, `block`, `since` | account info with embedded list of related operations |
 `GET /explorer/account/{hash}/ballots`    | x |   | list proposals and ballots |
 `GET /explorer/contract/{hash}`           |   |   | smart contract metadata |
 `GET /explorer/contract/{hash}/calls`     | x | `block`, `since`, `entrypoint` | list contract calls |
-`GET /explorer/contract/{hash}/manager`   |   |   | contract manager (pre-babylon) or originator |
+`GET /explorer/contract/{hash}/creator` **RENAMED**  |   |   | contract creator (a.k.a. manager) |
 `GET /explorer/contract/{hash}/script`    |   |   | smart contract code, storage and parameter spec |
 `GET /explorer/contract/{hash}/storage`   |   |   | smart contract storage |
 `GET /explorer/bigmap/{id}`               |   |   | bigmap metadata |
@@ -48,9 +51,9 @@ Endpoint | Is Paged | Filter | Comment
 `GET /explorer/election/{id}`             |   |   | election metadata and results at `head`, `num` or protocol `hash` |
 `GET /explorer/election/{id}/{stage}/voters`| x |   | election voter lists |
 `GET /explorer/election/{id}/{stage}/ballots`| x |   | election ballots lists |
-`GET /explorer/rank/balances` **NEW**     | x |   | accounts ranked by balance |
-`GET /explorer/rank/volume` **NEW**       | x |   | accounts ranked by 1D transaction volume |
-`GET /explorer/rank/traffic` **NEW**      | x |   | accounts ranked by 1D traffic |
+`GET /explorer/rank/balances`             | x |   | accounts ranked by balance |
+`GET /explorer/rank/volume`               | x |   | accounts ranked by 1D transaction volume |
+`GET /explorer/rank/traffic`              | x |   | accounts ranked by 1D traffic |
 `GET /markets`                            |   |   | list of known exchanges and markets |
 `GET /markets/tickers`                    |   |   | list of 1D market tickers |
 `GET /markets/{exchange}`                 |   |   | exchange status |
@@ -77,78 +80,74 @@ curl "https://api.tzstats.com/explorer/account/tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1C
   "pubkey": "p2pk67wVncLFS1DQDm2gVR45sYCzQSXTtqn3bviNYXVCq6WRoqtxHXL",
   "first_in": 30,
   "first_out": 4097,
-  "last_in": 217012,
-  "last_out": 217012,
+  "last_in": 1342841,
+  "last_out": 1342841,
   "first_seen": 1,
-  "last_seen": 217012,
+  "last_seen": 1342841,
   "delegate_since": 1,
   "first_in_time": "2018-06-30T18:11:27Z",
   "first_out_time": "2018-07-03T14:17:12Z",
-  "last_in_time": "2018-12-07T00:59:38Z",
-  "last_out_time": "2018-12-07T00:59:38Z",
+  "last_in_time": "2021-02-13T10:02:55Z",
+  "last_out_time": "2021-02-13T10:02:55Z",
   "first_seen_time": "2018-06-30T17:39:57Z",
-  "last_seen_time": "2018-12-07T00:59:38Z",
+  "last_seen_time": "2021-02-13T10:02:55Z",
   "delegate_since_time": "2018-06-30T17:39:57Z",
-  "total_received": 3199041.301565,
-  "total_sent": 0,
+  "total_received": 3199080.326956,
+  "total_sent": 3000000,
   "total_burned": 0,
-  "total_fees_paid": 0,
-  "total_rewards_earned": 786850.44285,
-  "total_fees_earned": 47.500561,
-  "frozen_deposits": 2085185,
-  "frozen_rewards": 81375.379532,
-  "frozen_fees": 4.363968,
-  "spendable_balance": 1819374.501477,
-  "total_balance": 3904563.865445,
-  "delegated_balance": 15908943.391749,
-  "total_delegations": 7,
-  "active_delegations": 6,
+  "total_fees_paid": 0.044374,
+  "total_rewards_earned": 3983406.864835,
+  "total_fees_earned": 1034.319477,
+  "total_lost": 0,
+  "frozen_deposits": 2060800,
+  "frozen_rewards": 61046.916177,
+  "frozen_fees": 47.928321,
+  "spendable_balance": 2061626.622397,
+  "total_balance": 4122474.550718,
+  "delegated_balance": 18921017.973163,
+  "total_delegations": 14,
+  "active_delegations": 9,
   "is_funded": true,
   "is_activated": true,
-  "is_vesting": false,
-  "is_spendable": true,
-  "is_delegatable": false,
   "is_delegated": false,
   "is_revealed": true,
   "is_delegate": true,
   "is_active_delegate": true,
   "is_contract": false,
-  "blocks_baked": 13503,
-  "blocks_missed": 469,
-  "blocks_stolen": 424,
-  "blocks_endorsed": 166900,
-  "slots_endorsed": 377390,
-  "slots_missed": 57309,
-  "n_ops": 167379,
+  "blocks_baked": 54686,
+  "blocks_missed": 590,
+  "blocks_stolen": 1349,
+  "blocks_endorsed": 937695,
+  "slots_endorsed": 1660562,
+  "slots_missed": 60304,
+  "n_ops": 940181,
   "n_ops_failed": 0,
-  "n_tx": 3,
+  "n_tx": 69,
   "n_delegation": 0,
   "n_origination": 0,
   "n_proposal": 0,
-  "n_ballot": 0,
+  "n_ballot": 11,
   "token_gen_min": 1,
-  "token_gen_max": 1,
-  "grace_period": 58,
-  "staking_balance": 19813507.257194,
-  "rolls": 1981,
-  "rich_rank": 19,
-  "traffic_rank": 0,
-  "volume_rank": 0,
-  "last_bake_height": 216999,
-  "last_bake_block": "BLcnJmEyNicviLBdiaCgCrCAmb1NCbvyigUdMtVdcVvRTeCL5Tj",
-  "last_bake_time": "2018-12-07T00:42:53Z",
-  "last_endorse_height": 217012,
-  "last_endorse_block": "BL7CdVSb8NNtm3EVXfZegmYNmp6jdL6oeLcLvZgugVwYhdBSNxt",
-  "last_endorse_time": "2018-12-07T00:59:38Z",
-  "next_bake_height": 217080,
+  "token_gen_max": 43238,
+  "grace_period": 333,
+  "staking_balance": 23043492.523881,
+  "staking_capacity": 44530768.468665,
+  "rolls": 2880,
+  "last_bake_height": 1342802,
+  "last_bake_block": "BLyPLQZ19VpVrAKfYd7fBfucjUFxbH8cPEKsudyBM1uJByMt315",
+  "last_bake_time": "2021-02-13T09:23:55Z",
+  "last_endorse_height": 1342841,
+  "last_endorse_block": "BLnw18a8buAJFFNtxkizMm4Bg7oRst3eaUebYBAEeUSRRDZdfLg",
+  "last_endorse_time": "2021-02-13T10:02:55Z",
+  "next_bake_height": 1342857,
   "next_bake_priority": 0,
-  "next_bake_time": "2018-12-07T02:07:38Z",
-  "next_endorse_height": 217013,
-  "next_endorse_time": "2018-12-07T01:00:38Z",
-  "avg_luck_64": 9953,
-  "avg_performance_64": 9861,
-  "avg_contribution_64": 9309,
-  "baker_version": "00000003"
+  "next_bake_time": "2021-02-13T10:18:55Z",
+  "next_endorse_height": 1342843,
+  "next_endorse_time": "2021-02-13T10:04:55Z",
+  "avg_luck_64": 10055,
+  "avg_performance_64": 9889,
+  "avg_contribution_64": 9970,
+  "baker_version": "08c80261"
 }
 ```
 
@@ -165,52 +164,47 @@ curl "https://api.tzstats.com/explorer/account/KT1QuofAgnsWffHzLA7D78rxytJruGHDe
   "address": "KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG",
   "address_type": "contract",
   "delegate": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
+  "creator": "KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG",
   "pubkey": "",
   "first_in": 30,
   "first_out": 30,
-  "last_in": 30,
-  "last_out": 30,
+  "last_in": 984007,
+  "last_out": 984007,
   "first_seen": 1,
-  "last_seen": 30,
+  "last_seen": 984056,
   "delegated_since": 1,
   "first_in_time": "2018-06-30T18:11:27Z",
   "first_out_time": "2018-06-30T18:11:27Z",
-  "last_in_time": "2018-06-30T18:11:27Z",
-  "last_out_time": "2018-06-30T18:11:27Z",
+  "last_in_time": "2020-06-05T19:25:32Z",
+  "last_out_time": "2020-06-05T19:25:32Z",
   "first_seen_time": "2018-06-30T17:39:57Z",
-  "last_seen_time": "2018-06-30T18:11:27Z",
+  "last_seen_time": "2020-06-05T20:14:32Z",
   "delegated_since_time": "2018-06-30T17:39:57Z",
   "total_received": 0,
-  "total_sent": 199041.301565,
+  "total_sent": 2822843.928521,
   "total_burned": 0,
   "total_fees_paid": 0,
-  "unclaimed_balance": 9354941.173593,
+  "unclaimed_balance": 6731138.546637,
   "spendable_balance": 0,
   "total_balance": 0,
   "is_funded": true,
   "is_activated": false,
-  "is_vesting": true,
-  "is_spendable": false,
-  "is_delegatable": false,
   "is_delegated": true,
   "is_revealed": false,
   "is_delegate": false,
   "is_active_delegate": false,
   "is_contract": true,
-  "n_ops": 3,
+  "n_ops": 31,
   "n_ops_failed": 0,
-  "n_tx": 3,
+  "n_tx": 31,
   "n_delegation": 0,
   "n_origination": 0,
-  "token_gen_min": 0,
-  "token_gen_max": 0,
-  "rich_rank": 0,
-  "traffic_rank": 0,
-  "volume_rank": 0
+  "token_gen_min": 1,
+  "token_gen_max": 1
 }
 ```
 
-Provides information about the most recent state of accounts and smart contracts. Baker accounts and delegator accounts contain additional state information. See the table below for details.
+Provides information about the most recent state of accounts and smart contracts. Baker accounts and delegator accounts contain additional state information. Use `meta` (boolean) to embed optional metadata. See the table below for details.
 
 ### HTTP Request
 
@@ -223,7 +217,7 @@ Field              | Description
 `address` *hash*              | Account address as base58-check encoded string.
 `address_type` *enum*         | Account address type `ed25519` (tz1), `secp256k1` (tz2), `p256` (tz3), `contract` (KT1) or `blinded` (btz1).
 `delegate` *hash*             | Current delegate (may be self when registered as delegate).
-`manager` *hash*              | Contract manager account.
+`creator` *hash*              | Contract creator account.
 `pubkey` *hash*               | Revealed public key.
 `first_in` *int64*            | Block height of first incoming transaction.
 `first_out` *int64*           | Block height of first outgoing transaction.
@@ -263,8 +257,6 @@ Field              | Description
 `is_funded` *bool*             | Flag indicating the account is funded.
 `is_activated` *bool*          | Flag indicating the account was activated from a commitment.
 `is_vesting` *bool*            | Flag indicating the account is a vesting contract.
-`is_spendable` *bool*          | Flag indicating the account balance is spendable.
-`is_delegatable` *bool*        | Flag indicating the account is delegatable.
 `is_delegated` *bool*          | Flag indicating the account is currently delegated.
 `is_revealed` *bool*           | Flag indicating the account has a revealed public key .
 `is_delegate` *bool*           | Flag indicating the account is a registered delegate.
@@ -287,9 +279,9 @@ Field              | Description
 `token_gen_max` *int64*        | Maximum generation number of all tokens owned.
 `grace_period` *int64* **baker-only**         | (delegate only) Current grace period before deactivation.
 `rolls` *int64* **baker-only**                | (delegate only) Currently owned rolls.
-`rich_rank` *int64*            | Global rank on rich list by total balance.
-`traffic_rank` *int64*         | Global rank on 1D most active accounts by transactions sent/received.
-`volume_rank` *int64*          | Global rank on 1D most active accounts by volume sent/received.
+`rich_rank` *int64* **meta-arg**           | Global rank on rich list by total balance. Requires `meta=1` argument.
+`traffic_rank` *int64* **meta-arg**        | Global rank on 1D most active accounts by transactions sent/received. Requires `meta=1` argument.
+`volume_rank` *int64* **meta-arg**         | Global rank on 1D most active accounts by volume sent/received. Requires `meta=1` argument.
 `last_bake_height` *int64* **baker-only**     | Height of most recent block baked.
 `last_bake_block` *hash* **baker-only**       | Hash of most recent block baked.
 `last_bake_time` *datetime* **baker-only**    | Timestamp of most recent block baked.
@@ -305,18 +297,19 @@ Field              | Description
 `avg_performance_64` *float* **baker-only**   | Average performance for the past 64 cycles (182 days, 6 months).
 `avg_contribution_64` *float* **baker-only**  | Average utilization of rights to bake/endorse blocks for the past 64 cycles. Since block rewards have become dynamic, a baker who fails to contribute to the consensus by utilizing 100% of their rights diminishes the income for other bakers.
 `baker_version` *hash* **baker-only**         | Software version run by the baker at the last seen block. This is the first 8 hex digits of the Git repository hash.
+`metadata` *object* **meta-arg**              | Embedded account metadata if available. Requires `meta=1` argument.
 
 ### List Account Operations
 
 `GET https://api.tzstats.com/explorer/account/{hash}/operations`
 
-Lists operations sent from and to an account (defaults to all types and ascending order). This endpoint supports pagination with `limit`, `offset` and `cursor`. Use `type` to [filter](#query-filters) for a specific operation type (e.g. transaction), `block` (int64|hash) to lock a call to a specific block height or hash (hash is reorg-aware and throws an error when block has become orphan). To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter.
+Lists operations sent from and to an account (defaults to all types and ascending order). This endpoint supports pagination with `limit`, `offset` and `cursor`. Use `type` to [filter](#query-filters) for a specific operation type (e.g. transaction), `block` (int64|hash) to lock a call to a specific block height or hash (hash is reorg-aware and throws an error when block has become orphan). To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter. Use `meta` (boolean) to add optional account metadata.
 
 ### List Managed and Created Contracts
 
-`GET https://api.tzstats.com/explorer/account/{hash}/managed`
+`GET https://api.tzstats.com/explorer/account/{hash}/contracts`
 
-Lists all contracts this account has originated.
+Lists all contracts this account has originated. This endpoint has been renamed from `../managed`.
 
 ### List Account Ballots
 
@@ -607,15 +600,12 @@ curl "https://api.tzstats.com/explorer/bigmap/382/updates"
 ```json
 [
   {
-    "action": "update",
     "key": "0501000000044e4c4576",
     "key_hash": "exprtxcQXJiJWzb5PvjHzkf2LKvnvmbvKdNDSvWzegiTMAKsvTgijL",
     "key_binary": "0501000000044e4c4576",
     "key_unpacked": "NLEv",
     "key_pretty": "NLEv",
-    "value": {
-      "0@bytes": "050000"
-    },
+    "value": "050000",
     "value_unpacked": "0",
     "meta": {
       "contract": "KT1NQfJvo9v8hXmEgqos8NP7sS8V4qaEfvRF",
@@ -626,6 +616,7 @@ curl "https://api.tzstats.com/explorer/bigmap/382/updates"
       "is_replaced": false,
       "is_removed": false
     },
+    "action": "update",
     "prim": {
       "key": {
         "bytes": "0501000000044e4c4576"
@@ -634,7 +625,7 @@ curl "https://api.tzstats.com/explorer/bigmap/382/updates"
         "bytes": "050000"
       }
     }
-  }
+  },
 ]
 ```
 
@@ -667,105 +658,99 @@ Field              | Description
 > **Example request.**
 
 ```shell
-curl "https://api.tzstats.com/explorer/block/627341"
+curl "https://api.tzstats.com/explorer/block/1342853?meta=1&rights=1"
 ```
 
 > **Example response.**
 
 ```json
 {
-  "hash": "BKqv8SBNabXEMXV9fsy21yx9BNsqWBKVVp9ca4KTMpGsF2Wi8Uj",
-  "predecessor": "BKr3kjkbi5LndjDTDDSPUWubZjrdSBCWLJudmuGYuiVuG2j8fvj",
-  "successor": "BLWT4x43zqzbtRzWNShkuU1DaTjU9fX34Qs4V3Hku2ZgYxiEpPW",
-  "baker": "tz1SxEdtfkFChtqioi96hvMfisj4mt744rXi",
-  "height": 627341,
-  "cycle": 153,
+  "hash": "BLhRjTFhk37a8vgE2M5DU2cCbtV3qJHaBBPvTboHfyLYV74hM99",
+  "predecessor": "BKjZfegUTsCD3eURHPur6L6zRmS6c6D9cdwLKoFDU9DcmJmWnaY",
+  "successor": "BMKvd7HhwnhCTSWGG2YkDrsWSugcZefo1V5i9gZ2Khz87S3e98k",
+  "baker": "tz1bTpviNnyx2PXsNmGpCQTMQsGoYordkUoA",
+  "height": 1342853,
+  "cycle": 327,
   "is_cycle_snapshot": false,
-  "time": "2019-09-28T13:10:51Z",
+  "time": "2021-02-13T10:16:55Z",
   "solvetime": 60,
-  "version": 4,
+  "version": 7,
   "validation_pass": 4,
-  "fitness": 19846425,
+  "fitness": 687493,
   "priority": 0,
-  "nonce": 16299522299,
+  "nonce": "6102c808a62a0100",
   "voting_period_kind": "promotion_vote",
-  "endorsed_slots": 4294967295,
-  "n_endorsed_slots": 32,
+  "endorsed_slots": 4294959103,
+  "n_endorsed_slots": 31,
   "n_ops": 28,
   "n_ops_failed": 0,
-  "n_ops_contract": 0,
-  "n_tx": 1,
+  "n_ops_contract": 1,
+  "n_tx": 7,
   "n_activation": 0,
   "n_seed_nonce_revelations": 0,
   "n_double_baking_evidences": 0,
   "n_double_endorsement_evidences": 0,
-  "n_endorsement": 26,
-  "n_delegation": 0,
+  "n_endorsement": 19,
+  "n_delegation": 1,
   "n_reveal": 1,
   "n_origination": 0,
   "n_proposal": 0,
   "n_ballot": 0,
-  "volume": 2047.9,
-  "fee": 0.01142,
-  "reward": 16,
+  "volume": 98233.072783,
+  "fee": 0.019784,
+  "reward": 38.75,
   "deposit": 512,
   "unfrozen_fees": 0,
   "unfrozen_rewards": 0,
   "unfrozen_deposits": 0,
   "activated_supply": 0,
-  "burned_supply": 0,
-  "n_accounts": 30,
-  "n_new_accounts": 0,
-  "n_new_implicit": 0,
+  "burned_supply": 0.19275,
+  "n_accounts": 31,
+  "n_new_accounts": 1,
+  "n_new_implicit": 1,
   "n_new_managed": 0,
   "n_new_contracts": 0,
   "n_cleared_accounts": 0,
-  "n_funded_accounts": 0,
-  "gas_limit": 20400,
-  "gas_used": 20200,
-  "gas_price": 0.56535,
-  "storage_size": 0,
-  "days_destroyed": 203.367847,
-  "pct_account_reuse": 100,
+  "n_funded_accounts": 3,
+  "gas_limit": 113904,
+  "gas_used": 15466,
+  "gas_price": 1.27919,
+  "storage_size": 621,
+  "days_destroyed": 812.427699,
+  "pct_account_reuse": 96.7741935483871,
   "n_ops_implicit": 1,
-  "endorsers": [
-    "tz3bvNMQ95vfAYtG8193ymshqjSvmxiCUuR5",
-    "tz1PeZx7FXy7QRuMREGXGxeipb24RsMMzUNe",
-    "tz3bTdwZinP8U1JmSweNzVKhmwafqWmFWRfk",
-    "tz1bLwpPfr3xqy1gWBF4sGvv8bLJyPHR11kx",
-    "tz3NExpXn9aPNZPorRE4SdjJ2RGrfbJgMAaV",
-    "tz1bHzftcTKZMTZgLLtnrXydCm6UEqf4ivca",
-    "tz3RB4aoyjov4KEVRbuhvQ1CKJgBJMWhaeB8",
-    "tz3UoffC7FG7zfpmvmjUmUeAaHvzdcUvAj6r",
-    "tz1TzaNn7wSQSP5gYPXCnNzBCpyMiidCq1PX",
-    "tz1VmiY38m3y95HqQLjMwqnMS7sdMfGomzKi",
-    "tz1PesW5khQNhy4revu2ETvMtWPtuVyH2XkZ",
-    "tz3NExpXn9aPNZPorRE4SdjJ2RGrfbJgMAaV",
-    "tz1Ldzz6k1BHdhuKvAtMRX7h5kJSMHESMHLC",
-    "tz1Xek93iSXXckyQ6aYLVS5Rr2tge2en7ZxS",
-    "tz1NpWrAyDL9k2Lmnyxcgr9xuJakbBxdq7FB",
-    "tz1bHzftcTKZMTZgLLtnrXydCm6UEqf4ivca",
-    "tz1TzaNn7wSQSP5gYPXCnNzBCpyMiidCq1PX",
-    "tz3WMqdzXqRWXwyvj5Hp2H7QEepaUuS7vd9K",
-    "tz1c5vSjZDMsgx7NCQapHjmSM5Wv9bjbwP9B",
-    "tz3bvNMQ95vfAYtG8193ymshqjSvmxiCUuR5",
-    "tz3WMqdzXqRWXwyvj5Hp2H7QEepaUuS7vd9K",
-    "tz1aJS7Pk9uWR3wWyFf1i3RwhYxN84G7stom",
-    "tz1TzaNn7wSQSP5gYPXCnNzBCpyMiidCq1PX",
-    "tz3WMqdzXqRWXwyvj5Hp2H7QEepaUuS7vd9K",
-    "tz1LH4L6XYT2JNPhvWYC4Zq3XEiGgEwzNRvo",
-    "tz1NpWrAyDL9k2Lmnyxcgr9xuJakbBxdq7FB",
-    "tz1Vd1rXpV8hTHbFXCXN3c3qzCsgcU5BZw1e",
-    "tz1NortRftucvAkD1J58L32EhSVrQEWJCEnB",
-    "tz1Vd1rXpV8hTHbFXCXN3c3qzCsgcU5BZw1e",
-    "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m",
-    "tz1TaLYBeGZD3yKVHQGBM857CcNnFFNceLYh",
-    "tz1abTjX2tjtMdaq5VCzkDtBnMSCFPW2oRPa"
+  "metadata": {
+    "tz1KfEsrtDaA1sX7vdM4qmEPWuSytuqCDp5j": {
+      "name": "XTZ Master",
+      "category": "validator",
+      "status": "public",
+      "country": "AU",
+      "twitter": "Xtzmastercom",
+      "logo": true,
+      "fee": 0.08,
+      "payout_delay": true
+    },
+    // ...
+  },
+  "rights": [
+    {
+      "type": "baking",
+      "priority": 0,
+      "account": "tz1bTpviNnyx2PXsNmGpCQTMQsGoYordkUoA",
+      "is_used": true
+    },
+    {
+      "type": "endorsing",
+      "slot": 0,
+      "account": "tz2FCNBrERXtaTtNX6iimR1UJ5JSDxvdHM93",
+      "is_used": true
+    },
+    // ...
   ]
 }
 ```
 
-Fetches information about the specified block. Takes either a block `hash`, a block `height` or the string `head` as argument.
+Fetches information about the specified block. Takes either a block `hash`, a block `height` or the string `head` as argument. Use `meta` (boolean) to embed optional account metadata and `rights` to embed rights information.
 
 ### HTTP Request
 
@@ -829,7 +814,8 @@ Field              | Description
 `storage_size` *int64*         | Total sum of new storage allocated by operations.
 `days_destroyed` *float*       | Token days destroyed (`tokens transferred * token idle time`).
 `pct_account_reuse` *float*    | Portion of seen accounts that existed before.
-`endorsers` *array[hash]*      | List of delegates with rights to endorse this block in slot order.
+`metadata` *object*            | Optional account metadata for baker and endorsers, missing when no metadata is available. Endorser metadata is only embedded when `rights` arg is also set.
+`rights` *array*               | List of endorsing (all slots) and baking rights (all priorities up to block priority) including owner and status.
 
 
 ### List Block Operations
@@ -837,7 +823,7 @@ Field              | Description
 > Example request to list block operations.
 
 ```shell
-curl "https://api.tzstats.com/explorer/block/head/operations"
+curl "https://api.tzstats.com/explorer/block/head/operations?meta=1"
 ```
 
 > **Example response.**
@@ -845,13 +831,13 @@ curl "https://api.tzstats.com/explorer/block/head/operations"
 ```json
 [
   {
-    "row_id": 4998272,
+    "row_id": 41092042,
     "hash": "",
     "type": "bake",
-    "block": "BLWyvBDjfUPKdSf4PQYVvNmHqgwNccH3uRnb6CK9Rzyfr5vCwL1",
-    "time": "2018-12-15T09:24:47Z",
-    "height": 228352,
-    "cycle": 55,
+    "block": "BMbQcVE5Yf7MnzGwHqFWHxwGgL4o6dBK1NywSSWVDYDFHZJijHE",
+    "time": "2021-02-13T10:23:55Z",
+    "height": 1342860,
+    "cycle": 327,
     "counter": 0,
     "op_n": 0,
     "op_l": -1,
@@ -868,15 +854,15 @@ curl "https://api.tzstats.com/explorer/block/head/operations"
     "storage_size": 0,
     "storage_paid": 0,
     "volume": 0,
-    "fee": 0.002,
-    "reward": 16,
-    "deposit": 440,
+    "fee": 0.001411,
+    "reward": 40,
+    "deposit": 512,
     "burned": 0,
     "is_internal": false,
     "has_data": false,
     "days_destroyed": 0,
-    "sender": "tz1Vm5cfHncKGBo7YvZfHc4mmudY4qpWzvSB",
-    "receiver": "tz1Vm5cfHncKGBo7YvZfHc4mmudY4qpWzvSB",
+    "sender": "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494",
+    "receiver": "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494",
     "branch_id": 0,
     "branch_height": 0,
     "branch_depth": 0,
@@ -884,16 +870,30 @@ curl "https://api.tzstats.com/explorer/block/head/operations"
     "is_implicit": true,
     "entrypoint_id": 0,
     "is_orphan": false,
-    "is_batch": false
+    "is_batch": false,
+    "is_sapling": false,
+    "metadata": {
+      "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494": {
+        "name": "Bakery IL",
+        "category": "validator",
+        "status": "public",
+        "country": "IL",
+        "city": "TLV",
+        "twitter": "bakery_il",
+        "logo": true,
+        "fee": 0.05,
+        "payout_delay": true
+      }
+    }
   },
   {
-    "row_id": 4998273,
-    "hash": "ooUeBLdSuEpdVxUKSNo8hVjjRa2eTVDPTbFYSaUFae8h6vBcHMV",
+    "row_id": 41092043,
+    "hash": "oot3dWrNZ575XFcnE3bEUutpTvgdpZKD8B4mi9R8bpueFoAS7Z2",
     "type": "endorsement",
-    "block": "BLWyvBDjfUPKdSf4PQYVvNmHqgwNccH3uRnb6CK9Rzyfr5vCwL1",
-    "time": "2018-12-15T09:24:47Z",
-    "height": 228352,
-    "cycle": 55,
+    "block": "BMbQcVE5Yf7MnzGwHqFWHxwGgL4o6dBK1NywSSWVDYDFHZJijHE",
+    "time": "2021-02-13T10:23:55Z",
+    "height": 1342860,
+    "cycle": 327,
     "counter": 0,
     "op_n": 1,
     "op_l": 0,
@@ -911,29 +911,43 @@ curl "https://api.tzstats.com/explorer/block/head/operations"
     "storage_paid": 0,
     "volume": 0,
     "fee": 0,
-    "reward": 2,
-    "deposit": 55,
+    "reward": 1.25,
+    "deposit": 64,
     "burned": 0,
     "is_internal": false,
     "has_data": true,
     "days_destroyed": 0,
-    "data": "64",
-    "sender": "tz1abTjX2tjtMdaq5VCzkDtBnMSCFPW2oRPa",
-    "branch_id": 228352,
-    "branch_height": 228351,
+    "data": "8192",
+    "sender": "tz1LBEKXaxQbd5Gtzbc1ATCwc3pppu81aWGc",
+    "branch_id": 1342860,
+    "branch_height": 1342859,
     "branch_depth": 1,
-    "branch": "BLDpbGZpTefKV1eripBKuyVdDjHofXpyZE2amkHxt7dc6JPtMwJ",
+    "branch": "BKsbXn1onZrqqeonG8PLaFVeuqjw2k3evdVjx5XtP8ippw3Hmyo",
     "is_implicit": false,
     "entrypoint_id": 0,
     "is_orphan": false,
-    "is_batch": false
+    "is_batch": false,
+    "is_sapling": false,
+    "metadata": {
+      "tz1LBEKXaxQbd5Gtzbc1ATCwc3pppu81aWGc": {
+        "name": "Tez-Baking",
+        "category": "validator",
+        "status": "public",
+        "country": "SE",
+        "city": "ARN",
+        "twitter": "TezBakingCom",
+        "logo": true,
+        "fee": 0.15,
+        "payout_delay": true
+      }
+    }
   },
   // ...
   ]
 }
 ```
 
-Returns a list of operations in the corresponding block. Use `limit`, `offset` and/or `cursor` (all integers) to page through operation lists. Operations are sorted by row_id in ascending order. Cursor is the last row_id in sort order you have seen. Use `order` to switch between `asc` or `desc` order. Allows filtering operations by `type` using [query filters](#query-filters).
+Returns a list of operations in the corresponding block. Use `limit`, `offset` and/or `cursor` (all integers) to page through operation lists. Operations are sorted by row_id in ascending order. Cursor is the last row_id in sort order you have seen. Use `order` to switch between `asc` or `desc` order. Allows filtering operations by `type` using [query filters](#query-filters). Use `meta` (boolean) to embed optional account metadata for all related accounts like senders, receivers, delegates.
 
 The result contains information about all events that happen on-chain. Some of these events are signed operations with a proper operation hash, others are implicit events that have no corresponding representation, but are still required to correctly reconcile account balances and on-chain state/relationships. Important examples for implicit events are `bake` and `unfreeze` which change balances of bakers on their sub-accounts.
 
@@ -961,10 +975,10 @@ curl "https://api.tzstats.com/explorer/config/head"
   "network": "Mainnet",
   "symbol": "XTZ",
   "chain_id": "NetXdQprcVkpaWU",
-  "deployment": 6,
-  "version": 6,
-  "protocol": "PsCARTHAGazKbHtnKfLzQg3kms52kSRpgnDY982a9oYsSXRLQEb",
-  "start_height": 851969,
+  "deployment": 7,
+  "version": 7,
+  "protocol": "PsDELPH1Kxsxt8f9eWbxQeRxkjfbxoqM52jvs5Y5fBxWWh4ifpo",
+  "start_height": 1212417,
   "end_height": -1,
   "no_reward_cycles": 0,
   "security_deposit_ramp_up_cycles": 0,
@@ -976,7 +990,7 @@ curl "https://api.tzstats.com/explorer/config/head"
   "blocks_per_cycle": 4096,
   "blocks_per_roll_snapshot": 256,
   "blocks_per_voting_period": 32768,
-  "cost_per_byte": 1000,
+  "cost_per_byte": 250,
   "endorsement_reward": 1.25,
   "endorsement_security_deposit": 64,
   "endorsers_per_block": 32,
@@ -985,7 +999,7 @@ curl "https://api.tzstats.com/explorer/config/head"
   "hard_storage_limit_per_operation": 60000,
   "max_operation_data_length": 16384,
   "max_proposals_per_delegate": 20,
-  "max_revelations_per_block": 32,
+  "max_revelations_per_block": 0,
   "michelson_maximum_type_size": 1000,
   "nonce_length": 32,
   "origination_burn": 0,
@@ -1010,7 +1024,9 @@ curl "https://api.tzstats.com/explorer/config/head"
   "endorsement_rewards_v6": [
     1.25,
     0.833333
-  ]
+  ],
+  "max_anon_ops_per_block": 132,
+  "num_voting_periods": 4
 }
 ```
 
@@ -1073,7 +1089,8 @@ Field                        | Description
 `quorum_max` *int64*                       | (Babylon, v005) Maximum threshold for voting period quorum in centile.
 `block_reward_v6` *[2]money*               | (Carthage, v006) Block reward per included endorsement for prio 0 blocks [0] or >prio 0 blocks [1].
 `endorsement_reward_v6` *[2]money*         | (Carthage, v006) Reward per endorsement for a prio 0 block [0] or >prio 0 block [1].
-
+`max_anon_ops_per_block` *int64*           | (Delphi, v007) Max number of anonymous ops like seed nonces.
+`num_voting_periods`*int64*                | (Edo, v008) Number of voting epochs, Edo introduced a 5th adoption period.
 
 ## Blockchain Tip
 
@@ -1092,10 +1109,23 @@ curl "https://api.tzstats.com/explorer/tip"
   "symbol": "XTZ",
   "chain_id": "NetXdQprcVkpaWU",
   "genesis_time": "2018-06-30T16:07:32Z",
-  "block_hash": "BLatWAoqAdnrVGg84P5JjmBd94mhJTP2EH1RcKwvU4NY9oc18Ud",
-  "timestamp": "2020-06-25T12:01:04Z",
-  "height": 1012215,
-  "cycle": 247,
+  "block_hash": "BLWxEruWC23hx6EvBFxr8SYCE36H2Xq3hFA3kDFEhSjBhQx7QRj",
+  "timestamp": "2021-02-13T10:27:55Z",
+  "height": 1342864,
+  "cycle": 327,
+  "total_accounts": 1101579,
+  "funded_accounts": 999143,
+  "total_ops": 39596837,
+  "delegators": 93314,
+  "delegates": 426,
+  "rolls": 84949,
+  "roll_owners": 404,
+  "new_accounts_30d": 103666,
+  "cleared_accounts_30d": 15709,
+  "funded_accounts_30d": 112848,
+  "inflation_1y": 40335052.002298,
+  "inflation_rate_1y": 4.884188578147172,
+  "health": 98,
   "deployments": [
     {
       "protocol": "PrihK96nBAFSxVL1GLJTVhu9YnzkMFiBeuJRPA8NwuZVZCE1L6i",
@@ -1151,59 +1181,55 @@ curl "https://api.tzstats.com/explorer/tip"
       "version": 6,
       "deployment": 6,
       "start_height": 851969,
+      "end_height": 1212416
+    },
+    {
+      "protocol": "PsDELPH1Kxsxt8f9eWbxQeRxkjfbxoqM52jvs5Y5fBxWWh4ifpo",
+      "version": 7,
+      "deployment": 7,
+      "start_height": 1212417,
       "end_height": -1
     }
   ],
-  "total_accounts": 637981,
-  "funded_accounts": 581073,
-  "total_ops": 26968187,
-  "delegators": 54432,
-  "delegates": 447,
-  "rolls": 84176,
-  "roll_owners": 423,
-  "new_accounts_30d": 55305,
-  "cleared_accounts_30d": 7591,
-  "funded_accounts_30d": 58011,
-  "inflation_1y": 40008551.634743,
-  "inflation_rate_1y": 4.998041680321219,
-  "health": 99,
   "supply": {
-    "row_id": 1012216,
-    "height": 1012215,
-    "cycle": 247,
-    "time": "2020-06-25T12:01:04Z",
-    "total": 840493105.260388,
-    "activated": 562049955.565323,
-    "unclaimed": 49404922.844857,
+    "row_id": 1342865,
+    "height": 1342864,
+    "cycle": 327,
+    "time": "2021-02-13T10:27:55Z",
+    "total": 866164181.179763,
+    "activated": 576359477.929109,
+    "unclaimed": 35095400.481071,
     "vested": 46582751.428168,
     "unvested": 106280968.174352,
-    "circulating": 734212137.086036,
-    "delegated": 538761123.695065,
-    "staking": 683877151.19962,
-    "active_delegated": 533927971.023448,
-    "active_staking": 674670384.951156,
-    "inactive_delegated": 4833152.671617,
-    "inactive_staking": 9206766.248464,
-    "minted": 76426268.580089,
-    "minted_baking": 19259188.538139,
-    "minted_endorsing": 57162555.40963,
-    "minted_seeding": 3924.625,
-    "minted_airdrop": 600.00732,
-    "burned": 251761.332401,
-    "burned_double_baking": 114197.267834,
+    "circulating": 759883213.005411,
+    "delegated": 533114195.249729,
+    "staking": 684588680.629035,
+    "shielded": 0,
+    "active_delegated": 530853021.716629,
+    "active_staking": 680814744.486729,
+    "inactive_delegated": 2261173.5331,
+    "inactive_staking": 3773936.142306,
+    "minted": 102201165.989543,
+    "minted_baking": 32078464.975639,
+    "minted_endorsing": 70116902.006583,
+    "minted_seeding": 5199,
+    "minted_airdrop": 600.007321,
+    "burned": 355582.82248,
+    "burned_double_baking": 132029.815883,
     "burned_double_endorse": 31838.219485,
-    "burned_origination": 7715.422,
-    "burned_implicit": 94244.588,
-    "burned_seed_miss": 3765.835082,
-    "frozen": 55126202.081035,
-    "frozen_deposits": 53462976,
-    "frozen_rewards": 1662378.415212,
-    "frozen_fees": 847.665823
+    "burned_origination": 9211.19225,
+    "burned_implicit": 177021.9575,
+    "burned_seed_miss": 5481.637362,
+    "frozen": 61860304.599122,
+    "frozen_deposits": 60057024,
+    "frozen_rewards": 1801805.068634,
+    "frozen_fees": 1475.530488
   },
   "status": {
+    "mode": "sync",
     "status": "synced",
-    "blocks": 1012215,
-    "indexed": 1012215,
+    "blocks": 1342864,
+    "indexed": 1342864,
     "progress": 1
   }
 }
@@ -1252,63 +1278,53 @@ Field                        | Description
 > **Example request.**
 
 ```shell
-curl "https://api.tzstats.com/explorer/contract/KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG"
+curl "https://api.tzstats.com/explorer/contract/KT1Puc9St8wdNoGtLiD2WXaHbWU7styaxYhD"
 ```
 
 > **Example response.**
 
 ```json
 {
-  "address": "KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG",
-  "manager": "",
-  "delegate": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
-  "height": 1,
-  "op_l": 3,
-  "op_p": 2,
-  "op_i": 0,
-  "fee": 0,
-  "gas_limit": 0,
-  "gas_used": 0,
-  "gas_price": 0,
-  "storage_limit": 0,
-  "storage_size": 0,
-  "storage_paid": 0,
-  "is_funded": true,
-  "is_vesting": true,
-  "is_spendable": false,
-  "is_delegatable": false,
-  "is_delegated": true,
-  "first_in": 30,
-  "first_out": 30,
-  "last_in": 30,
-  "last_out": 30,
-  "first_seen": 1,
-  "last_seen": 30,
-  "delegated_since": 1,
-  "first_in_time": "2018-06-30T18:11:27Z",
-  "first_out_time": "2018-06-30T18:11:27Z",
-  "last_in_time": "2018-06-30T18:11:27Z",
-  "last_out_time": "2018-06-30T18:11:27Z",
-  "first_seen_time": "2018-06-30T17:39:57Z",
-  "last_seen_time": "2018-06-30T18:11:27Z",
-  "delegated_since_time": "2018-06-30T17:39:57Z",
-  "n_ops": 3,
-  "n_ops_failed": 0,
-  "n_tx": 3,
-  "n_delegation": 0,
-  "n_origination": 0,
-  "token_gen_min": 0,
-  "token_gen_max": 0,
-  "bigmap_ids": [],
-  "iface_hash": "4ff4b751",
-  "call_stats": [
-    0,
-    2
+  "address": "KT1Puc9St8wdNoGtLiD2WXaHbWU7styaxYhD",
+  "creator": "tz1P7A3YFgeSsGgopKN9vUU86W3psgTMdtcJ",
+  "delegate": "tz1WCd2jm4uSt4vntk4vSuUWoZQGhLcDuR9q",
+  "storage_size": 34600,
+  "storage_paid": 34608,
+  "first_seen": 1149672,
+  "last_seen": 1342865,
+  "first_seen_time": "2020-09-29T16:18:45Z",
+  "last_seen_time": "2021-02-13T10:28:55Z",
+  "n_ops": 13765,
+  "n_ops_failed": 158,
+  "bigmaps": {
+    "accounts": 124
+  },
+  "iface_hash": "cf9361e1",
+  "code_hash": "666dcc01",
+  "call_stats": {
+    "addLiquidity": 608,
+    "approve": 0,
+    "default": 0,
+    "removeLiquidity": 230,
+    "setBaker": 0,
+    "setManager": 0,
+    "tokenToToken": 16,
+    "tokenToXtz": 2421,
+    "updateTokenPool": 0,
+    "updateTokenPoolInternal": 0,
+    "xtzToToken": 2195
+  },
+  "features": [
+    "set_delegate",
+    "transfer_tokens"
+  ],
+  "interfaces": [
+    "DEXTER"
   ]
 }
 ```
 
-Returns metadata about the smart contract. For more details call the [explorer account endpoint](#accounts) using the contract's KT1 address. Separate calls support querying contract code, storage type and entrypoint specifications, storage contents and calls.
+Returns metadata about a smart contract. For more details call the [explorer account endpoint](#accounts) using the contract's KT1 address. Separate calls support querying contract code, storage type and entrypoint specifications, storage contents and calls.
 
 
 ### **SECURITY WARNING**
@@ -1326,48 +1342,24 @@ Unlike other on-chain data where values and ranges are predictable the contents 
 Field              | Description
 -------------------|--------------------------------------------------
 `address` *hash*   | Contract address.
-`manager` *hash*   | Manager account (deprecated in v005 Babylon).
+`creator` *hash*   | Creator account (called manager before Babylon.
 `delegate` *hash*  | Delegate (may be empty).
-`height` *int64*     | Origination block height.
-`op_l` *int64*           | Origination block operation list number (0..3).
-`op_p` *int64*           | Origination block operation list position.
-`op_i` *int64*           | Internal origination operation list position.
-`fee` *money*           | Fee paid on contract origination.
-`gas_limit` *int64*       | Gas limit on contract origination.
-`gas_used` *int64*        | Gas used on contract origination.
-`gas_price` *float*     | Gas price on contract origination.
-`storage_limit` *int64*   | Storage limit defined on contract origination op.
 `storage_size` *int64*    | Storage size allocated in bytes.
 `storage_paid` *int64*    | Storage bytes paid for in bytes.
-`is_funded` *bool*             | Flag indicating the contract is funded.
-`is_vesting` *bool*            | Flag indicating the contract is a vesting contract.
-`is_spendable` *bool*          | Flag indicating the contract balance is spendable.
-`is_delegatable` *bool*        | Flag indicating the contract is delegatable.
-`is_delegated` *bool*          | Flag indicating the contract is currently delegated.
-`first_in` *int64*                  | Block height of first incoming transaction.
-`first_out` *int64*                 | Block height of first outgoing transaction.
-`last_in` *int64*                   | Block height of latest incoming transaction.
-`last_out` *int64*                  | Block height of latest outgoing transaction.
 `first_seen` *int64*                | Block height of account creation.
 `last_seen` *int64*                 | Block height of last activity.
 `delegated_since` *int64*           | Block height of most recent delegation.
-`first_in_time` *datetime*        | Block time of first incoming transaction.
-`first_out_time` *datetime*       | Block time of first outgoing transaction.
-`last_in_time` *datetime*         | Block time of latest incoming transaction.
-`last_out_time` *datetime*        | Block time of latest outgoing transaction.
 `first_seen_time` *datetime*      | Block time of account creation.
 `last_seen_time` *datetime*       | Block time of last activity.
-`delegated_since_time` *datetime* | Block time of most recent delegation.
 `n_ops` *int64*                  | Lifetime total number of operations sent and received.
 `n_ops_failed` *int64*           | Lifetime total number of operations sent that failed.
-`n_tx` *int64*                   | Lifetime total number of transactions sent and received.
-`n_delegation` *int64*           | Lifetime total number of delegations sent.
-`n_origination` *int64*          | Lifetime total number of originations sent.
-`token_gen_min` *int64*        | Minimum generation number of all tokens owned.
-`token_gen_max` *int64*        | Maximum generation number of all tokens owned.
-`bigmap_ids` *[]int64*         | Array of bigmap ids owned by this contract.
+`bigmaps` *object*               | Named bigmaps owned by this contract, map between annotation used in storage spec and bigmap id.
 `iface_hash` *bytes*           | Short hash to uniquely identify the contract interface, first 4 bytes of the SHA256 hash over binary encoded Michelson script parameters.
-`call_stats` *array*           | Per-entrypoint call statistics, an integer array containing running totals for each entrypoint in id order.
+`code_hash` *bytes*            | Short hash to uniquely identify the contract code, first 4 bytes of the SHA256 hash over binary encoded Michelson script code.
+`call_stats` *object*          | Per-entrypoint call statistics, as named key/value pairs.
+`features` *array*             | Michelson features used by this contract. Any of `account_factory`, `contract_factory`, `set_delegate`, `lambda`, `transfer_tokens`, `chain_id`, `ticket`, `sapling`.
+`interfaces` *array*           | Standard interfaces implemented by this contract. Any of `MANAGER`, `SET_DELEGATE`, `TZIP-005`, `TZIP-007`, `TZIP-012`, `DEXTER`, `WXTZ_VAULT`, `KOLIBRI_VAULT` (list will be extended).
+
 
 ### Related HTTP Requests
 
@@ -1480,7 +1472,7 @@ Field              | Description
 
 `GET https://api.tzstats.com/explorer/contract/{hash}/calls`
 
-Returns calls (transactions) sent to the contract with embedded parameters, storage and bigmap updates. Use the optional `prim` (boolean) argument to embed Michelson primitive trees in addition to unboxed call data. To query calls until a specific block use the optional query argument `block` (int64|hash). Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter (defaults to ascending). Use the optional `entrypoint` (int64|string) argument to filter calls by entrypoint. This argument takes either an id value (eg. 7), a name (eg. "mint") or the branch (eg. "RRR").
+Returns calls (transactions) sent to the contract with embedded parameters, storage and bigmap updates. Use the optional `prim` (boolean) argument to embed Michelson primitive trees in addition to unboxed call data. To query calls until a specific block use the optional query argument `block` (int64|hash). Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter (defaults to ascending). Use the optional `entrypoint` (int64|string) argument to filter calls by entrypoint. This argument takes either an id value (eg. 7), a name (eg. "mint") or the branch (eg. "RRR"). Use `meta` (boolean) to add account metadata.
 
 
 ### Unboxed Call Parameters
@@ -1581,11 +1573,11 @@ Field              | Description
 
 
 
-### Get Contract Manager
+### Get Contract Creator
 
-`GET https://api.tzstats.com/explorer/contract/{hash}/manager`
+`GET https://api.tzstats.com/explorer/contract/{hash}/creator`
 
-Returns the manager of the contract (before Babylon) or the originator account (Babylon and later).
+Returns the originator account of this contract. This endpoint was called `../manager` before.
 
 
 
@@ -2027,6 +2019,7 @@ curl "https://api.tzstats.com/explorer/status"
 
 ```json
 {
+  "mode": "sync",
   "status": "synced",
   "blocks": 626399,
   "indexed": 626399,
@@ -2044,6 +2037,7 @@ Returns the current indexer status, useful to check of the indexer is in sync wi
 
 Field              | Description
 -------------------|--------------------------------------------------
+`mode` *enum*      | Chain crawling mode (`sync` = live monitoring).
 `status` *enum*    | Indexer status (`connecting`, `syncing`, `synced`, `failed`).
 `blocks` *int64*   | Most recent block height seen by the connected Tezos node.
 `indexed` *int64*  | Most recent block height indexed.
@@ -2141,7 +2135,7 @@ curl "https://api.tzstats.com/explorer/op/opSrt7oYHDTZcfGnhNt3BzGrrCQf364VuYmKo5
 ```json
 [
   {
-    "row_id": 28059456,
+    "row_id": 28086947,
     "hash": "opSrt7oYHDTZcfGnhNt3BzGrrCQf364VuYmKo5ZQVQRfTnczjnf",
     "type": "transaction",
     "block": "BL1PGezBat3BX1N2rnk1qycTJbCXdWJwYoGBChyeFyYJABGLyZ9",
@@ -2181,13 +2175,13 @@ curl "https://api.tzstats.com/explorer/op/opSrt7oYHDTZcfGnhNt3BzGrrCQf364VuYmKo5
     "entrypoint_id": 0,
     "is_orphan": false,
     "is_batch": true,
-    "batch_volume": 261.785412
+    "is_sapling": false
   },
   // ...
 ]
 ```
 
-Returns info about a single operation or a list of related operations. Because Tezos supports batch operations (multiple operations sharing the same hash), internal operations (created by smart contract calls in response to a transaction) and implicit events (state changes that do not have an operation hash) this endpoint always returns an array of operation objects. In many cases this array contains one element only. Use the optional `prim` (boolean) parameter to embed Michelson primitive trees with smart contract calls.
+Returns info about a single operation or a list of related operations. Because Tezos supports batch operations (multiple operations sharing the same hash), internal operations (created by smart contract calls in response to a transaction) and implicit events (state changes that do not have an operation hash) this endpoint always returns an array of operation objects. In many cases this array contains one element only. Use the optional `prim` (boolean) parameter to embed Michelson primitive trees with smart contract calls. Use `meta` (boolean) to add optional account metadata.
 
 ### HTTP Request
 
@@ -2239,7 +2233,7 @@ Field              | Description
 `sender` *hash*          | Operation sender.
 `receiver` *hash*        | Transaction receiver, may be empty. For `activate_account` the source account is referenced when the activation merged coins from a second blinded account (ie. when a fundraiser signed up twice). For `delegation` the previous delegate is referenced. For `seed_nonce_revelation` the actual seed publisher is referenced.
 `delegate` *hash*        | New Delegate, only used by `origination` and `delegation`. When empty for a `delegation` the operation was a delegate withdrawal.
-`manager` *hash*         | Contains contract manager (Athens) or creator (Babylon+) on `origination`. For internal `transactions`, the original sender of the external transaction is referenced.
+`creator` *hash*         | Contains contract creator on `origination`. For internal `transactions`, the original sender of the external transaction is referenced.
 `branch_id` *uint64*     | Row id of the branch block this op refers to.
 `branch_height` *int64*  | Height of the branch block this op refers to.
 `branch_depth` *int64*   | Count of blocks between branch block and block including this op.
@@ -2248,6 +2242,7 @@ Field              | Description
 `is_orphan` *bool*       | Flag indicating whether this operation was orphaned (not included in any block).
 `is_batch` *bool*        | Flag indicating if this operation is part of a batch operation list.
 `batch_volume` *money*   | Total amount transferred in a batch operation list. Only available of the first operation of a batch list and only when any transfers happened.
+`metadata` *object*      | Use `meta=1` to embed optional account metadata for sender, receiver, delegate, creator. May be empty if no account has metadata defined.
 
 ### List of supported operation types
 
@@ -2267,6 +2262,7 @@ Field              | Description
 - `seed_slash` (implict, no hash, block header event `op_n = -1`)
 - `airdrop` (implict, no hash, protocol upgrade event `op_n = -2`)
 - `invoice` (implict, no hash, protocol upgrade event `op_n = -2`)
+- `migration` (implict, no hash, protocol upgrade event `op_n = -2`)
 
 ### Decoding Operation Data
 

@@ -56,7 +56,7 @@ All our API responses are tagged with an API version that's included in the `X-A
 > **Current TzStats Mainnet Response Headers**
 
     # API version
-    X-Api-Version:   v006-2020-02-12
+    X-Api-Version:   v008-2021-02-10
 
     # Tezos Network (chain id)
     X-Network-Id:    NetXdQprcVkpaWU
@@ -156,12 +156,12 @@ Timestamps in queries can be expressed in multiple ways:
 The TzStats Data API responds with regular HTTP status codes in the `2xx` range to indicate success, in the `4xx` range to indicate client-side errors and in the `5xx` range to indicate backend errors. The response body contains additional information encoded as JSON object.
 
 - `200 OK` Success
-- `400 Bad Request` Missing required fields of malformed request data
+- `400 Bad Request` Missing required fields of malformed request data, your fault
 - `404 Not Found` No such object
 - `405 Method Not Allowed` Unsupported request method
 - `409 Conflict` Resource state conflict
 - `429 Too Many Requests` Request limit exceeded
-- `500 Internal Server` Something went wrong
+- `500 Internal Server` Something went wrong, not your fault
 - `502 Bad Gateway` Your request has reached a timeout and was cancelled, try to reduce the range of data in your request
 - `504 Gateway Timeout` Our backend is overloaded or down for maintenance, wait a while before retry
 

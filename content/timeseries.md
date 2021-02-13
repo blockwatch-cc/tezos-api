@@ -374,6 +374,7 @@ curl "https://api.tzstats.com/series/supply?start_date=today&collapse=1d"
     699889185.554441, // circulating
     516489777.211404, // delegated
     660867550.008684, // staking
+    0,                // shieled
     514264193.700025, // active_delegated
     649473768.198626, // active_staking
     2225583.511379,   // inactive_delegated
@@ -420,6 +421,7 @@ Field              | Description
 `circulating` *money*           | current circulating supply (by unanimous consent this is total - unvested even though frozen supply cannot move next block but still counts against total network value)
 `delegated` *money*             | current delegated supply (balances of all delegators)
 `staking` *money*               | current staking supply (balances of delegators and all bakers even if inactive, see below)
+`shielded` *money*              | current shielded supply (balances held in Sapling contracts)
 `active_delegated` *money*      | current active delegated supply (balances of all delegators delegating to active bakers)
 `active_staking` *money*        | current active staking supply (balances of all active bakers and their delegators)
 `inactive_delegated` *money*    | current inactive delegated supply (balances of all delegators delegating to inactive bakers)

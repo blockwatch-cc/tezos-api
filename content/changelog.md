@@ -7,6 +7,51 @@ title: Changelog
 
 Recent changes and additions to the TzStats Data API.
 
+## 2021-02-10 {#2021-02-10}
+
+A big deal of behind-the-scenes performance improvements went into this release, so that we are able to deliver the snappy response times you're used to. We've started to **prune irrelevant historic data** from `rights` (unused bolck priorities) and `snapshots` (non-selected baker and delegator balances) to make querying relevant data faster.
+
+We also reworked our smart contract data model, stripping less useful fields available elsewhere and adding new fields like detected interface standard and used Michelson features. When contract code is patched by a protocol upgrade we now add an implicit migration operation and update the stored representation of contract code as well. The previous version of the contract code is still available, either as part of the origination or the most recent migration operation.
+
+This release adds support for Edo, namely Michelson extensions tickets, comb pairs and lazy storage (currently still exposed as bigmap on the API) as well as simple Sapling support (traking total Sapling supply and flows). Please reach out to tzstats@blockwatch.cc if you need additional Sapling or ticket support.
+
+We decided to not remove deprecated operation listing endpoints because many people still use them and we found a way to optimize their performance.
+
+### BREAKING CHANGES
+- **api/contract:** simplified and extended contract data model
+- **api/contract:** replaced `bigmap_ids` array (numeric only) with `bigmaps` object (mapping name to bigmap id)
+- **api/contract:** renamed `/explorer/contract/{hash}/manager` to `/explorer/contract/{hash}/creator`
+- **api/block:** removed `endorsers` list and replaced it with an optional more informative but `rights` list (use new query arg `rights=1`)
+- **api/account:** renamed `/explorer/account/{hash}/managed` to `/explorer/account/{hash}/contracts`
+- **api/account:** removed deprecated fields `is_delegatable`, `is_spendable` and `is_vesting`
+- **api/account:** renamed field `manager` to `creator`
+- **api/op:** renamed field `manager` to `creator`
+
+
+### NEW FEATURES
+- **api/metadata:** added structured metadata to accounts, available as optional embedded field `metadata` on all accounts, operations, contracts, and contract calls (use new query arg `meta=1`)
+- **api/metadata:** account metadata is also available as list on `/explorer/metadata` and single objects on `/explorer/metadata/{hash}`
+- **api/contract:** added new lists `interfaces` and `features` that signal whether a contract implements any well-known interface standard or uses a specific Michelson feature
+- **api/block:** added new `rights` list that details owner and status of baking and endorsing rights
+- **api/bakers:** added new endpoint `/explorer/bakers` with several filters to list all active public and non-public bakers
+- **api/op:** new implicit contract migration operations as event log about changes to deployed contracts on protocol upgrades
+- **api/protocols:**: new endpoint `/explorer/protocols` to list all deployed protocols,
+- **api/bigmap:** support bigmap pair keys from comma separated url args
+- **etl** support Edonet, Edo protocol, new Edo opcodes, comb pairs, tickets and lazy storage
+- **etl** detect Sapling enabled accounts, flag them in contract `features`
+- **etl/flow** new `is_shielded` and `is_unshielded` flags to indicate flows into and out of Sapling contracts
+- **etl/op** new `is_sapling` flag to indicate a transaction interacted with a Sapling contracts
+
+
+### FIXES
+- **etl/account**: fix removing accounts on rollback
+- **api/bigmap**: more bigmap value rendering fixes
+
+
+### DEPRECATION NOTICES
+- **api/explorer**: `deployments` list in `/explorer/tip` will be removed in a future version
+
+
 ## 2020-06-24 {#2020-06-24}
 
 To handle the surge in volume we're optimizing a few of the most heavily used API endpoints. Our aim is to improve user experience and stabilty for everybody.
