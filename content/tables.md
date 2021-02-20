@@ -1022,7 +1022,6 @@ curl "https://api.tzstats.com/tables/op?time.gte=today&limit=1"
     null,             // big_map_diff
     null,             // errors
     0,                // days_destroyed
-    689942,           // branch_id
     689941,           // branch_height
     1,                // branch_depth
     0,                // is_implicit
@@ -1086,7 +1085,6 @@ Field              | Description
 `big_map_diff` *bytes*    | Inserted, updated or deleted bigmap entries as hex-encoded binary data serialized according to Micheline serialization for protocol v005 Babylon, contract-only.
 `errors` *bytes*          | When failed, contains details about the reason as escaped JSON string.
 `days_destroyed` *float*  | Token days destroyed by this operation (`tokens transferred * token idle time`).
-`branch_id` *uint64*      | Row id of the branch block this op refers to.
 `branch_height` *int64*   | Height of the branch block this op refers to.
 `branch_depth` *int64*    | Count of blocks between branch block and block including this op.
 `is_implicit` *bool*      | Flag indicating implicit on-chain events, ie. state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop` and `invoice`.

@@ -26,7 +26,7 @@ We decided to not remove deprecated operation listing endpoints because many peo
 - **api/account:** removed deprecated fields `is_delegatable`, `is_spendable` and `is_vesting`
 - **api/account:** renamed field `manager` to `creator`
 - **api/op:** renamed field `manager` to `creator`
-
+- **api/op:** branch info moved behind the `meta` flag
 
 ### NEW FEATURES
 - **api/metadata:** added structured metadata to accounts, available as optional embedded field `metadata` on all accounts, operations, contracts, and contract calls (use new query arg `meta=1`)

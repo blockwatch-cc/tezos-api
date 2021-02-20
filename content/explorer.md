@@ -256,7 +256,6 @@ Field              | Description
 `active_delegations` *int64* **baker-only**   | (delegate only) Currently active and non-zero delegations.
 `is_funded` *bool*             | Flag indicating the account is funded.
 `is_activated` *bool*          | Flag indicating the account was activated from a commitment.
-`is_vesting` *bool*            | Flag indicating the account is a vesting contract.
 `is_delegated` *bool*          | Flag indicating the account is currently delegated.
 `is_revealed` *bool*           | Flag indicating the account has a revealed public key .
 `is_delegate` *bool*           | Flag indicating the account is a registered delegate.
@@ -316,6 +315,96 @@ Lists all contracts this account has originated. This endpoint has been renamed 
 `GET https://api.tzstats.com/explorer/account/{hash}/ballots`
 
 Lists all voting ballots the account has sent. This applies to bakers only.
+
+## Bakers
+
+Get a list of all active bakers, their current status and affiliation metadata. Optionally filter by **status** and **country** or get a random list of **suggestions** for a given account. This endpoint is supposed to be a simple to use listing feature for wallets and other dapps who like to enable delegation.
+
+### Filter Options
+
+You can filter the baker list by the following criteria
+
+Argument           | Description
+-------------------|--------------------------------------------------
+`status` *enum*    | Filter by baker status `public`, `private`, `closing`, `closed`.
+`country` *enum*   | Filter by baker country of operation (use ISO 3166-1 Alpha-2 country codes, that's two uppercase letters like US, DE, FR)
+`suggest` *address* | Return a suggested list of bakers for the given address (see below)
+`cursor` *int*     | Last baker id after which to continue listing, use for paging.
+`limit` *int*      | Max number of results to return (max 100).
+`offset` *int*     | Skip first N results, use for paging instead of cursor.
+
+### Baker Metadata
+
+> **Example request.**
+
+```shell
+curl "https://api.tzstats.com/explorer/bakers"
+```
+
+> **Example response.**
+
+```json
+[
+  {
+    "id": 25,
+    "address": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
+    "baker_since_time": "2018-06-30T17:39:57Z",
+    "baker_version": "08c80261",
+    "total_balance": 4154340.635312,
+    "spendable_balance": 2278833.605283,
+    "frozen_deposits": 1875456,
+    "frozen_rewards": 56192.978868,
+    "frozen_fees": 51.030029,
+    "staking_balance": 23075358.608475,
+    "staking_capacity": 44295492.209474,
+    "active_delegations": 9,
+    "is_full": false,
+    "rolls": 2884,
+    "avg_luck_64": 10033,
+    "avg_performance_64": 9783,
+    "avg_contribution_64": 9866,
+    "metadata": {
+      "name": "Foundation Baker 1",
+      "category": "validator",
+      "status": "private",
+      "country": "CH",
+      "twitter": "TezosFoundation",
+      "logo": true,
+      "non_delegatable": true
+    }
+  },
+  // ...
+]
+```
+
+Returns metadata about a bigmap.
+
+### HTTP Request
+
+`GET https://api.tzstats.com/explorer/bakers`
+
+### HTTP Response
+
+Field              | Description
+-------------------|--------------------------------------------------
+`id` *int64*       | Internal account id, use for cursor-based paging.
+`address` *hash*         | Baker account address.
+`baker_since_time` *datetime*  | Time when baker registered.
+`baker_version` *hex*    | Git hash of mist recently seen baker software.
+`total_balance` *money*         | Currently spendable and frozen balances (except frozen rewards).
+`spendable_balance` *money*     | Currently spendable balance.
+`frozen_deposits` *money*       | Currently frozen deposits
+`frozen_rewards` *money*        | Currently frozen rewards.
+`frozen_fees` *money*           | Currently frozen fees.
+`staking_balance` *money*       | Current delegated and own total balance.
+`staking_capacity` *money*      | Available delegation capacity (before overdelegation).
+`active_delegations` *int64*    | Currently active and non-zero delegations.
+`is_full` *bool*                | Flag indicating the baker cannot accept more delegations, i.e. is overdelegated.
+`rolls` *int64*                 | Number of rolls currently owned.
+`avg_luck_64` *float*           | Average luck to get random priority zero baking/endorsing rights for the past 64 cycles (182 days, 6 months).
+`avg_performance_64` *float*    | Average reward generation performance for the past 64 cycles (182 days, 6 months).
+`avg_contribution_64` *float*   | Average utilization of rights to bake/endorse blocks for the past 64 cycles.
+`metadata` *object*             | Extra account metadata.
 
 
 ## Bigmaps
@@ -863,7 +952,6 @@ curl "https://api.tzstats.com/explorer/block/head/operations?meta=1"
     "days_destroyed": 0,
     "sender": "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494",
     "receiver": "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494",
-    "branch_id": 0,
     "branch_height": 0,
     "branch_depth": 0,
     "branch": "",
@@ -919,7 +1007,6 @@ curl "https://api.tzstats.com/explorer/block/head/operations?meta=1"
     "days_destroyed": 0,
     "data": "8192",
     "sender": "tz1LBEKXaxQbd5Gtzbc1ATCwc3pppu81aWGc",
-    "branch_id": 1342860,
     "branch_height": 1342859,
     "branch_depth": 1,
     "branch": "BKsbXn1onZrqqeonG8PLaFVeuqjw2k3evdVjx5XtP8ippw3Hmyo",
@@ -2167,7 +2254,6 @@ curl "https://api.tzstats.com/explorer/op/opSrt7oYHDTZcfGnhNt3BzGrrCQf364VuYmKo5
     "days_destroyed": 0.016302,
     "sender": "tz1Ywgcavxq9D6hL32Q2AQWHAux9MrWqGoZC",
     "receiver": "tz1ijyJy2QncvgDKZJARDgPqEYVRk6yTE5d7",
-    "branch_id": 1011875,
     "branch_height": 1011874,
     "branch_depth": 1,
     "branch": "BKt5Lz42YyZNaSYkqfx3m9cmZ2qRoqw1duHqvygLUrgxCewYXoS",
@@ -2234,10 +2320,9 @@ Field              | Description
 `receiver` *hash*        | Transaction receiver, may be empty. For `activate_account` the source account is referenced when the activation merged coins from a second blinded account (ie. when a fundraiser signed up twice). For `delegation` the previous delegate is referenced. For `seed_nonce_revelation` the actual seed publisher is referenced.
 `delegate` *hash*        | New Delegate, only used by `origination` and `delegation`. When empty for a `delegation` the operation was a delegate withdrawal.
 `creator` *hash*         | Contains contract creator on `origination`. For internal `transactions`, the original sender of the external transaction is referenced.
-`branch_id` *uint64*     | Row id of the branch block this op refers to.
-`branch_height` *int64*  | Height of the branch block this op refers to.
-`branch_depth` *int64*   | Count of blocks between branch block and block including this op.
-`branch` *hash*          | Block hash of the branch this op refers to.
+`branch_height` *int64*  **meta-arg** | Height of the branch block this op refers to.
+`branch_depth` *int64* **meta-arg**  | Count of blocks between branch block and block including this op.
+`branch` *hash*  **meta-arg**        | Block hash of the branch this op refers to.
 `entrypoint_id` *int64*  | Serial id of the called entrypoint, only relevant if the operation was a transaction, the receiver is a smart contract and call parameters are present.
 `is_orphan` *bool*       | Flag indicating whether this operation was orphaned (not included in any block).
 `is_batch` *bool*        | Flag indicating if this operation is part of a batch operation list.
