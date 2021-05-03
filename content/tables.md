@@ -1252,7 +1252,7 @@ List network-wide staking status across all bakers and delegators at snapshot bl
 
 ### HTTP Request
 
-`GET https://api.tzstats.com/tables/snaphsot?args`
+`GET https://api.tzstats.com/tables/snapshot?args`
 
 ### HTTP Response
 
