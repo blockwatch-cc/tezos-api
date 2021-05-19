@@ -10,19 +10,35 @@ title: Tezos API
 ```
 Mainnet: https://api.tzstats.com
 Mainnet Staging: https://api.staging.tzstats.com
-Delphinet: https://api.delphi.tzstats.com
 Edonet: https://api.edo.tzstats.com
+Florencenet: https://api.florence.tzstats.com
+```
+
+> **RPC Endpoints**
+
+```
+Mainnet: https://rpc.tzstats.com
+Edonet: https://rpc.edo.tzstats.com
+Florencenet: https://rpc.florence.tzstats.com
 ```
 
 TzStats provides a powerful Tezos API to access fully indexed raw data and statistics collected from the Tezos blockchain. Made and supported by [Blockwatch Data](https://blockwatch.cc). You may use this API free of charge and without limits for non-commercial projects. To inquire about commercial use send an email to license@blockwatch.cc.
 
-This API reference provides information on all public API endpoints and the different schemes of calling them. Access to the API does not require authentication and we do not enforce rate limits right now, but we monitor usage and may apply limits later to guarantee fair usage for everybody.
+This API reference provides information on all public API endpoints and how to call them. Access is not authenticated and we do not enforce rate limits right now, but we monitor usage and may apply limits to guarantee fair usage for everybody.
 
-The API supports three different endpoint flavors to access the same underlying data in different ways:
+The TzStats Tezos API supports different kinds of endpoints:
 
-- **explorer** endpoints for accessing individual objects
-- **table** endpoints for accessing large collections of rows
-- **time-series** endpoints for aggregate counters and statistics over specific fields
+- **explorer** for individual on-chain data like blocks, accounts and operations
+- **table** for direct listing of large quantities of rows
+- **series** for aggregate counters and statistics as time-series
+- **metadata** for off-chain and on-chain metadata
+- **markets** for off-chain and on-chain asset prices
+
+## TzStats SDKs
+
+Official client libraries for TzStats are currently available for
+
+- [https://github.com/blockwatch-cc/tzstats-go](Golang)
 
 ## Calling the API
 
@@ -56,13 +72,13 @@ All our API responses are tagged with an API version that's included in the `X-A
 > **Current TzStats Mainnet Response Headers**
 
     # API version
-    X-Api-Version:   v008-2021-02-10
+    X-Api-Version:   v009-2021-04-16
 
     # Tezos Network (chain id)
     X-Network-Id:    NetXdQprcVkpaWU
 
     # Tezos Protocol (protocol hash)
-    X-Protocol-Hash: PsBabyM1eUXZseaJdmXFApDSBqj8YBfwELoxZHHW77EMcAbbwAS
+    X-Protocol-Hash: PsFLorenaUUuikDWvMDr6fGBRG8kt3e3D3fHoXK1j1BFRxeSH4i
 
 
 ### CORS

@@ -105,6 +105,30 @@ To filter tables use filter expressions of the form `<column>.<operator>=<arg>`.
 curl "https://api.tzstats.com/tables/account?address=tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m"
 ```
 
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// create a new query object
+q := tzstats.DefaultClient.NewAccountQuery()
+
+// add filters and configure the query
+q.WithFilter(tzstats.FilterModeEqual, "address", "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m").
+    WithLimit(1000).
+    WithColumns("row_id", "address", "spendable_balance")
+
+// execute the query
+list, err := q.Run(context.Background())
+
+// walk accounts
+for _, acc := range list.Rows {
+    // access regular Account structs
+}
+```
+
+
 > **Example response (comments added for explanation).**
 
 ```json
@@ -337,6 +361,46 @@ Field              | Description
 curl "https://api.tzstats.com/tables/bigmap?action=alloc&limit=1&order=desc"
 ```
 
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// create a new query object
+q := tzstats.DefaultClient.NewBigmapQuery()
+
+// need typ for decoding
+typ, err := tzstats.DefaultClient.GetBigmapType(
+    context.Background(),
+    511,
+    tzstats.NewContractParams().WithPrim(),
+)
+keyType := micheline.NewType(typ.KeyTypePrim)
+valType := micheline.NewType(typ.ValueTypePrim)
+
+// add filters and configure the query to list all active keys
+q.WithFilter(tzstats.FilterModeEqual, "bigmap_id", 511).
+    WithFilter(tzstats.FilterModeEqual, "action", "update").
+    WithFilter(tzstats.FilterModeEqual, "is_deleted", false).
+    WithFilter(tzstats.FilterModeEqual, "is_replaced", false).
+    WithColumns("row_id", "key_hash", "key", "value")
+    WithLimit(100).
+    WithOrder(tzstats.OrderDesc)
+
+// execute the query
+list, err := q.Run(context.Background())
+
+// walk bigmap updates
+for _, row := range list.Rows {
+    // access BigmapRow structs (use TzGo Type/Value to decode binary data)
+    key := row.GetKey(keyType)
+    val := row.GetValue(valType)
+
+}
+```
+
 > **Example response (comments added for explanation).**
 
 ```json
@@ -406,6 +470,28 @@ Field              | Description
 
 ```shell
 curl https://api.tzstats.com/tables/block?time.gte=today&limit=1
+```
+
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// create a new query object
+q := tzstats.DefaultClient.NewBlockQuery()
+
+// add filters and configure the query
+q.WithFilter(tzstats.FilterModeGte, "time", "today").WithLimit(1)
+
+// execute the query
+list, err := q.Run(context.Background())
+
+// access that block
+if list.Len() == 1 {
+    fmt.Println(list.Rows[0].Hash)
+}
 ```
 
 > **Example response (comments added for explanation).**
@@ -550,6 +636,27 @@ Field              | Description
 curl "https://api.tzstats.com/tables/chain?time.gte=today&limit=1"
 ```
 
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// create a new query object
+q := tzstats.DefaultClient.NewChainQuery()
+
+// add filters and configure the query
+q.WithFilter(tzstats.FilterModeGte, "time", "today").WithLimit(1)
+
+// execute the query
+list, err := q.Run(context.Background())
+
+// access that chain status
+if list.Len() == 1 {
+    fmt.Println(list.Rows[0].TotalAccounts)
+}
+```
+
 > **Example response (comments added for explanation)**.
 
 ```json
@@ -650,14 +757,32 @@ Field              | Description
 
 
 
-
-
 ## Contract Table
 
 > **Example | request.**
 
 ```shell
 curl "https://api.tzstats.com/tables/contract?address=KT1REHQ183LzfoVoqiDR87mCrt7CLUH1MbcV"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// create a new query object
+q := tzstats.DefaultClient.NewContractQuery()
+
+// add filters and configure the query
+q.WithFilter(tzstats.FilterModeEqual, "iface_hash", "cf9361e1")
+
+// execute the query
+list, err := q.Run(context.Background())
+
+// process contracts
+if _, row := range list.Rows {
+}
 ```
 
 > **Example response (comments added for explanation).**
@@ -979,6 +1104,27 @@ Field              | Description
 curl "https://api.tzstats.com/tables/op?time.gte=today&limit=1"
 ```
 
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// create a new query object
+q := tzstats.DefaultClient.NewOpQuery()
+
+// add filters and configure the query
+q.WithFilter(tzstats.FilterModeGte, "time", "today").WithLimit(1)
+
+// execute the query
+list, err := q.Run(context.Background())
+
+// process ops
+if _, row := range list.Rows {
+
+}
+```
+
 > **Example response (comments added for explanation).**
 
 ```json
@@ -1161,6 +1307,29 @@ Field              | Description
 curl "https://api.tzstats.com/tables/rights?address=tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m&cycle=154&limit=1"
 ```
 
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// create a new query object
+q := tzstats.DefaultClient.NewRightsQuery()
+
+// add filters and configure the query
+q.WithFilter(tzstats.FilterModeEqual, "address", "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m").
+  WithFilter(tzstats.FilterModeEqual, "cycle", 154).
+  Limit(1)
+
+// execute the query
+list, err := q.Run(context.Background())
+
+// process rights
+if _, row := range list.Rows {
+
+}
+```
+
 > **Example response (comments added for explanation).**
 
 ```json
@@ -1220,6 +1389,31 @@ Field              | Description
 ```shell
 curl "https://api.tzstats.com/tables/snapshot?address=tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m&cycle=150&is_selected=1&limit=1"
 ```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// create a new query object
+q := tzstats.DefaultClient.NewSnapshotQuery()
+
+// add filters and configure the query
+q.WithFilter(tzstats.FilterModeEqual, "address", "tz2TSvNTh2epDMhZHrw73nV9piBX7kLZ9K9m").
+  WithFilter(tzstats.FilterModeEqual, "cycle", 150).
+  WithFilter(tzstats.FilterModeEqual, "is_selected", true).
+  Limit(1)
+
+// execute the query
+list, err := q.Run(context.Background())
+
+// process rows
+if _, snapshot := range list.Rows {
+
+}
+```
+
 
 > **Example response (comments added for explanation).**
 
@@ -1301,9 +1495,7 @@ curl "https://api.tzstats.com/tables/supply?time.gte=today&limit=1"
     866116758.904542,    // total
     576334364.096960,    // activated
     35120514.313220,     // unclaimed
-    46582751.428168,     // vested
-    106280968.174352,    // unvested
-    759835790.730190,    // circulating
+    759835790.730190,    // liquid
     533295452.655376,    // delegated
     684826946.710113,    // staking
     0.000000,            // shielded
@@ -1347,9 +1539,7 @@ Field              | Description
 `total` *float64*                 | Total supply, i.e. all coins in existence.
 `activated` *money*             | Activated fundraiser supply.
 `unclaimed` *money*             | Unclaimed fundraiser supply.
-`vested` *money*                | Vested genesis supply, i.e. spendable supply owned by vesting contracts.
-`unvested` *money*              | Unvested genesis supply, i.e. supply that is still locked in vesting contracts.
-`circulating` *money*           | Circulating supply, i.e. all immediately spendable supply (anything but unvested coins).
+`liquid` *money*                | Circulating supply, i.e. all immediately spendable supply (total - frozen - unclaimed).
 `delegated` *money*             | Delegated supply, i.e. all spendable supply owned by delegators.
 `staking` *money*               | Staking supply, i.e. delegated supply and supply owned by bakers in form of spendable balances, frozen deposits and frozen fees. Frozen rewards are explicitly excluded because they can be slashed.
 `shielded` *money*              | Shielded supply held in Sapling contracts.

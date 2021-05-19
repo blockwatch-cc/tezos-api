@@ -10,43 +10,37 @@ Explorer endpoints serve individual large JSON objects and a few related lists. 
 Most explorer endpoints take different kinds of path arguments to define the object to return. This can be:
 
 - a regular `hash` for blocks, operations or accounts
-- the string `head` for the most recent object on the blockchain (e.g. the recent block or cycle)
+- the string `head` for the most recent on-chain object (e.g. the recent block or cycle)
 - a block `height` (a.k.a level in Tezos)
 - a sequence `number` for cycles and elections
 
-Some endpoints support a simple pagination scheme to walk lists of results (i.e. for related operations or accounts). To paginate append `limit` and `offset`, both are positive integers. Limit defaults to 20 and is capped to a maximum value of 100. Results are always sorted by `row_id` of the underlying table. Sort direction can be controlled by `order` (asc, or desc). If you require sorting by a different field, you have to do this client-side.
-
-### List of supported endpoints
+### Endpoint Overview
 
 Endpoint | Is Paged | Filter | Comment
 ---------|----------|--------|----------
 `GET /explorer/status`                    |   |   | indexer status |
 `GET /explorer/config/{id}`               |   |   | blockchain config at `head` or `height` |
 `GET /explorer/tip`                       |   |   | blockchain tip info |
-`GET /explorer/protocols` **NEW**         |   |   | list of deployed protocols |
-`GET /explorer/metadata` **NEW**          |   |   | account metadata |
-`GET /explorer/bakers` **NEW**            |   |   | baker list |
+`GET /explorer/protocols`                 |   |   | list of deployed protocols |
+`GET /explorer/bakers`                    |   |   | baker list |
 `GET /explorer/block/{id}`                |   |   | block info at `head`, `hash`, of `height` |
-`GET /explorer/block/{id}/op` **LEGACY** | x | `type` |  list block operations at `head`, `hash`, or `height` |
 `GET /explorer/block/{id}/operations`     | x | `type` |list block operations at `head`, `hash`, or `height` |
 `GET /explorer/op/{hash}`                 |   |   | operation info |
 `GET /explorer/account/{hash}`            |   |   | account info |
-`GET /explorer/account/{hash}/contracts` **RENAMED**  | x |   | list of contracts managed by this account |
-`GET /explorer/account/{hash}/op` **LEGACY**  | x | `type`, `block`, `since` | account info with embedded list of related operations |
-`GET /explorer/account/{hash}/operations` | x | `type`, `block`, `since` | account info with embedded list of related operations |
+`GET /explorer/account/{hash}/contracts`  | x |   | list of contracts managed by this account |
+`GET /explorer/account/{hash}/operations` | x | `type` | account info with embedded list of related operations |
 `GET /explorer/account/{hash}/ballots`    | x |   | list proposals and ballots |
 `GET /explorer/contract/{hash}`           |   |   | smart contract metadata |
-`GET /explorer/contract/{hash}/calls`     | x | `block`, `since`, `entrypoint` | list contract calls |
-`GET /explorer/contract/{hash}/creator` **RENAMED**  |   |   | contract creator (a.k.a. manager) |
+`GET /explorer/contract/{hash}/calls`     | x | `entrypoint` | list contract calls |
+`GET /explorer/contract/{hash}/creator`   |   |   | contract creator (a.k.a. manager) |
 `GET /explorer/contract/{hash}/script`    |   |   | smart contract code, storage and parameter spec |
 `GET /explorer/contract/{hash}/storage`   |   |   | smart contract storage |
 `GET /explorer/bigmap/{id}`               |   |   | bigmap metadata |
-`GET /explorer/bigmap/{id}/type`          |   |   | bigmap type specification |
 `GET /explorer/bigmap/{id}/keys`          | x |   | list of bigmap keys |
 `GET /explorer/bigmap/{id}/values`        | x |   | list of bigmap key/value pairs |
-`GET /explorer/bigmap/{id}/updates`       | x |   | list of bigmap updates |
 `GET /explorer/bigmap/{id}/{key}`         |   |   | single bigmap value |
-`GET /explorer/bigmap/{id}/{key}/updates` | x |   | list of bigmap updates related to a key|
+`GET /explorer/bigmap/{id}/updates`       | x |   | list of bigmap updates |
+`GET /explorer/bigmap/{id}/updates/{key}` **CHANGED** | x |   | list of bigmap updates related to a key|
 `GET /explorer/cycle/{id}`                |   |   | cycle info for `head` or `cycle`
 `GET /explorer/election/{id}`             |   |   | election metadata and results at `head`, `num` or protocol `hash` |
 `GET /explorer/election/{id}/{stage}/voters`| x |   | election voter lists |
@@ -54,996 +48,72 @@ Endpoint | Is Paged | Filter | Comment
 `GET /explorer/rank/balances`             | x |   | accounts ranked by balance |
 `GET /explorer/rank/volume`               | x |   | accounts ranked by 1D transaction volume |
 `GET /explorer/rank/traffic`              | x |   | accounts ranked by 1D traffic |
+`GET /metadata/{hash}[/{id}]`             |   |   | structured account & token metadata |
+`GET /metadata/schemas`                   |   |   | list of supported JSON schema names |
+`GET /metadata/schemas/{schema}`          |   |   | JSON schema definition |
 `GET /markets`                            |   |   | list of known exchanges and markets |
 `GET /markets/tickers`                    |   |   | list of 1D market tickers |
 `GET /markets/{exchange}`                 |   |   | exchange status |
 `GET /markets/{exchange}/{market}`        |   |   | market status |
 `GET /markets/{exchange}/{market}/ticker` |   |   | single market ticker |
 
+## Pagination and Sorting
+
+List endpoints support pagination (e.g. to list historic transactions, contract calls, voters, etc). Two pagination methods are supported:
+
+- `cursor` + `limit` is the preferred method, it uses the `row_id` of the last result as argument to efficiently skips to the next available object
+- `offset` + `limit` is similar, but less efficient, it takes the count of objects seen so far and skips them when retrieving more results (as the chain grows, using offset in combination with descending order may return duplicates; we therefore recommend using the cursor method)
+
+Default value for limit is 20 results on explorer endpoints and 500 results on tables, maximum is 500 and 50,000. Results are always sorted by `row_id` of the underlying table. Sort direction can be controlled by `order` (asc, or desc). If you require sorting by a different field, you have to do this client-side.
 
 
-## Accounts
 
-> **Example request for baker accounts.**
-
-```shell
-curl "https://api.tzstats.com/explorer/account/tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9"
-```
-
-> **Example response for baker accounts.**
-
-```json
-{
-  "address": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
-  "address_type": "p256",
-  "delegate": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
-  "pubkey": "p2pk67wVncLFS1DQDm2gVR45sYCzQSXTtqn3bviNYXVCq6WRoqtxHXL",
-  "first_in": 30,
-  "first_out": 4097,
-  "last_in": 1342841,
-  "last_out": 1342841,
-  "first_seen": 1,
-  "last_seen": 1342841,
-  "delegate_since": 1,
-  "first_in_time": "2018-06-30T18:11:27Z",
-  "first_out_time": "2018-07-03T14:17:12Z",
-  "last_in_time": "2021-02-13T10:02:55Z",
-  "last_out_time": "2021-02-13T10:02:55Z",
-  "first_seen_time": "2018-06-30T17:39:57Z",
-  "last_seen_time": "2021-02-13T10:02:55Z",
-  "delegate_since_time": "2018-06-30T17:39:57Z",
-  "total_received": 3199080.326956,
-  "total_sent": 3000000,
-  "total_burned": 0,
-  "total_fees_paid": 0.044374,
-  "total_rewards_earned": 3983406.864835,
-  "total_fees_earned": 1034.319477,
-  "total_lost": 0,
-  "frozen_deposits": 2060800,
-  "frozen_rewards": 61046.916177,
-  "frozen_fees": 47.928321,
-  "spendable_balance": 2061626.622397,
-  "total_balance": 4122474.550718,
-  "delegated_balance": 18921017.973163,
-  "total_delegations": 14,
-  "active_delegations": 9,
-  "is_funded": true,
-  "is_activated": true,
-  "is_delegated": false,
-  "is_revealed": true,
-  "is_delegate": true,
-  "is_active_delegate": true,
-  "is_contract": false,
-  "blocks_baked": 54686,
-  "blocks_missed": 590,
-  "blocks_stolen": 1349,
-  "blocks_endorsed": 937695,
-  "slots_endorsed": 1660562,
-  "slots_missed": 60304,
-  "n_ops": 940181,
-  "n_ops_failed": 0,
-  "n_tx": 69,
-  "n_delegation": 0,
-  "n_origination": 0,
-  "n_proposal": 0,
-  "n_ballot": 11,
-  "token_gen_min": 1,
-  "token_gen_max": 43238,
-  "grace_period": 333,
-  "staking_balance": 23043492.523881,
-  "staking_capacity": 44530768.468665,
-  "rolls": 2880,
-  "last_bake_height": 1342802,
-  "last_bake_block": "BLyPLQZ19VpVrAKfYd7fBfucjUFxbH8cPEKsudyBM1uJByMt315",
-  "last_bake_time": "2021-02-13T09:23:55Z",
-  "last_endorse_height": 1342841,
-  "last_endorse_block": "BLnw18a8buAJFFNtxkizMm4Bg7oRst3eaUebYBAEeUSRRDZdfLg",
-  "last_endorse_time": "2021-02-13T10:02:55Z",
-  "next_bake_height": 1342857,
-  "next_bake_priority": 0,
-  "next_bake_time": "2021-02-13T10:18:55Z",
-  "next_endorse_height": 1342843,
-  "next_endorse_time": "2021-02-13T10:04:55Z",
-  "avg_luck_64": 10055,
-  "avg_performance_64": 9889,
-  "avg_contribution_64": 9970,
-  "baker_version": "08c80261"
-}
-```
-
-> **Example request for non-baker accounts and contracts.**
-
-```shell
-curl "https://api.tzstats.com/explorer/account/KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG"
-```
-
-> **Example response for non-baker accounts and contracts.**
-
-```json
-{
-  "address": "KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG",
-  "address_type": "contract",
-  "delegate": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
-  "creator": "KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG",
-  "pubkey": "",
-  "first_in": 30,
-  "first_out": 30,
-  "last_in": 984007,
-  "last_out": 984007,
-  "first_seen": 1,
-  "last_seen": 984056,
-  "delegated_since": 1,
-  "first_in_time": "2018-06-30T18:11:27Z",
-  "first_out_time": "2018-06-30T18:11:27Z",
-  "last_in_time": "2020-06-05T19:25:32Z",
-  "last_out_time": "2020-06-05T19:25:32Z",
-  "first_seen_time": "2018-06-30T17:39:57Z",
-  "last_seen_time": "2020-06-05T20:14:32Z",
-  "delegated_since_time": "2018-06-30T17:39:57Z",
-  "total_received": 0,
-  "total_sent": 2822843.928521,
-  "total_burned": 0,
-  "total_fees_paid": 0,
-  "unclaimed_balance": 6731138.546637,
-  "spendable_balance": 0,
-  "total_balance": 0,
-  "is_funded": true,
-  "is_activated": false,
-  "is_delegated": true,
-  "is_revealed": false,
-  "is_delegate": false,
-  "is_active_delegate": false,
-  "is_contract": true,
-  "n_ops": 31,
-  "n_ops_failed": 0,
-  "n_tx": 31,
-  "n_delegation": 0,
-  "n_origination": 0,
-  "token_gen_min": 1,
-  "token_gen_max": 1
-}
-```
-
-Provides information about the most recent state of accounts and smart contracts. Baker accounts and delegator accounts contain additional state information. Use `meta` (boolean) to embed optional metadata. See the table below for details.
-
-### HTTP Request
-
-`GET https://api.tzstats.com/explorer/account/{hash}`
-
-### HTTP Response
-
-Field              | Description
--------------------|--------------------------------------------------
-`address` *hash*              | Account address as base58-check encoded string.
-`address_type` *enum*         | Account address type `ed25519` (tz1), `secp256k1` (tz2), `p256` (tz3), `contract` (KT1) or `blinded` (btz1).
-`delegate` *hash*             | Current delegate (may be self when registered as delegate).
-`creator` *hash*              | Contract creator account.
-`pubkey` *hash*               | Revealed public key.
-`first_in` *int64*            | Block height of first incoming transaction.
-`first_out` *int64*           | Block height of first outgoing transaction.
-`last_in` *int64*             | Block height of latest incoming transaction.
-`last_out` *int64*            | Block height of latest outgoing transaction.
-`first_seen` *int64*          | Block height of account creation.
-`last_seen` *int64*           | Block height of last activity.
-`delegated_since` *int64* **delegator-only** | Block height of most recent delegation.
-`delegate_since` *int64* **baker-only**  | Block height of most recent baker registration.
-`delegate_until` *int64* **baker-only**  | Block height of most recent baker deactivation.
-`first_in_time` *datetime*    | Block time of first incoming transaction.
-`first_out_time` *datetime*   | Block time of first outgoing transaction.
-`last_in_time` *datetime*     | Block time of latest incoming transaction.
-`last_out_time` *datetime*    | Block time of latest outgoing transaction.
-`first_seen_time` *datetime*  | Block time of account creation.
-`last_seen_time` *datetime*   | Block time of last activity.
-`delegated_since_time` *datetime* **delegator-only** | Block time of most recent delegation.
-`delegate_since_time` *datetime* **baker-only** | Block time of most recent baker registration.
-`delegate_until_time` *datetime* **baker-only** | Block time of most recent baker deactivation.
-`total_received` *money*       | Lifetime total tokens received in transactions.
-`total_sent` *money*           | Lifetime total tokens sent in transactions.
-`total_burned` *money*         | Lifetime total tokens burned in tz.
-`total_fees_paid` *money*      | Lifetime fees paid in tz.
-`total_rewards_earned` *money* **baker-only** | Lifetime rewards earned in tz.
-`total_fees_earned` *money* **baker-only**    | Lifetime fees earned in tz.
-`total_lost` *money* **baker-only**           | Lifetime total tokens lost in tz.
-`frozen_deposits` *money* **baker-only**      | Currently frozen deposits
-`frozen_rewards` *money* **baker-only**       | Currently frozen rewards.
-`frozen_fees` *money* **baker-only**          | Currently frozen fees.
-`unclaimed_balance` *money*    | Currently unclaimed balance (for vesting contracts and commitments).
-`spendable_balance` *money*    | Currently spendable balance.
-`total_balance` *money*        | Currently spendable and frozen balances (except frozen rewards).
-`delegated_balance` *money* **baker-only**    | (delegate only) Current incoming delegations.
-`staking_balance` *money* **baker-only**      | (delegate only) Current delegated and own total balance.
-`total_delegations` *int64* **baker-only**    | (delegate only) Lifetime count of delegations.
-`active_delegations` *int64* **baker-only**   | (delegate only) Currently active and non-zero delegations.
-`is_funded` *bool*             | Flag indicating the account is funded.
-`is_activated` *bool*          | Flag indicating the account was activated from a commitment.
-`is_delegated` *bool*          | Flag indicating the account is currently delegated.
-`is_revealed` *bool*           | Flag indicating the account has a revealed public key .
-`is_delegate` *bool*           | Flag indicating the account is a registered delegate.
-`is_active_delegate` *bool*    | Flag indicating the account is a registered and active delegate.
-`is_contract` *bool*           | Flag indicating the account is a smart contract.
-`blocks_baked` *int64* **baker-only**         | Lifetime total blocks baked.
-`blocks_missed` *int64* **baker-only**        | Lifetime total block baking missed.
-`blocks_stolen` *int64* **baker-only**        | Lifetime total block baked at priority > 0.
-`blocks_endorsed` *int64* **baker-only**      | Lifetime total blocks endorsed.
-`slots_endorsed` *int64* **baker-only**       | Lifetime total endorsemnt slots endorsed.
-`slots_missed` *int64* **baker-only**         | Lifetime total endorsemnt slots missed.
-`n_ops` *int64*                | Lifetime total number of operations sent and received.
-`n_ops_failed` *int64*         | Lifetime total number of operations sent that failed.
-`n_tx` *int64*                 | Lifetime total number of transactions sent and received.
-`n_delegation` *int64*         | Lifetime total number of delegations sent.
-`n_origination` *int64*        | Lifetime total number of originations sent.
-`n_proposal` *int64* **baker-only**           | Lifetime total number of proposals (operations) sent.
-`n_ballot` *int64* **baker-only**             | Lifetime total number of ballots sent.
-`token_gen_min` *int64*        | Minimum generation number of all tokens owned.
-`token_gen_max` *int64*        | Maximum generation number of all tokens owned.
-`grace_period` *int64* **baker-only**         | (delegate only) Current grace period before deactivation.
-`rolls` *int64* **baker-only**                | (delegate only) Currently owned rolls.
-`rich_rank` *int64* **meta-arg**           | Global rank on rich list by total balance. Requires `meta=1` argument.
-`traffic_rank` *int64* **meta-arg**        | Global rank on 1D most active accounts by transactions sent/received. Requires `meta=1` argument.
-`volume_rank` *int64* **meta-arg**         | Global rank on 1D most active accounts by volume sent/received. Requires `meta=1` argument.
-`last_bake_height` *int64* **baker-only**     | Height of most recent block baked.
-`last_bake_block` *hash* **baker-only**       | Hash of most recent block baked.
-`last_bake_time` *datetime* **baker-only**    | Timestamp of most recent block baked.
-`last_endorse_height` *int64* **baker-only**  | Height of most recent block endorsed.
-`last_endorse_block` *hash* **baker-only**    | Hash of most recent block endorsed.
-`last_endorse_time` *datetime* **baker-only** | Timestamp of most recent block endorsed.
-`next_bake_height` *int64* **baker-only**     | Height of next block baking right.
-`next_bake_priority` *int64* **baker-only**   | Priority of next baking right (fixed at zero currently).
-`next_bake_time` *datetime* **baker-only**    | Approximate time of next block baking right.
-`next_endorse_height` *int64* **baker-only**  | Height of next block endorsing right.
-`next_endorse_time` *datetime* **baker-only** | Approximate time of next block endorsing right.
-`avg_luck_64` *float* **baker-only**          | Average luck to get random priority zero baking/endorsing rights for the past 64 cycles (182 days, 6 months).
-`avg_performance_64` *float* **baker-only**   | Average performance for the past 64 cycles (182 days, 6 months).
-`avg_contribution_64` *float* **baker-only**  | Average utilization of rights to bake/endorse blocks for the past 64 cycles. Since block rewards have become dynamic, a baker who fails to contribute to the consensus by utilizing 100% of their rights diminishes the income for other bakers.
-`baker_version` *hash* **baker-only**         | Software version run by the baker at the last seen block. This is the first 8 hex digits of the Git repository hash.
-`metadata` *object* **meta-arg**              | Embedded account metadata if available. Requires `meta=1` argument.
-
-### List Account Operations
-
-`GET https://api.tzstats.com/explorer/account/{hash}/operations`
-
-Lists operations sent from and to an account (defaults to all types and ascending order). This endpoint supports pagination with `limit`, `offset` and `cursor`. Use `type` to [filter](#query-filters) for a specific operation type (e.g. transaction), `block` (int64|hash) to lock a call to a specific block height or hash (hash is reorg-aware and throws an error when block has become orphan). To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter. Use `meta` (boolean) to add optional account metadata.
-
-### List Managed and Created Contracts
-
-`GET https://api.tzstats.com/explorer/account/{hash}/contracts`
-
-Lists all contracts this account has originated. This endpoint has been renamed from `../managed`.
-
-### List Account Ballots
-
-`GET https://api.tzstats.com/explorer/account/{hash}/ballots`
-
-Lists all voting ballots the account has sent. This applies to bakers only.
-
-## Bakers
-
-Get a list of all active bakers, their current status and affiliation metadata. Optionally filter by **status** and **country** or get a random list of **suggestions** for a given account. This endpoint is supposed to be a simple to use listing feature for wallets and other dapps who like to enable delegation.
-
-### Filter Options
-
-You can filter the baker list by the following criteria
-
-Argument           | Description
--------------------|--------------------------------------------------
-`status` *enum*    | Filter by baker status `public`, `private`, `closing`, `closed`.
-`country` *enum*   | Filter by baker country of operation (use ISO 3166-1 Alpha-2 country codes, that's two uppercase letters like US, DE, FR)
-`suggest` *address* | Return a suggested list of bakers for the given address (see below)
-`cursor` *int*     | Last baker id after which to continue listing, use for paging.
-`limit` *int*      | Max number of results to return (max 100).
-`offset` *int*     | Skip first N results, use for paging instead of cursor.
-
-### Baker Metadata
+## Indexer Status
 
 > **Example request.**
 
 ```shell
-curl "https://api.tzstats.com/explorer/bakers"
+curl "https://api.tzstats.com/explorer/status"
 ```
 
-> **Example response.**
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
 
-```json
-[
-  {
-    "id": 25,
-    "address": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
-    "baker_since_time": "2018-06-30T17:39:57Z",
-    "baker_version": "08c80261",
-    "total_balance": 4154340.635312,
-    "spendable_balance": 2278833.605283,
-    "frozen_deposits": 1875456,
-    "frozen_rewards": 56192.978868,
-    "frozen_fees": 51.030029,
-    "staking_balance": 23075358.608475,
-    "staking_capacity": 44295492.209474,
-    "active_delegations": 9,
-    "is_full": false,
-    "rolls": 2884,
-    "avg_luck_64": 10033,
-    "avg_performance_64": 9783,
-    "avg_contribution_64": 9866,
-    "metadata": {
-      "name": "Foundation Baker 1",
-      "category": "validator",
-      "status": "private",
-      "country": "CH",
-      "twitter": "TezosFoundation",
-      "logo": true,
-      "non_delegatable": true
-    }
-  },
-  // ...
-]
-```
-
-Returns metadata about a bigmap.
-
-### HTTP Request
-
-`GET https://api.tzstats.com/explorer/bakers`
-
-### HTTP Response
-
-Field              | Description
--------------------|--------------------------------------------------
-`id` *int64*       | Internal account id, use for cursor-based paging.
-`address` *hash*         | Baker account address.
-`baker_since_time` *datetime*  | Time when baker registered.
-`baker_version` *hex*    | Git hash of mist recently seen baker software.
-`total_balance` *money*         | Currently spendable and frozen balances (except frozen rewards).
-`spendable_balance` *money*     | Currently spendable balance.
-`frozen_deposits` *money*       | Currently frozen deposits
-`frozen_rewards` *money*        | Currently frozen rewards.
-`frozen_fees` *money*           | Currently frozen fees.
-`staking_balance` *money*       | Current delegated and own total balance.
-`staking_capacity` *money*      | Available delegation capacity (before overdelegation).
-`active_delegations` *int64*    | Currently active and non-zero delegations.
-`is_full` *bool*                | Flag indicating the baker cannot accept more delegations, i.e. is overdelegated.
-`rolls` *int64*                 | Number of rolls currently owned.
-`avg_luck_64` *float*           | Average luck to get random priority zero baking/endorsing rights for the past 64 cycles (182 days, 6 months).
-`avg_performance_64` *float*    | Average reward generation performance for the past 64 cycles (182 days, 6 months).
-`avg_contribution_64` *float*   | Average utilization of rights to bake/endorse blocks for the past 64 cycles.
-`metadata` *object*             | Extra account metadata.
-
-
-## Bigmaps
-
-Bigmaps are key-value stores where smart contracts can store large amounts of data. Values in bigmaps are accessed by unique keys. The TzStats bigmap index supports different key encodings: a **hash** (script expression hash), the **binary** representation of a key and the **native** typed version of a key. For convenience, all three variants are present in responses as `key_hash`, `key_binary` and `key`.
-
-**Types** A bigmap is defined by a `key_type` and a `value_type`. While the key type is most often a simple type (int, string, bytes, address, etc), the value can have a complex type structure. Complex keys (using pairs) are represented as JSON primitive tree and a collapsed stringified version of such keys is returned in the optional `key_pretty` field. Values are represented in unboxed (decoded) form and optionally as original Michelson primitives.
-
-**Unboxing** The API supports a mix of multiple representations for keys and values. Per default only **decoded keys** (as hash, binary, and native) and **unboxed values** are returned. Unboxing uses the types and annotations defined on contract origination to decompose Michelson primitives into nested JSON objects where annotations become JSON property names. Use the optional request parameter `prim` (bool) to include the native Michelson value representation (a tree of primitives).
-
-**Packed Data** When keys or values are **packed** using the `PACK` instruction, an unpacked version can be obtained when using the optional `unpack` (bool) query argument. In this case two additional properties `key_unpacked` and `value_unpacked` are added to the result.
-
-**Metadata** Each bigmap entry comes with a set of **metadata** that describes latest update time, block hash and height as well as the bigmap id and its owner. Bigmap ownership is 1:N, ie. a smart contract can own multiple bigmaps, but each bigmap has only one owner.
-
-**Pagination** The Bigmap API support paginated queries for keys, values and updates using `limit` and `offset`.
-
-**Time-lock** To query a bigmap at a certain point in time (ie. a specific block) use the optional query argument `block` (int64|hash) to specify a height or block hash. Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash).
-
-### **SECURITY WARNING**
-
-Unlike other on-chain data where values and ranges are predictable the contents of bigmaps are entirely user-controlled and unpredictable. IT MAY CONTAIN MALICIOUS DATA INTENDED TO ATTACK YOUR APPLICATIONS AND USERS! Be vigilant and sanitize all data before you process or display it.
-
-
-### Bigmap Metadata
-
-> **Example request.**
-
-```shell
-curl "https://api.tzstats.com/explorer/bigmap/1"
+// use default Mainnet client
+client := tzstats.DefaultClient
+status, err := client.GetStatus(context.Background())
 ```
 
 > **Example response.**
 
 ```json
 {
-  "contract": "KT1R3uoZ6W1ZxEwzqtv75Ro7DhVY6UAcxuK2",
-  "bigmap_id": 1,
-  "n_updates": 0,
-  "n_keys": 0,
-  "alloc_height": 5938,
-  "alloc_block": "BLCpcCQhYrqMSgAY9vdnAXPXmswBizTJbVAj9yWSXfbUGhXzd3z",
-  "alloc_time": "2018-07-04T20:59:27Z",
-  "update_height": 5938,
-  "update_block": "BLCpcCQhYrqMSgAY9vdnAXPXmswBizTJbVAj9yWSXfbUGhXzd3z",
-  "update_time": "2018-07-04T20:59:27Z"
+  "mode": "sync",
+  "status": "synced",
+  "blocks": 626399,
+  "indexed": 626399,
+  "progress": 1
 }
 ```
 
-Returns metadata about a bigmap.
+Returns the current indexer status, useful to check of the indexer is in sync with the blockchain.
 
 ### HTTP Request
 
-`GET https://api.tzstats.com/explorer/bigmap/{id}`
+`GET /explorer/status`
 
 ### HTTP Response
 
 Field              | Description
 -------------------|--------------------------------------------------
-`contract` *hash*        | Contract that owns the bigmap.
-`bigmap_id` *int64*      | Unique on-chain id of this bigmap.
-`n_updates` *int64*      | Total update count.
-`n_keys` *int64*         | Current number of keys in bigmap.
-`alloc_height` *int64*   | Height when the bigmap was allocated.
-`alloc_block` *hash*     | Hash of the block where the bigmap was allocated.
-`alloc_time` *datetime*  | Timestamp when the bigmap was allocated.
-`update_height` *int64*  | Last update height.
-`update_block` *hash*    | Hash of the block containing the latest update.
-`update_time` *datetime* | Last update timestamp.
-
-### Bigmap Type
-
-> **Example request.**
-
-```shell
-curl "https://api.tzstats.com/explorer/bigmap/17/type"
-```
-
-> **Example response.**
-
-```json
-{
-  "contract": "KT1ChNsEFxwyCbJyWGSL3KdjeXE28AY1Kaog",
-  "bigmap_id": 17,
-  "key_type": "key_hash",
-  "key_encoding": "bytes",
-  "value_type": {
-    "0@data@option": {
-      "0@bakerName": "bytes",
-      "1@openForDelegation": "bool",
-      "2@bakerOffchainRegistryUrl": "bytes",
-      "3@split": "nat",
-      "4@bakerPaysFromAccounts@list": {
-        "0": "address"
-      },
-      "5@minDelegation": "nat",
-      "6@subtractPayoutsLessThanMin": "bool",
-      "7@payoutDelay": "int",
-      "8@payoutFrequency": "nat",
-      "9@minPayout": "int",
-      "10@bakerChargesTransactionFee": "bool",
-      "11@paymentConfigMask": "nat",
-      "12@overDelegationThreshold": "nat",
-      "13@subtractRewardsFromUninvitedDelegation": "bool"
-    },
-    "1@reporterAccount@option": "address",
-    "2@last_update": "timestamp"
-  },
-  "prim": {
-    // ...
-  }
-}
-```
-
-Returns bigmap type description in Michelson JSON format, both for keys and values. Keys are simple scalar types and values can have a simple or complex type. JSON keys for bigmap type arguments now always follow the convention `<order>@<name>@<container-type>`, ie. they include an integer order number as first argument (starting at zero), followed by an optional `@` symbol, an optional name extracted from type annotations and in case the type is a container like list, map or set another `@` and the container type. JSON value contains a string with the michelson type name (if scalar) or a JSON object describing the nested type following the same naming conventions. Use `prim` (boolean) to embed original Michelson primitives for key and value type definitions.
-
-### HTTP Request
-
-`GET https://api.tzstats.com/explorer/bigmap/{id}/type`
-
-### HTTP Response
-
-
-Field              | Description
--------------------|--------------------------------------------------
-`contract` *hash*      | Contract that owns the bigmap.
-`bigmap_id` *int64*    | Unique on-chain id of this bigmap.
-`key_type` *object*    | Michelson type for keys (i.e. any comparable Michelson type) as JSON encoded Michelson primitives.
-`key_encoding` *enum*  | Encoding used for keys (e.g. `string`, `bytes`, `int`).
-`value_type` *object*  | Unboxed Michelson type for values as JSON encoded Michelson primitives.
-`prim` *object*        | Native JSON encoded Michelson primitives (optional, use `prim=true` to enable).
-
-
-### List Bigmap Keys
-
-> **Example request.**
-
-```shell
-curl "https://api.tzstats.com/explorer/bigmap/12/keys"
-```
-
-> **Example response.**
-
-```json
-[[
-  {
-    "key": "0501000000044e4c4576",
-    "key_hash": "exprtxcQXJiJWzb5PvjHzkf2LKvnvmbvKdNDSvWzegiTMAKsvTgijL",
-    "key_binary": "0501000000044e4c4576",
-    "key_unpacked": "NLEv",
-    "key_pretty": "NLEv",
-    "meta": {
-      "contract": "KT1NQfJvo9v8hXmEgqos8NP7sS8V4qaEfvRF",
-      "bigmap_id": 12,
-      "time": "2019-10-25T16:37:56Z",
-      "height": 665512,
-      "block": "BKucUF1pxUv7JsrmKoLhmoXeoAzBvKUdZA7PVXEEUACyE7PR6qa",
-      "is_replaced": false,
-      "is_removed": false
-    },
-    "prim": {
-      "prim": "bytes"
-    }
-  },
-  // ...
-]
-```
-
-Lists bigmap keys only. Supports paging with `limit` and `offset` and locking calls to a specific `block` height (int64) or hash (hash). Use `prim` (boolean) to embed original Michelson primitives and `unpack` (boolean) to unpack packed keys.
-
-### HTTP Request
-
-`GET https://api.tzstats.com/explorer/bigmap/{id}/keys`
-
-### HTTP Response
-
-Field              | Description
--------------------|--------------------------------------------------
-`key` *polymorph*     | The native representation of the key. Integers are bigints wrapped in strings, other types are rendered according to type rules, e.g. addresses, keys and signatures are base58check encoded, timestamps are ISO8601, etc. Can be used for lookup.
-`key_hash` *hash*     | The script expression hash for this key. Can be used for lookup.
-`key_binary` *string* | Hex string containing the binary representation of the key as stored on-chain. Can be used for lookup.
-`key_unpacked` *polymorph* | Unpacked version of the key as Michelson primitives (Pair keys only) or scalar type (all other types). Optional, enable with `unpack=true`. Cannot be used for lookup.
-`key_pretty` *string*  | Prettified version of complex (Pair) keys where all elements are concatenated using `#`. Same as `key` or `key_unpacked` otherwise. Cannot be used for lookup.
-`meta` *object*        | Metadata for the current bigmap entry.
-  `meta.contract` *hash*    | Contract that owns the bigmap.
-  `meta.bigmap_id` *int64*  | Unique on-chain id of this bigmap.
-  `meta.time` *datetime*    | Update timestamp for this key/value pair.
-  `meta.height` *int64*     | Update height for this key/value pair.
-  `meta.block` *hash*       | Hash of the block containing the latest update.
-  `meta.is_replaced` *bool* | Flag indicating if a future update has overwritten the current value. Useful in combination with the `block` parameter that allows to query a value at a fixed block in history.
-  `meta.is_removed` *bool* | Flag indicating if a future remove action has deleted the current key. Useful in combination with the `block` parameter that allows to query a value at a fixed block in history.
-`prim` *object*        | Native JSON encoded Michelson primitives (optional, use `prim=true` to enable).
-
-
-### List Bigmap Keys and Values
-
-> **Example request.**
-
-```shell
-curl "https://api.tzstats.com/explorer/bigmap/382/values"
-```
-
-> **Example response.**
-
-```json
-[
-  {
-    "key": "0501000000044e4c4576",
-    "key_hash": "exprtxcQXJiJWzb5PvjHzkf2LKvnvmbvKdNDSvWzegiTMAKsvTgijL",
-    "key_binary": "0501000000044e4c4576",
-    "key_unpacked": "NLEv",
-    "key_pretty": "NLEv",
-    "value": {
-      "0@bytes": "050000"
-    },
-    "value_unpacked": "0",
-    "meta": {
-      "contract": "KT1NQfJvo9v8hXmEgqos8NP7sS8V4qaEfvRF",
-      "bigmap_id": 12,
-      "time": "2019-10-25T16:37:56Z",
-      "height": 665512,
-      "block": "BKucUF1pxUv7JsrmKoLhmoXeoAzBvKUdZA7PVXEEUACyE7PR6qa",
-      "is_replaced": false,
-      "is_removed": false
-    },
-    "prim": {
-      "key": {
-        "bytes": "0501000000044e4c4576"
-      },
-      "value": {
-        "bytes": "050000"
-      }
-    }
-  },
-  // ...
-]
-```
-
-Lists key/value pairs contained in bigmap. This endpoint supports paging with `limit` and `offset` and also allows locking paginated calls to a specific `block` height (int64) or hash (hash). Use `prim` (boolean) to embed original Michelson primitives and `unpack` (boolean) to unpack packed keys and values.
-
-### HTTP Request
-
-`GET https://api.tzstats.com/explorer/bigmap/{id}/values`
-
-Lists all values contained in the bigmap at present time, ie. at blockchain head. Can return bigmap contents at a specific block in the past using the optional parameter `block` height (int64) or hash (hash).
-
-`GET https://api.tzstats.com/explorer/bigmap/{id}/{key}`
-
-Returns a single bigmap value stored at `key`. Key can be a **key hash** (script expr hash), the **native** key representation (i.e. an address or integer) or the **encoded** binary version of the key. Use the optional `block` height (int64) or hash (hash) parameter to lookup the key's value at a specific block in the past.
-
-### HTTP Response
-
-Field              | Description
--------------------|--------------------------------------------------
-`key` *polymorph*     | The native representation of the key. Integers are bigints wrapped in strings, other types are rendered according to type rules, e.g. addresses, keys and signatures are base58check encoded, timestamps are ISO8601, etc).
-`key_hash` *hash*     | The script expression hash for this key.
-`key_binary` *string* | Hex string containing the binary representation of the key as stored on-chain.
-`key_unpacked` *polymorph* | Unpacked version of the key as Michelson primitives (Pair keys only) or scalar type (all other types). Optional, enable with `unpack=true`.
-`key_pretty` *string*  | Prettified version of complex (Pair) keys where all elements are concatenated using `#`. Same as `key` or `key_unpacked` otherwise.
-`value` *object*       | Unboxed version of the bigmap value, either a simple value or complex nested structure using scalar types, lists, sets, maps, and bigmaps.
-`value_unpacked` *object*  | An unpacked version of any packed binary data contained in the value. This can be a scalar type or a Michelson primitive tree if the type is complex such as lambda, pair, etc.
-`meta` *object*        | Metadata for the current bigmap entry.
-  `meta.contract` *hash*    | Contract that owns the bigmap.
-  `meta.bigmap_id` *int64*  | Unique on-chain id of this bigmap.
-  `meta.time` *datetime*    | Update timestamp for this key/value pair.
-  `meta.height` *int64*     | Update height for this key/value pair.
-  `meta.block` *hash*       | Hash of the block containing the latest update.
-  `meta.is_replaced` *bool* | Flag indicating if a future update has overwritten the current value. Useful in combination with the `block` parameter that allows to query a value at a fixed block in history.
-  `meta.is_removed` *bool* | Flag indicating if a future remove action has deleted the current key. Useful in combination with the `block` parameter that allows to query a value at a fixed block in history.
-`prim` *object*    | Native Michelson JSON encoded value as prim tree. Optional, use `prim` to enable.
-
-
-### List Bigmap Updates
-
-> **Example request.**
-
-```shell
-curl "https://api.tzstats.com/explorer/bigmap/382/updates"
-```
-
-> **Example response.**
-
-```json
-[
-  {
-    "key": "0501000000044e4c4576",
-    "key_hash": "exprtxcQXJiJWzb5PvjHzkf2LKvnvmbvKdNDSvWzegiTMAKsvTgijL",
-    "key_binary": "0501000000044e4c4576",
-    "key_unpacked": "NLEv",
-    "key_pretty": "NLEv",
-    "value": "050000",
-    "value_unpacked": "0",
-    "meta": {
-      "contract": "KT1NQfJvo9v8hXmEgqos8NP7sS8V4qaEfvRF",
-      "bigmap_id": 12,
-      "time": "2019-10-25T16:37:56Z",
-      "height": 665512,
-      "block": "BKucUF1pxUv7JsrmKoLhmoXeoAzBvKUdZA7PVXEEUACyE7PR6qa",
-      "is_replaced": false,
-      "is_removed": false
-    },
-    "action": "update",
-    "prim": {
-      "key": {
-        "bytes": "0501000000044e4c4576"
-      },
-      "value": {
-        "bytes": "050000"
-      }
-    }
-  },
-]
-```
-
-List historic updates to a bigmap in chronological order, including keys that have been deleted. Returns an array of objects. This endpoint supports paging with `limit` and `offset`. Use the optional `since` (int64|hash) parameter to return updates newer or equal to a specific block. Use `prim` (boolean) to embed original Michelson primitives and `unpack` (boolean) to unpack packed keys and values.
-
-### HTTP Request
-
-`GET https://api.tzstats.com/explorer/bigmap/{id}/updates`
-
-Lists all updates across the entire bigmap.
-
-`GET https://api.tzstats.com/explorer/bigmap/{id}/{key}/updates`
-
-Lists updates for a specific key. Key can be a key hash (script expr hash), the native key representation (i.e. an address or integer) or the encoded binary version.
-
-
-### HTTP Response
-
-Contains the same fields as the values endpoint above with one addition:
-
-
-Field              | Description
--------------------|--------------------------------------------------
-`action` *enum*    | Update kind, one of `alloc`, `update`, `remove`, `copy`.
-
-
-
-## Blocks
-
-> **Example request.**
-
-```shell
-curl "https://api.tzstats.com/explorer/block/1342853?meta=1&rights=1"
-```
-
-> **Example response.**
-
-```json
-{
-  "hash": "BLhRjTFhk37a8vgE2M5DU2cCbtV3qJHaBBPvTboHfyLYV74hM99",
-  "predecessor": "BKjZfegUTsCD3eURHPur6L6zRmS6c6D9cdwLKoFDU9DcmJmWnaY",
-  "successor": "BMKvd7HhwnhCTSWGG2YkDrsWSugcZefo1V5i9gZ2Khz87S3e98k",
-  "baker": "tz1bTpviNnyx2PXsNmGpCQTMQsGoYordkUoA",
-  "height": 1342853,
-  "cycle": 327,
-  "is_cycle_snapshot": false,
-  "time": "2021-02-13T10:16:55Z",
-  "solvetime": 60,
-  "version": 7,
-  "validation_pass": 4,
-  "fitness": 687493,
-  "priority": 0,
-  "nonce": "6102c808a62a0100",
-  "voting_period_kind": "promotion_vote",
-  "endorsed_slots": 4294959103,
-  "n_endorsed_slots": 31,
-  "n_ops": 28,
-  "n_ops_failed": 0,
-  "n_ops_contract": 1,
-  "n_tx": 7,
-  "n_activation": 0,
-  "n_seed_nonce_revelations": 0,
-  "n_double_baking_evidences": 0,
-  "n_double_endorsement_evidences": 0,
-  "n_endorsement": 19,
-  "n_delegation": 1,
-  "n_reveal": 1,
-  "n_origination": 0,
-  "n_proposal": 0,
-  "n_ballot": 0,
-  "volume": 98233.072783,
-  "fee": 0.019784,
-  "reward": 38.75,
-  "deposit": 512,
-  "unfrozen_fees": 0,
-  "unfrozen_rewards": 0,
-  "unfrozen_deposits": 0,
-  "activated_supply": 0,
-  "burned_supply": 0.19275,
-  "n_accounts": 31,
-  "n_new_accounts": 1,
-  "n_new_implicit": 1,
-  "n_new_managed": 0,
-  "n_new_contracts": 0,
-  "n_cleared_accounts": 0,
-  "n_funded_accounts": 3,
-  "gas_limit": 113904,
-  "gas_used": 15466,
-  "gas_price": 1.27919,
-  "storage_size": 621,
-  "days_destroyed": 812.427699,
-  "pct_account_reuse": 96.7741935483871,
-  "n_ops_implicit": 1,
-  "metadata": {
-    "tz1KfEsrtDaA1sX7vdM4qmEPWuSytuqCDp5j": {
-      "name": "XTZ Master",
-      "category": "validator",
-      "status": "public",
-      "country": "AU",
-      "twitter": "Xtzmastercom",
-      "logo": true,
-      "fee": 0.08,
-      "payout_delay": true
-    },
-    // ...
-  },
-  "rights": [
-    {
-      "type": "baking",
-      "priority": 0,
-      "account": "tz1bTpviNnyx2PXsNmGpCQTMQsGoYordkUoA",
-      "is_used": true
-    },
-    {
-      "type": "endorsing",
-      "slot": 0,
-      "account": "tz2FCNBrERXtaTtNX6iimR1UJ5JSDxvdHM93",
-      "is_used": true
-    },
-    // ...
-  ]
-}
-```
-
-Fetches information about the specified block. Takes either a block `hash`, a block `height` or the string `head` as argument. Use `meta` (boolean) to embed optional account metadata and `rights` to embed rights information.
-
-### HTTP Request
-
-`GET https://api.tzstats.com/explorer/block/{hash,height,head}`
-
-### HTTP Response
-
-Field              | Description
--------------------|--------------------------------------------------
-`hash` *hash*                | Block hash.
-`predecessor` *hash*         | Parent block on canonical chain or orphan side-chain.
-`successor` *hash*           | Child block on canonical chain or orphan side-chain.
-`baker` *hash*               | Baker address.
-`height` *int64*             | Block height (a.k.a level).
-`cycle` *int64*              | Cycle
-`is_cycle_snapshot` *bool*   | True if this block has been selected as snapshot.
-`time` *datetime*            | Block creation time.
-`solvetime` *duration*       | Time since last block in seconds.
-`version` *int64*              | Protocol version.
-`validation_pass` *int64*      | Block validation pass.
-`fitness` *int64*              | Block fitness used to determine longest chain.
-`priority` *int64*             | Baking priority.
-`nonce` *uint64*               | Block nonce
-`voting_period_kind` *enum*    | Current voting period `proposal`, `testing_vote`, `testing`, `promotion_vote`.
-`endorsed_slots` *uint64*      | 32bit big-endian bitmask indicating which slots have been endorsed. (Note this field will be set from endorsements published in the subsequent block.)
-`n_endorsed_slots` *int64*     | Count of endorsed slots. (Note this field will be set from endorsements published in the subsequent block.)
-`n_ops` *int64*                | Count of operations contained in this block.
-`n_ops_failed` *int64*         | Count of failed operations.
-`n_ops_contract` *int64*       | Count of smart contract operations (transactions sent to contracts and internal operations sent by contracts).
-`n_ops_implicit` *int64*       | Count of implicit events, ie. operations and state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop` and `invoice`.
-`n_tx` *int64*                 | Count of `transaction` operations.
-`n_activation` *int64*         | Count of `activate_account` operations.
-`n_seed_nonce_revelation` *int64*  | Count of `seed_nonce_revelation` operations.
-`n_double_baking_evidence` *int64* | Count of `double_baking_evidence` operations.
-`n_double_endorsement_evidence` *int64* | Count of `double_endorsement_evidence` operations.
-`n_endorsement` *int64*        | Count of `endorsement` operations.
-`n_delegation` *int64*         | Count of `delegation` operations.
-`n_reveal` *int64*             | Count of `reveal` operations.
-`n_origination` *int64*        | Count of `origination` operations.
-`n_proposal` *int64*           | Count of `proposals` operations.
-`n_ballot` *int64*             | Count of `ballot` operations.
-`volume` *money*             | Total amount of tokens moved between accounts.
-`fee` *money*                | Total fee paid (and frozen) by all operations.
-`reward` *money*             | Reward earned (and frozen) by the block baker.
-`deposit` *money*            | Deposit frozen by the block baker.
-`unfrozen_fees` *money*      | Total unfrozen fees (at end of a cycle).
-`unfrozen_rewards` *money*   | Total unfrozen rewards (at end of a cycle).
-`unfrozen_deposits` *money*  | Total unfrozen deposits (at end of a cycle).
-`activated_supply` *money*   | Total amount of commitments activated in tz.
-`burned_supply` *money*      | Total amount of tokens burned by operations in tz.
-`n_accounts` *int64*           | Count of accounts seen in this block (i.e. this includes all operation senders, receivers, delegates and the block's baker).
-`n_new_accounts` *int64*       | Count of new accounts created regardless of type.
-`n_new_implicit` *int64*       | Count of created implicit accounts (tz1/2/3).
-`n_new_managed` *int64*        | Count of created managed accounts (KT1 without code or manager.tz script).
-`n_new_contracts` *int64*      | Count of created smart contracts (KT1 with code).
-`n_cleared_accounts` *int64*   | Count of accounts that were emptied (final balance = 0).
-`n_funded_accounts` *int64*    | Count of accounts that were funded by operations (this includes all new accounts plus previously cleared accounts that were funded again).
-`gas_limit` *int64*            | Total gas limit defined by operations.
-`gas_used` *int64*             | Total gas consumed by operations.
-`gas_price` *float*            | Average price of one gas unit in mutez.
-`storage_size` *int64*         | Total sum of new storage allocated by operations.
-`days_destroyed` *float*       | Token days destroyed (`tokens transferred * token idle time`).
-`pct_account_reuse` *float*    | Portion of seen accounts that existed before.
-`metadata` *object*            | Optional account metadata for baker and endorsers, missing when no metadata is available. Endorser metadata is only embedded when `rights` arg is also set.
-`rights` *array*               | List of endorsing (all slots) and baking rights (all priorities up to block priority) including owner and status.
-
-
-### List Block Operations
-
-> Example request to list block operations.
-
-```shell
-curl "https://api.tzstats.com/explorer/block/head/operations?meta=1"
-```
-
-> **Example response.**
-
-```json
-[
-  {
-    "row_id": 41092042,
-    "hash": "",
-    "type": "bake",
-    "block": "BMbQcVE5Yf7MnzGwHqFWHxwGgL4o6dBK1NywSSWVDYDFHZJijHE",
-    "time": "2021-02-13T10:23:55Z",
-    "height": 1342860,
-    "cycle": 327,
-    "counter": 0,
-    "op_n": 0,
-    "op_l": -1,
-    "op_p": 0,
-    "op_c": 0,
-    "op_i": 0,
-    "status": "applied",
-    "is_success": true,
-    "is_contract": false,
-    "gas_limit": 0,
-    "gas_used": 0,
-    "gas_price": 0,
-    "storage_limit": 0,
-    "storage_size": 0,
-    "storage_paid": 0,
-    "volume": 0,
-    "fee": 0.001411,
-    "reward": 40,
-    "deposit": 512,
-    "burned": 0,
-    "is_internal": false,
-    "has_data": false,
-    "days_destroyed": 0,
-    "sender": "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494",
-    "receiver": "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494",
-    "branch_height": 0,
-    "branch_depth": 0,
-    "branch": "",
-    "is_implicit": true,
-    "entrypoint_id": 0,
-    "is_orphan": false,
-    "is_batch": false,
-    "is_sapling": false,
-    "metadata": {
-      "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494": {
-        "name": "Bakery IL",
-        "category": "validator",
-        "status": "public",
-        "country": "IL",
-        "city": "TLV",
-        "twitter": "bakery_il",
-        "logo": true,
-        "fee": 0.05,
-        "payout_delay": true
-      }
-    }
-  },
-  {
-    "row_id": 41092043,
-    "hash": "oot3dWrNZ575XFcnE3bEUutpTvgdpZKD8B4mi9R8bpueFoAS7Z2",
-    "type": "endorsement",
-    "block": "BMbQcVE5Yf7MnzGwHqFWHxwGgL4o6dBK1NywSSWVDYDFHZJijHE",
-    "time": "2021-02-13T10:23:55Z",
-    "height": 1342860,
-    "cycle": 327,
-    "counter": 0,
-    "op_n": 1,
-    "op_l": 0,
-    "op_p": 0,
-    "op_c": 0,
-    "op_i": 0,
-    "status": "applied",
-    "is_success": true,
-    "is_contract": false,
-    "gas_limit": 0,
-    "gas_used": 0,
-    "gas_price": 0,
-    "storage_limit": 0,
-    "storage_size": 0,
-    "storage_paid": 0,
-    "volume": 0,
-    "fee": 0,
-    "reward": 1.25,
-    "deposit": 64,
-    "burned": 0,
-    "is_internal": false,
-    "has_data": true,
-    "days_destroyed": 0,
-    "data": "8192",
-    "sender": "tz1LBEKXaxQbd5Gtzbc1ATCwc3pppu81aWGc",
-    "branch_height": 1342859,
-    "branch_depth": 1,
-    "branch": "BKsbXn1onZrqqeonG8PLaFVeuqjw2k3evdVjx5XtP8ippw3Hmyo",
-    "is_implicit": false,
-    "entrypoint_id": 0,
-    "is_orphan": false,
-    "is_batch": false,
-    "is_sapling": false,
-    "metadata": {
-      "tz1LBEKXaxQbd5Gtzbc1ATCwc3pppu81aWGc": {
-        "name": "Tez-Baking",
-        "category": "validator",
-        "status": "public",
-        "country": "SE",
-        "city": "ARN",
-        "twitter": "TezBakingCom",
-        "logo": true,
-        "fee": 0.15,
-        "payout_delay": true
-      }
-    }
-  },
-  // ...
-  ]
-}
-```
-
-Returns a list of operations in the corresponding block. Use `limit`, `offset` and/or `cursor` (all integers) to page through operation lists. Operations are sorted by row_id in ascending order. Cursor is the last row_id in sort order you have seen. Use `order` to switch between `asc` or `desc` order. Allows filtering operations by `type` using [query filters](#query-filters). Use `meta` (boolean) to embed optional account metadata for all related accounts like senders, receivers, delegates.
-
-The result contains information about all events that happen on-chain. Some of these events are signed operations with a proper operation hash, others are implicit events that have no corresponding representation, but are still required to correctly reconcile account balances and on-chain state/relationships. Important examples for implicit events are `bake` and `unfreeze` which change balances of bakers on their sub-accounts.
-
-### HTTP Request
-
-#### List Block Operations
-
-`GET https://api.tzstats.com/explorer/block/{hash,height,head}/operations`
-
+`mode` *enum*      | Chain crawling mode (`sync` = live monitoring).
+`status` *enum*    | Indexer status (`connecting`, `syncing`, `synced`, `failed`).
+`blocks` *int64*   | Most recent block height seen by the connected Tezos node.
+`indexed` *int64*  | Most recent block height indexed.
+`progress` *float* | Percentage of blocks indexed.
 
 
 ## Blockchain Config
@@ -1052,6 +122,17 @@ The result contains information about all events that happen on-chain. Some of t
 
 ```shell
 curl "https://api.tzstats.com/explorer/config/head"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+config, err := client.GetConfig(context.Background())
 ```
 
 > **Example response.**
@@ -1122,7 +203,7 @@ Fetches blockchain configuration parameters. This endpoint accepts `head` and a 
 
 ### HTTP Request
 
-`GET https://api.tzstats.com/explorer/config/head`
+`GET /explorer/config/head`
 
 
 ### HTTP Response
@@ -1185,6 +266,17 @@ Field                        | Description
 
 ```shell
 curl "https://api.tzstats.com/explorer/tip"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+tip, err := client.GetTip(context.Background())
 ```
 
 > **Example response.**
@@ -1286,9 +378,7 @@ curl "https://api.tzstats.com/explorer/tip"
     "total": 866164181.179763,
     "activated": 576359477.929109,
     "unclaimed": 35095400.481071,
-    "vested": 46582751.428168,
-    "unvested": 106280968.174352,
-    "circulating": 759883213.005411,
+    "liquid": 759883213.005411,
     "delegated": 533114195.249729,
     "staking": 684588680.629035,
     "shielded": 0,
@@ -1326,7 +416,7 @@ Returns info about the most recent block, indexer status, protocol deployments a
 
 ### HTTP Request
 
-`GET https://api.tzstats.com/explorer/tip`
+`GET /explorer/tip`
 
 
 ### HTTP Response
@@ -1360,12 +450,1380 @@ Field                        | Description
 `deployments` *object*       | Protocol deployment information such as protocol hash, protocol version id, deployment order, start and end blocks. The most recent protocol deployment has -1 as end height.
 
 
+## Accounts
+
+> **Example request for baker accounts.**
+
+```shell
+curl "https://api.tzstats.com/explorer/account/tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+  "blockwatch.cc/tzgo/tezos"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+// get account data and embed metadata of available
+a, err := client.GetAccount(
+  context.Background(),
+  tezos.MustParseAddress("tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9"),
+  tzstats.NewAccountParams().WithMeta(),
+)
+```
+
+> **Example response for baker accounts.**
+
+```json
+{
+  "address": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
+  "address_type": "p256",
+  "delegate": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
+  "pubkey": "p2pk67wVncLFS1DQDm2gVR45sYCzQSXTtqn3bviNYXVCq6WRoqtxHXL",
+  "first_in": 30,
+  "first_out": 4097,
+  "last_in": 1342841,
+  "last_out": 1342841,
+  "first_seen": 1,
+  "last_seen": 1342841,
+  "delegate_since": 1,
+  "first_in_time": "2018-06-30T18:11:27Z",
+  "first_out_time": "2018-07-03T14:17:12Z",
+  "last_in_time": "2021-02-13T10:02:55Z",
+  "last_out_time": "2021-02-13T10:02:55Z",
+  "first_seen_time": "2018-06-30T17:39:57Z",
+  "last_seen_time": "2021-02-13T10:02:55Z",
+  "delegate_since_time": "2018-06-30T17:39:57Z",
+  "total_received": 3199080.326956,
+  "total_sent": 3000000,
+  "total_burned": 0,
+  "total_fees_paid": 0.044374,
+  "total_rewards_earned": 3983406.864835,
+  "total_fees_earned": 1034.319477,
+  "total_lost": 0,
+  "frozen_deposits": 2060800,
+  "frozen_rewards": 61046.916177,
+  "frozen_fees": 47.928321,
+  "spendable_balance": 2061626.622397,
+  "total_balance": 4122474.550718,
+  "delegated_balance": 18921017.973163,
+  "total_delegations": 14,
+  "active_delegations": 9,
+  "is_funded": true,
+  "is_activated": true,
+  "is_delegated": false,
+  "is_revealed": true,
+  "is_delegate": true,
+  "is_active_delegate": true,
+  "is_contract": false,
+  "blocks_baked": 54686,
+  "blocks_missed": 590,
+  "blocks_stolen": 1349,
+  "blocks_endorsed": 937695,
+  "slots_endorsed": 1660562,
+  "slots_missed": 60304,
+  "n_ops": 940181,
+  "n_ops_failed": 0,
+  "n_tx": 69,
+  "n_delegation": 0,
+  "n_origination": 0,
+  "n_proposal": 0,
+  "n_ballot": 11,
+  "token_gen_min": 1,
+  "token_gen_max": 43238,
+  "grace_period": 333,
+  "staking_balance": 23043492.523881,
+  "staking_capacity": 44530768.468665,
+  "rolls": 2880,
+  "last_bake_height": 1342802,
+  "last_bake_block": "BLyPLQZ19VpVrAKfYd7fBfucjUFxbH8cPEKsudyBM1uJByMt315",
+  "last_bake_time": "2021-02-13T09:23:55Z",
+  "last_endorse_height": 1342841,
+  "last_endorse_block": "BLnw18a8buAJFFNtxkizMm4Bg7oRst3eaUebYBAEeUSRRDZdfLg",
+  "last_endorse_time": "2021-02-13T10:02:55Z",
+  "next_bake_height": 1342857,
+  "next_bake_priority": 0,
+  "next_bake_time": "2021-02-13T10:18:55Z",
+  "next_endorse_height": 1342843,
+  "next_endorse_time": "2021-02-13T10:04:55Z",
+  "avg_luck_64": 10055,
+  "avg_performance_64": 9889,
+  "avg_contribution_64": 9970,
+  "baker_version": "08c80261"
+}
+```
+
+> **Example request for non-baker accounts and contracts.**
+
+```shell
+curl "https://api.tzstats.com/explorer/account/KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+  "blockwatch.cc/tzgo/tezos"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+// get account data and embed metadata of available
+a, err := client.GetAccount(
+  context.Background(),
+  tezos.MustParseAddress("KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG"),
+  tzstats.NewAccountParams().WithMeta(),
+)
+```
+
+> **Example response for non-baker accounts and contracts.**
+
+```json
+{
+  "address": "KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG",
+  "address_type": "contract",
+  "delegate": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
+  "creator": "KT1QuofAgnsWffHzLA7D78rxytJruGHDe7XG",
+  "pubkey": "",
+  "first_in": 30,
+  "first_out": 30,
+  "last_in": 984007,
+  "last_out": 984007,
+  "first_seen": 1,
+  "last_seen": 984056,
+  "delegated_since": 1,
+  "first_in_time": "2018-06-30T18:11:27Z",
+  "first_out_time": "2018-06-30T18:11:27Z",
+  "last_in_time": "2020-06-05T19:25:32Z",
+  "last_out_time": "2020-06-05T19:25:32Z",
+  "first_seen_time": "2018-06-30T17:39:57Z",
+  "last_seen_time": "2020-06-05T20:14:32Z",
+  "delegated_since_time": "2018-06-30T17:39:57Z",
+  "total_received": 0,
+  "total_sent": 2822843.928521,
+  "total_burned": 0,
+  "total_fees_paid": 0,
+  "unclaimed_balance": 6731138.546637,
+  "spendable_balance": 0,
+  "total_balance": 0,
+  "is_funded": true,
+  "is_activated": false,
+  "is_delegated": true,
+  "is_revealed": false,
+  "is_delegate": false,
+  "is_active_delegate": false,
+  "is_contract": true,
+  "n_ops": 31,
+  "n_ops_failed": 0,
+  "n_tx": 31,
+  "n_delegation": 0,
+  "n_origination": 0,
+  "token_gen_min": 1,
+  "token_gen_max": 1
+}
+```
+
+Provides information about the most recent state of accounts and smart contracts. Baker accounts and delegator accounts contain additional state information. Use `meta` (boolean) to embed optional metadata. See the table below for details.
+
+### HTTP Request
+
+`GET /explorer/account/{hash}`
+
+### HTTP Response
+
+Field              | Description
+-------------------|--------------------------------------------------
+`address` *hash*              | Account address as base58-check encoded string.
+`address_type` *enum*         | Account address type `ed25519` (tz1), `secp256k1` (tz2), `p256` (tz3), `contract` (KT1) or `blinded` (btz1).
+`delegate` *hash*             | Current delegate (may be self when registered as delegate).
+`creator` *hash*              | Contract creator account.
+`pubkey` *hash*               | Revealed public key.
+`first_in` *int64*            | Block height of first incoming transaction.
+`first_out` *int64*           | Block height of first outgoing transaction.
+`last_in` *int64*             | Block height of latest incoming transaction.
+`last_out` *int64*            | Block height of latest outgoing transaction.
+`first_seen` *int64*          | Block height of account creation.
+`last_seen` *int64*           | Block height of last activity.
+`delegated_since` *int64* **delegator-only** | Block height of most recent delegation.
+`delegate_since` *int64* **baker-only**  | Block height of most recent baker registration.
+`delegate_until` *int64* **baker-only**  | Block height of most recent baker deactivation.
+`first_in_time` *datetime*    | Block time of first incoming transaction.
+`first_out_time` *datetime*   | Block time of first outgoing transaction.
+`last_in_time` *datetime*     | Block time of latest incoming transaction.
+`last_out_time` *datetime*    | Block time of latest outgoing transaction.
+`first_seen_time` *datetime*  | Block time of account creation.
+`last_seen_time` *datetime*   | Block time of last activity.
+`delegated_since_time` *datetime* **delegator-only** | Block time of most recent delegation.
+`delegate_since_time` *datetime* **baker-only** | Block time of most recent baker registration.
+`delegate_until_time` *datetime* **baker-only** | Block time of most recent baker deactivation.
+`total_received` *money*       | Lifetime total tokens received in transactions.
+`total_sent` *money*           | Lifetime total tokens sent in transactions.
+`total_burned` *money*         | Lifetime total tokens burned in tz.
+`total_fees_paid` *money*      | Lifetime fees paid in tz.
+`total_rewards_earned` *money* **baker-only** | Lifetime rewards earned in tz.
+`total_fees_earned` *money* **baker-only**    | Lifetime fees earned in tz.
+`total_lost` *money* **baker-only**           | Lifetime total tokens lost in tz.
+`frozen_deposits` *money* **baker-only**      | Currently frozen deposits
+`frozen_rewards` *money* **baker-only**       | Currently frozen rewards.
+`frozen_fees` *money* **baker-only**          | Currently frozen fees.
+`unclaimed_balance` *money*    | Currently unclaimed balance (for vesting contracts and commitments).
+`spendable_balance` *money*    | Currently spendable balance.
+`total_balance` *money*        | Currently spendable and frozen balances (except frozen rewards).
+`delegated_balance` *money* **baker-only**    | (delegate only) Current incoming delegations.
+`staking_balance` *money* **baker-only**      | (delegate only) Current delegated and own total balance.
+`total_delegations` *int64* **baker-only**    | (delegate only) Lifetime count of delegations.
+`active_delegations` *int64* **baker-only**   | (delegate only) Currently active and non-zero delegations.
+`is_funded` *bool*             | Flag indicating the account is funded.
+`is_activated` *bool*          | Flag indicating the account was activated from a commitment.
+`is_delegated` *bool*          | Flag indicating the account is currently delegated.
+`is_revealed` *bool*           | Flag indicating the account has a revealed public key .
+`is_delegate` *bool*           | Flag indicating the account is a registered delegate.
+`is_active_delegate` *bool*    | Flag indicating the account is a registered and active delegate.
+`is_contract` *bool*           | Flag indicating the account is a smart contract.
+`blocks_baked` *int64* **baker-only**         | Lifetime total blocks baked.
+`blocks_missed` *int64* **baker-only**        | Lifetime total block baking missed.
+`blocks_stolen` *int64* **baker-only**        | Lifetime total block baked at priority > 0.
+`blocks_endorsed` *int64* **baker-only**      | Lifetime total blocks endorsed.
+`slots_endorsed` *int64* **baker-only**       | Lifetime total endorsemnt slots endorsed.
+`slots_missed` *int64* **baker-only**         | Lifetime total endorsemnt slots missed.
+`n_ops` *int64*                | Lifetime total number of operations sent and received.
+`n_ops_failed` *int64*         | Lifetime total number of operations sent that failed.
+`n_tx` *int64*                 | Lifetime total number of transactions sent and received.
+`n_delegation` *int64*         | Lifetime total number of delegations sent.
+`n_origination` *int64*        | Lifetime total number of originations sent.
+`n_proposal` *int64* **baker-only**           | Lifetime total number of proposals (operations) sent.
+`n_ballot` *int64* **baker-only**             | Lifetime total number of ballots sent.
+`token_gen_min` *int64*        | Minimum generation number of all tokens owned.
+`token_gen_max` *int64*        | Maximum generation number of all tokens owned.
+`grace_period` *int64* **baker-only**         | (delegate only) Current grace period before deactivation.
+`rolls` *int64* **baker-only**                | (delegate only) Currently owned rolls.
+`rich_rank` *int64* **meta-arg**           | Global rank on rich list by total balance. Requires `meta=1` argument.
+`traffic_rank` *int64* **meta-arg**        | Global rank on 1D most active accounts by transactions sent/received. Requires `meta=1` argument.
+`volume_rank` *int64* **meta-arg**         | Global rank on 1D most active accounts by volume sent/received. Requires `meta=1` argument.
+`last_bake_height` *int64* **baker-only**     | Height of most recent block baked.
+`last_bake_block` *hash* **baker-only**       | Hash of most recent block baked.
+`last_bake_time` *datetime* **baker-only**    | Timestamp of most recent block baked.
+`last_endorse_height` *int64* **baker-only**  | Height of most recent block endorsed.
+`last_endorse_block` *hash* **baker-only**    | Hash of most recent block endorsed.
+`last_endorse_time` *datetime* **baker-only** | Timestamp of most recent block endorsed.
+`next_bake_height` *int64* **baker-only**     | Height of next block baking right.
+`next_bake_priority` *int64* **baker-only**   | Priority of next baking right (fixed at zero currently).
+`next_bake_time` *datetime* **baker-only**    | Approximate time of next block baking right.
+`next_endorse_height` *int64* **baker-only**  | Height of next block endorsing right.
+`next_endorse_time` *datetime* **baker-only** | Approximate time of next block endorsing right.
+`avg_luck_64` *float* **baker-only**          | Average luck to get random priority zero baking/endorsing rights for the past 64 cycles (182 days, 6 months).
+`avg_performance_64` *float* **baker-only**   | Average performance for the past 64 cycles (182 days, 6 months).
+`avg_contribution_64` *float* **baker-only**  | Average utilization of rights to bake/endorse blocks for the past 64 cycles. Since block rewards have become dynamic, a baker who fails to contribute to the consensus by utilizing 100% of their rights diminishes the income for other bakers.
+`baker_version` *hash* **baker-only**         | Software version run by the baker at the last seen block. This is the first 8 hex digits of the Git repository hash.
+`metadata` *object* **meta-arg**              | Embedded account metadata if available. Requires `meta=1` argument.
+
+### List Account Operations
+
+> **Example request for account operation list.**
+
+```shell
+curl "https://api.tzstats.com/explorer/account/tz1irJKkXS2DBWkU1NnmFQx1c1L7pbGg4yhk/operations?limit=100&order=desc"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+  "blockwatch.cc/tzgo/tezos"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+// list operations sent and received by this account
+ops, err := client.GetAccountOps(
+  context.Background(),
+  tezos.MustParseAddress("tz1irJKkXS2DBWkU1NnmFQx1c1L7pbGg4yhk"),
+  tzstats.NewOpParams().
+    WithLimit(100).
+    WithOrder(tzstats.OrderDesc),
+)
+```
+
+`GET /explorer/account/{hash}/operations`
+
+Lists operations sent from and to an account (defaults to all types and ascending order). This endpoint supports pagination with `cursor` or `offset` and `limit`. Use `type` to [filter](#query-filters) for a specific operation type (e.g. `transaction`).
+
+To query for updates after a certain block use the optional argument `since` (int64|hash) or simply use `cursor`. Using block hash has teh advantage that the query is reorg-aware, i.e. it throws a 409 error when the specified block has become orphan.
+
+To change the order of returned operations use the optional `order` (asc|desc) parameter. Use `meta` (boolean) to add optional account metadata.
+
+### List Managed and Created Contracts
+
+> **Example request for listing created contracts.**
+
+```shell
+curl "https://api.tzstats.com/explorer/account/tz1UBZUkXpKGhYsP5KtzDNqLLchwF4uHrGjw/contracts"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+  "blockwatch.cc/tzgo/tezos"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+// list deployed contracts
+contracts, err := client.GetAccountContracts(
+  context.Background(),
+  tezos.MustParseAddress("tz1UBZUkXpKGhYsP5KtzDNqLLchwF4uHrGjw"),
+  tzstats.NewAccountParams(),
+)
+```
+
+`GET /explorer/account/{hash}/contracts`
+
+Lists all contracts this account has originated. This endpoint has been renamed from `../managed`.
+
+### List Account Ballots
+
+```shell
+curl "https://api.tzstats.com/explorer/account/tz1aRoaRhSpRYvFdyvgWLL6TGyRoGF51wDjM/ballots"
+```
+
+`GET /explorer/account/{hash}/ballots`
+
+Lists all voting ballots the account has sent. This applies to bakers only.
+
+
+
+
+## Operations
+
+> **Example request.**
+
+```shell
+curl "https://api.tzstats.com/explorer/op/opSrt7oYHDTZcfGnhNt3BzGrrCQf364VuYmKo5ZQVQRfTnczjnf"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+  "blockwatch.cc/tzgo/tezos"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+// get all members of the operation group identified by hash
+opGroup, err := client.GetOp(
+  context.Background(),
+  tezos.MustParseOpHash("opSrt7oYHDTZcfGnhNt3BzGrrCQf364VuYmKo5ZQVQRfTnczjnf"),
+  tzstats.NewOpParams(),
+)
+```
+
+
+> **Example response.**
+
+```json
+[
+  {
+    "row_id": 28086947,
+    "hash": "opSrt7oYHDTZcfGnhNt3BzGrrCQf364VuYmKo5ZQVQRfTnczjnf",
+    "type": "transaction",
+    "block": "BL1PGezBat3BX1N2rnk1qycTJbCXdWJwYoGBChyeFyYJABGLyZ9",
+    "time": "2020-06-25T06:18:19Z",
+    "height": 1011875,
+    "cycle": 247,
+    "counter": 2187104,
+    "op_n": 22,
+    "op_l": 3,
+    "op_p": 3,
+    "op_c": 0,
+    "op_i": 0,
+    "status": "applied",
+    "is_success": true,
+    "is_contract": false,
+    "gas_limit": 15385,
+    "gas_used": 10207,
+    "gas_price": 0.17557,
+    "storage_limit": 257,
+    "storage_size": 0,
+    "storage_paid": 0,
+    "volume": 0.040128,
+    "fee": 0.001792,
+    "reward": 0,
+    "deposit": 0,
+    "burned": 0,
+    "is_internal": false,
+    "has_data": false,
+    "days_destroyed": 0.016302,
+    "sender": "tz1Ywgcavxq9D6hL32Q2AQWHAux9MrWqGoZC",
+    "receiver": "tz1ijyJy2QncvgDKZJARDgPqEYVRk6yTE5d7",
+    "branch_height": 1011874,
+    "branch_depth": 1,
+    "branch": "BKt5Lz42YyZNaSYkqfx3m9cmZ2qRoqw1duHqvygLUrgxCewYXoS",
+    "is_implicit": false,
+    "entrypoint_id": 0,
+    "is_orphan": false,
+    "is_batch": true,
+    "is_sapling": false,
+    "confirmations": 466404
+  },
+  // ...
+]
+```
+
+Returns info about a single operation or a list of related operations. Because Tezos supports batch operations (multiple operations sharing the same hash) and internal operations (created by smart contract calls in response to a transaction) this endpoint always returns an array of operation objects. In many cases this array contains one element only. Use the optional `prim` (boolean) parameter to embed Michelson primitive trees with smart contract calls. Use `meta` (boolean) to add optional account metadata.
+
+### HTTP Request
+
+`GET /explorer/op/{hash|id}`
+
+### HTTP Response
+
+Field              | Description
+-------------------|--------------------------------------------------
+`hash` *hash*            | Operation hash.
+`type` *enum*            | Operation type.
+`block` *hash*           | Block hash at which the operation was included on-chain.
+`time` *datetime*        | Block time at which the operation was included on-chain.
+`height` *int64*         | Block height at which the operation was included on-chain.
+`cycle` *int64*          | Cycle in which the operation was included on-chain.
+`counter` *int64*        | Unique sender account 'nonce' value.
+`op_n` *int64*           | In block operation counter.
+`op_l` *int64*           | Tezos RPC operation list number (0..3).
+`op_p` *int64*           | Tezos RPC operation list position.
+`op_c` *int64*           | Bulk operation list position.
+`op_i` *int64*           | Internal operation list position.
+`status` *enum*          | Operation status `applied`, `failed`, `backtracked`, `skipped`.
+`is_success` *bool*      | Flag indicating operation was successfully applied.
+`is_contract` *bool*     | Flag indicating smart-contract calls.
+`gas_limit` *int64*      | Caller-defined gas limit.
+`gas_used` *int64*       | Gas used by the operation.
+`gas_price` *float*      | Effective price per gas unit in mutez.
+`storage_limit` *int64*  | Caller-defined storage limit.
+`storage_size` *int64*   | Actual storage size allocated.
+`storage_paid` *int64*   | Part of the storage the operation paid for.
+`volume` *money*         | Amount of tokens transferred in tz. In denunciation operations, this field contains the accuser reward, in delegation operations this field contains the initially delegated balance.
+`fee` *money*            | Fees paid in tz. In denunciation operations, this field contains the offender loss as negative value.
+`reward` *money*         | Rewards earned in tz. In denunciation operations, this field contains the offender loss as negative value.
+`deposit` *money*        | Amount of deposited tokens in tz. In denunciation operations, this field contains the offender loss as negative value.
+`burned` *money*         | Amount of burned tokens in tz.
+`is_internal` *bool*     | Flag indicating if this operation was sent be a smart contract.
+`is_implicit` *bool*     | Flag indicating implicit on-chain events, ie. state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop` and `invoice`.
+`has_data` *bool*        | Flag indicating if extra data or parameters are present.
+`data` *polymorph*       | Extra type-dependent operation data. See below.
+`parameters` *object*    | Call parameters as embedded JSON object, contract-only.
+`storage` *object*       | Updated contract storage as embedded JSON object, contract-only.
+`big_map_diff` *object*  | Inserted, updated or deleted bigmap entries as embedded JSON object, contract-only.
+`days_destroyed` *float* | Token days destroyed by this operation (`tokens transferred * token idle time`).
+`parameters` *object*    | Contract call parameters.
+`storage` *object*       | Updated version of contract storage after call.
+`data` *object*          | Extra operation data (see below for content encoding).
+`big_map_diff` *array*   | List of bigmap updates.
+`errors` *array*         | Native Tezos RPC errors.
+`sender` *hash*          | Operation sender.
+`receiver` *hash*        | Transaction receiver, may be empty. For `activate_account` the source account is referenced when the activation merged coins from a second blinded account (ie. when a fundraiser signed up twice). For `delegation` the previous delegate is referenced. For `seed_nonce_revelation` the actual seed publisher is referenced.
+`delegate` *hash*        | New Delegate, only used by `origination` and `delegation`. When empty for a `delegation` the operation was a delegate withdrawal.
+`creator` *hash*         | Contains contract creator on `origination`. For internal `transactions`, the original sender of the external transaction is referenced.
+`branch_height` *int64*  **meta-arg** | Height of the branch block this op refers to.
+`branch_depth` *int64* **meta-arg**  | Count of blocks between branch block and block including this op.
+`branch` *hash*  **meta-arg**        | Block hash of the branch this op refers to.
+`entrypoint_id` *int64*  | Serial id of the called entrypoint, only relevant if the operation was a transaction, the receiver is a smart contract and call parameters are present.
+`is_orphan` *bool*       | Flag indicating whether this operation was orphaned (not included in any block).
+`is_batch` *bool*        | Flag indicating if this operation is part of a batch operation list.
+`batch_volume` *money*   | Total amount transferred in a batch operation list. Only available of the first operation of a batch list and only when any transfers happened.
+`metadata` *object*      | Use `meta=1` to embed optional account metadata for sender, receiver, delegate, creator. May be empty if no account has metadata defined.
+`confirmations`          | Number of blocks following the inclusion of this operation. Usually 6 blocks are OK to consider an operation final (not subject to reorg).
+
+### List of supported operation types
+
+- `activate_account`
+- `double_baking_evidence`
+- `double_endorsement_evidence`
+- `seed_nonce_revelation`
+- `transaction`
+- `origination`
+- `delegation`
+- `reveal`
+- `endorsement`
+- `proposals`
+- `ballot`
+- `bake` (implict, no hash, block header event `op_n = -1`)
+- `unfreeze` (implict, no hash, block header event `op_n = -1`)
+- `seed_slash` (implict, no hash, block header event `op_n = -1`)
+- `airdrop` (implict, no hash, protocol upgrade event `op_n = -2`)
+- `invoice` (implict, no hash, protocol upgrade event `op_n = -2`)
+- `migration` (implict, no hash, protocol upgrade event `op_n = -2`)
+
+### Decoding Operation Data
+
+Some operations contain extra data in the polymorphic `data` field. This field exists when the `has_data` flag is true. Decoding the data depends on the operation `type`.
+
+Operation | Data Type | Specification
+----------|-----------|--------------------
+`activate_account` | string | `hex(secret),blinded-address`
+`endorsement` | uint | 32bit big-endian bitmask identifying endorsed slots
+`ballot` | string | `proposal-hash,ballot` (yay, nay, pass)
+`proposals` | string | comma-separated list or proposal hashes
+`reveal` | string | public key hash
+`seed_nonce_revelation` | string | `level,hex(nonce)`
+`double_baking_evidence` | object | JSON array of double signed block headers
+`double_endorsemnt_evidence` | object | JSON array of double signed endorsements
+`transaction` | - | unused, see `parameters`, `storage` and `big_map_diff`
+
+
+
+## Bakers
+
+Get a list of all active bakers, their current status and affiliation metadata. Optionally filter by **status** and **country** or get a random list of **suggestions** for a given account. This endpoint is supposed to be a simple to use listing feature for wallets and other dapps who like to enable delegation.
+
+### Filter Options
+
+You can filter the baker list by the following criteria
+
+Argument           | Description
+-------------------|--------------------------------------------------
+`status` *enum*    | Filter by baker status `public`, `private`, `closing`, `closed`.
+`country` *enum*   | Filter by baker country of operation (use ISO 3166-1 Alpha-2 country codes, that's two uppercase letters like US, DE, FR)
+`suggest` *address* | Return a suggested list of bakers for the given address (see below)
+`cursor` *int*     | Last baker id after which to continue listing, use for paging.
+`limit` *int*      | Max number of results to return (max 100).
+`offset` *int*     | Skip first N results, use for paging instead of cursor.
+
+### Baker Metadata
+
+> **Example request.**
+
+```shell
+curl "https://api.tzstats.com/explorer/bakers"
+```
+
+> **Example response.**
+
+```json
+[
+  {
+    "id": 25,
+    "address": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
+    "baker_since_time": "2018-06-30T17:39:57Z",
+    "baker_version": "31e6641d",
+    "total_balance": 3480925.146338,
+    "spendable_balance": 1397389.603135,
+    "frozen_deposits": 2083328,
+    "frozen_rewards": 63537.333133,
+    "frozen_fees": 207.543203,
+    "staking_balance": 12141916.235343,
+    "staking_capacity": 37791553.487076,
+    "active_delegations": 8,
+    "is_full": false,
+    "rolls": 1517,
+    "share": 0.017767418980803692,
+    "avg_luck_64": 9988,
+    "avg_performance_64": 9852,
+    "avg_contribution_64": 9948,
+    "metadata": {
+      "address": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
+      "alias":{
+        "name": "Foundation Baker 1",
+        "kind": "validator",
+        "logo": "tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9.png"
+      },
+      "baker": {
+        "status": "private",
+        "non_delegatable": true
+      },
+      "location": {
+        "country": "CH"
+      },
+      "social": {
+        "twitter": "TezosFoundation"
+      }
+    }
+  },
+  // ...
+]
+```
+
+Returns structured metadata about a baker.
+
+### HTTP Request
+
+`GET /explorer/bakers`
+
+### HTTP Response
+
+Field              | Description
+-------------------|--------------------------------------------------
+`id` *int64*       | Internal account id, use for cursor-based paging.
+`address` *hash*         | Baker account address.
+`baker_since_time` *datetime*  | Time when baker registered.
+`baker_version` *hex*    | Git hash of mist recently seen baker software.
+`total_balance` *money*         | Currently spendable and frozen balances (except frozen rewards).
+`spendable_balance` *money*     | Currently spendable balance.
+`frozen_deposits` *money*       | Currently frozen deposits
+`frozen_rewards` *money*        | Currently frozen rewards.
+`frozen_fees` *money*           | Currently frozen fees.
+`staking_balance` *money*       | Current delegated and own total balance.
+`staking_capacity` *money*      | Available delegation capacity (before overdelegation).
+`active_delegations` *int64*    | Currently active and non-zero delegations.
+`is_full` *bool*                | Flag indicating the baker cannot accept more delegations, i.e. is overdelegated.
+`rolls` *int64*                 | Number of rolls currently owned.
+`avg_luck_64` *float*           | Average luck to get random priority zero baking/endorsing rights for the past 64 cycles (182 days, 6 months).
+`avg_performance_64` *float*    | Average reward generation performance for the past 64 cycles (182 days, 6 months).
+`avg_contribution_64` *float*   | Average utilization of rights to bake/endorse blocks for the past 64 cycles.
+`metadata` *object*             | Structured account metadata.
+
+
+## Bigmaps
+
+Bigmaps are key-value stores where smart contracts keep large amounts of data. Values in bigmaps are accessed by unique keys. The TzStats bigmap index supports different keys, a **hash** (script expression hash) and the **native** typed version of a key. For convenience, both variants are present in responses as `key_hash` and `key`.
+
+**Types** A bigmap is defined by a `key_type` and a `value_type`. While the key type is most often a simple type (int, string, bytes, address, etc) it can also be an object. Values are represented as unfolded (decoded) form and optionally as original Michelson primitives.
+
+**Unfolding** uses Micheline type annotations from the smart contract to decompose native primitives into nested JSON objects. Annotations become JSON property names. To request the original Micheline primitives, add query parameter `prim=1` (bool).
+
+**Packed Data** When data is **packed** using the `PACK` instruction, an unpacked version can be obtained with the `unpack=1` (bool) query argument. In this case both `key` and `value` contain the unpacked version. We also try to recursively unpack all embedded values of type `bytes` so that URLs, names and other packed data becomes easier to access.
+
+**Metadata** Each bigmap entry comes with a set of **metadata** that describes ist latest update time, block hash and height as well as the bigmap id and its owner contract.
+
+**Pagination** The Bigmap API support paginated queries for keys, values and updates using `limit` and `cursor` or `offset`.
+
+**Historic Values** To query a bigmap at a certain point in time add the `block` (int64|hash) query argument. Using block hashes is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error.
+
+If you like to query for updates that happened after a certain block, add a `since` (int64|hash) argument.
+
+### **SECURITY WARNING**
+
+Unlike other on-chain data where values and ranges are predictable the contents of bigmaps is entirely user-controlled and unpredictable. IT MAY CONTAIN MALICIOUS DATA INTENDED TO ATTACK YOUR APPLICATIONS AND USERS! Be vigilant and sanitize all data before you process or display it.
+
+
+## Bigmap Info
+
+> **Example request.**
+
+```shell
+curl "https://api.tzstats.com/explorer/bigmap/523"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+bigmap, err := client.GetBigmap(
+  context.Background(),
+  523,
+  tzstats.NewContractParams(),
+)
+```
+
+> **Example response.**
+
+```json
+{
+  "alloc_block": "BLmmtt7CFJagi9DWTNNjqD1JBBRmknpmcgAcpsJRhw5KQnybBoc",
+  "alloc_height": 1365148,
+  "alloc_time": "2021-03-01T02:04:41Z",
+  "bigmap_id": 523,
+  "contract": "KT1Hkg5qeNhfwpKW4fXvq7HGZB9z2EnmCCA9",
+  "key_type": {
+    "name": "@key",
+    "type": "nat"
+  },
+  "n_keys": 90005,
+  "n_updates": 640725,
+  "update_block": "BLFiakfUmXoLuN7DGoRkykQjEHr73ShWspXKLEdDC1hwpHiENu6",
+  "update_height": 1478163,
+  "update_time": "2021-05-19T10:59:14Z",
+  "value_type": {
+    "args": [
+    {
+      "name": "issuer",
+      "type": "address"
+    },
+    {
+      "name": "objkt_amount",
+      "type": "nat"
+    },
+    {
+      "name": "objkt_id",
+      "type": "nat"
+    },
+    {
+      "name": "xtz_per_objkt",
+      "type": "mutez"
+    }
+    ],
+    "name": "@value",
+    "type": "struct"
+  }
+}
+```
+
+Returns information about the identity and type of a bigmap. At access native Micheline type info, add `prim=1` (boolean)
+
+### HTTP Request
+
+`GET /explorer/bigmap/{id}`
+
+### HTTP Response
+
+Field              | Description
+-------------------|--------------------------------------------------
+`alloc_block` *hash*     | Hash of the block where the bigmap was allocated.
+`alloc_height` *int64*   | Height when the bigmap was allocated.
+`alloc_time` *datetime*  | Timestamp when the bigmap was allocated.
+`bigmap_id` *int64*      | Unique on-chain id of this bigmap.
+`contract` *hash*        | Contract that owns the bigmap.
+`key_type` *object*      | Typedef describing bigmap keys.
+`value_type` *object*    | Typedef describing bigmap values.
+`n_keys` *int64*         | Current number of live keys in bigmap.
+`n_updates` *int64*      | Total update count.
+`update_height` *int64*  | Last update height.
+`update_block` *hash*    | Hash of the block containing the latest update.
+`update_time` *datetime* | Last update timestamp.
+`key_type_prim` *object*   | Native Micheline type for key.
+`value_type_prim` *object* | Native Micheline type for value.
+
+
+## Bigmap Keys
+
+> **Example request.**
+
+```shell
+curl "https://api.tzstats.com/explorer/bigmap/523/keys?meta=1&prim=1&unpack=1"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+keys, err := client.GetBigmapKeys(
+  context.Background(),
+  523,
+  tzstats.NewContractParams().
+    WithMeta().
+    WithPrim().
+    WithUnpack(),
+)
+
+// access integer key
+i, ok := keys[0].GetBig("")
+
+// access pair key element
+addr, ok := keys[0].GetAddress("0")
+```
+
+> **Example response.**
+
+```json
+[
+  {
+    "key": "29",
+    "key_hash": "exprvFW5tJBbcQUhtABJ2ThMb6v5ufBaoanohBBBikEMBJDjEjKdS6",
+    "meta": {
+      "bigmap_id": 523,
+      "block": "BLBx21J2jcSEUpFZyCkCjWf2M4SGsTyPZnQLnZYD3KpKWm7ZpYM",
+      "contract": "KT1Hkg5qeNhfwpKW4fXvq7HGZB9z2EnmCCA9",
+      "height": 1366105,
+      "is_removed": false,
+      "is_replaced": false,
+      "time": "2021-03-01T18:10:47Z"
+    },
+    "prim": {
+      "int": "29"
+    }
+  }
+  // ...
+]
+```
+
+Lists bigmap keys with optional metadata, native primitives and unpacking. Supports
+
+- paging with `limit` and `cursor` / `offset`
+- historic key listing using `block` (int64|hash)
+- native Micheline primitives `prim=1`
+- unpacking of packed data withh `unpack=1`
+
+### HTTP Request
+
+`GET /explorer/bigmap/{id}/keys`
+
+### HTTP Response
+
+Field              | Description
+-------------------|--------------------------------------------------
+`key` *polymorph*     | The native representation of the key. Integers are bigints wrapped in strings, other types are rendered according to type rules, e.g. addresses, keys and signatures are base58check encoded, timestamps are ISO8601, etc. Can be used for lookup.
+`key_hash` *hash*     | The script expression hash for this key. Can be used for lookup.
+`meta` *object*        | Metadata for the current bigmap entry (optional, use `meta=1`).
+  `meta.bigmap_id` *int64*  | Unique on-chain id of this bigmap.
+  `meta.contract` *hash*    | Contract that owns the bigmap.
+  `meta.time` *datetime*    | Update timestamp for this key/value pair.
+  `meta.height` *int64*     | Update height for this key/value pair.
+  `meta.block` *hash*       | Hash of the block containing the latest update.
+  `meta.is_replaced` *bool* | Flag indicating if a future update has overwritten the current value. Useful in combination with the `block` parameter that allows to query a value at a point in history.
+  `meta.is_removed` *bool* | Flag indicating if a future remove action has deleted the current key. Useful in combination with the `block` parameter that allows to query a value at a point in history.
+`prim` *object*        | Native JSON encoded Micheline primitives (optional, use `prim=1`).
+
+
+## Bigmap Values
+
+> **Example request.**
+
+```shell
+curl "https://api.tzstats.com/explorer/bigmap/511/values"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+values, err := client.GetBigmapValues(
+  context.Background(),
+  511,
+  tzstats.NewContractParams().
+    WithMeta().
+    WithPrim().
+    WithUnpack(),
+)
+
+// access pair key element
+addr, ok := values[0].Key.GetAddress("0")
+
+// access integer value
+i, ok := values[0].GetBig("")
+```
+
+> **Example response.**
+
+```json
+[
+  {
+    "key": {
+      "0": "tz1UBZUkXpKGhYsP5KtzDNqLLchwF4uHrGjw",
+      "1": "153"
+    },
+    "key_hash": "exprvD1v8DxXvrsCqbx7BA2ZqxYuUk9jXE1QrXuL46i3MWG6o1szUq",
+    "key_prim": {
+      "args": [
+        {
+          "bytes": "00005db799bf9b0dc319ba1cf21ab01461a9639043ca"
+        },
+        {
+          "int": "153"
+        }
+      ],
+      "prim": "Pair"
+    },
+    "meta": {
+      "bigmap_id": 511,
+      "block": "BL9xqjjom8B9wsp6RgMkFjKzNmYKyDqY4nH7Scqvgp9ut4FK1zJ",
+      "contract": "KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton",
+      "height": 1365467,
+      "is_removed": false,
+      "is_replaced": false,
+      "time": "2021-03-01T07:27:27Z"
+    },
+    "value": "2",
+    "value_prim": {
+      "int": "2"
+    }
+  }
+  // ...
+]
+```
+
+Lists key/value pairs in bigmaps with optional metadata, native primitives and unpacking. Supports
+
+- paging with `limit` and `cursor` / `offset`
+- historic key listing using `block` (int64|hash)
+- native Micheline primitives `prim=1`
+- unpacking of packed data withh `unpack=1`
+
+
+### HTTP Request
+
+`GET /explorer/bigmap/{id}/values`
+
+`GET /explorer/bigmap/{id}/{key}`
+
+The second variant returns a single bigmap value stored at `key` if exists. Key can be a **key hash** (script expr hash) or the **native** key representation (i.e. an address or integer). For pair keys, separate the pair's elements with comma.
+
+### HTTP Response
+
+Field              | Description
+-------------------|--------------------------------------------------
+`key` *polymorph*     | The native representation of the key. Integers are bigints wrapped in strings, other types are rendered according to type rules, e.g. addresses, keys and signatures are base58check encoded, timestamps are ISO8601, etc).
+`key_hash` *hash*     | The script expression hash for this key.
+`value` *object*       | Unfolded and optionally unpacked value, such as simple string or nested JSON objects/arrays to represent records, lists, sets, and maps.
+`meta` *object*        | Metadata for the current bigmap entry (optional, use `meta=1`).
+  `meta.contract` *hash*    | Contract that owns the bigmap.
+  `meta.bigmap_id` *int64*  | Unique on-chain id of this bigmap.
+  `meta.time` *datetime*    | Update timestamp for this key/value pair.
+  `meta.height` *int64*     | Update height for this key/value pair.
+  `meta.block` *hash*       | Hash of the block containing the latest update.
+  `meta.is_replaced` *bool* | Flag indicating if a future update has overwritten the current value. Useful in combination with the `block` parameter that allows to query a value at a fixed block in history.
+  `meta.is_removed` *bool* | Flag indicating if a future remove action has deleted the current key. Useful in combination with the `block` parameter that allows to query a value at a fixed block in history.
+`key_prim` *object*    | Native Micheline primitive for key (optional, use `prim=1`).
+`value_prim` *object*    | Native Micheline primitive for value (optional, use `prim=1`).
+
+
+## Bigmap Updates
+
+> **Example request.**
+
+```shell
+curl "https://api.tzstats.com/explorer/bigmap/511/updates?prim=1&meta=1&unpack=1"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+upd, err := client.GetBigmapUpdates(
+  context.Background(),
+  511,
+  tzstats.NewContractParams().
+    WithMeta().
+    WithPrim().
+    WithUnpack(),
+)
+```
+
+> **Example response.**
+
+```json
+[
+  {
+    "action": "update",
+    "bigmap_id": 511,
+    "key": {
+      "0": "tz1UBZUkXpKGhYsP5KtzDNqLLchwF4uHrGjw",
+      "1": "152"
+    },
+    "key_hash": "expru3VKqrBfsG3ZbP9eBTTpWrYWth5Ypp8qhn6JyM4BR3pTB3PGu8",
+    "key_prim": {
+      "args": [
+        {
+          "bytes": "00005db799bf9b0dc319ba1cf21ab01461a9639043ca"
+        },
+        {
+          "int": "152"
+        }
+      ],
+      "prim": "Pair"
+    },
+    "meta": {
+      "bigmap_id": 511,
+      "block": "BMPAfxwn8rgQdhgvHJ479aF5sLPQ3uocSTkeZLDpLapf4Wqp34J",
+      "contract": "KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton",
+      "height": 1365242,
+      "is_removed": false,
+      "is_replaced": true,
+      "time": "2021-03-01T03:39:21Z"
+    },
+    "value": "1",
+    "value_prim": {
+      "int": "1"
+    }
+  }
+  // ...
+]
+```
+
+List historic updates to a bigmap in chronological order, including keys that have been deleted. Supports
+
+- paging with `limit` and `cursor` / `offset`
+- native Micheline primitives `prim=1`
+- unpacking of packed data withh `unpack=1`
+
+### HTTP Request
+
+`GET /explorer/bigmap/{id}/updates`
+
+`GET /explorer/bigmap/{id}/updates/{key}`
+
+The second variant lists updates for a specific key only.Key can be a **key hash** (script expr hash) or the **native** key representation (i.e. an address or integer). For pair keys, separate the pair's elements with comma.
+
+
+### HTTP Response
+
+Contains the same fields as the values endpoint above with one addition:
+
+
+Field              | Description
+-------------------|--------------------------------------------------
+`action` *enum*    | Update kind, one of `alloc`, `update`, `remove`, `copy`.
+`bigmap_id` *int64*  | Unique on-chain id of this bigmap.
+`key` *polymorph*     | The native representation of the key. Integers are bigints wrapped in strings, other types are rendered according to type rules, e.g. addresses, keys and signatures are base58check encoded, timestamps are ISO8601, etc).
+`key_hash` *hash*     | The script expression hash for this key.
+`value` *object*       | Unfolded and optionally unpacked value, such as simple string or nested JSON objects/arrays to represent records, lists, sets, and maps.
+`meta` *object*        | Metadata for the current bigmap entry (optional, use `meta=1`).
+  `meta.contract` *hash*    | Contract that owns the bigmap.
+  `meta.bigmap_id` *int64*  | Unique on-chain id of this bigmap.
+  `meta.time` *datetime*    | Update timestamp for this key/value pair.
+  `meta.height` *int64*     | Update height for this key/value pair.
+  `meta.block` *hash*       | Hash of the block containing the latest update.
+  `meta.is_replaced` *bool* | Flag indicating if a future update has overwritten the current value. Useful in combination with the `block` parameter that allows to query a value at a fixed block in history.
+  `meta.is_removed` *bool* | Flag indicating if a future remove action has deleted the current key. Useful in combination with the `block` parameter that allows to query a value at a fixed block in history.
+`key_prim` *object*    | Native Micheline primitive for key (optional, use `prim=1`).
+`value_prim` *object*    | Native Micheline primitive for value (optional, use `prim=1`).
+`source_big_map` *int64* | Source bigmap copied (only for action=copy).
+`destination_big_map` *int64* | Destination bigmap created (only for action=copy).
+
+
+## Blocks
+
+> **Example request.**
+
+```shell
+curl "https://api.tzstats.com/explorer/block/1342853?meta=1&rights=1"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+block, err := client.GetBlockHeight(
+  context.Background(),
+  1342853,
+  tzstats.NewBlockParams().
+    WithMeta().
+    WithRights(),
+)
+```
+
+> **Example response.**
+
+```json
+{
+  "hash": "BLhRjTFhk37a8vgE2M5DU2cCbtV3qJHaBBPvTboHfyLYV74hM99",
+  "predecessor": "BKjZfegUTsCD3eURHPur6L6zRmS6c6D9cdwLKoFDU9DcmJmWnaY",
+  "successor": "BMKvd7HhwnhCTSWGG2YkDrsWSugcZefo1V5i9gZ2Khz87S3e98k",
+  "baker": "tz1bTpviNnyx2PXsNmGpCQTMQsGoYordkUoA",
+  "height": 1342853,
+  "cycle": 327,
+  "is_cycle_snapshot": false,
+  "time": "2021-02-13T10:16:55Z",
+  "solvetime": 60,
+  "version": 7,
+  "validation_pass": 4,
+  "fitness": 687493,
+  "priority": 0,
+  "nonce": "6102c808a62a0100",
+  "voting_period_kind": "promotion_vote",
+  "endorsed_slots": 4294959103,
+  "n_endorsed_slots": 31,
+  "n_ops": 28,
+  "n_ops_failed": 0,
+  "n_ops_contract": 1,
+  "n_tx": 7,
+  "n_activation": 0,
+  "n_seed_nonce_revelations": 0,
+  "n_double_baking_evidences": 0,
+  "n_double_endorsement_evidences": 0,
+  "n_endorsement": 19,
+  "n_delegation": 1,
+  "n_reveal": 1,
+  "n_origination": 0,
+  "n_proposal": 0,
+  "n_ballot": 0,
+  "volume": 98233.072783,
+  "fee": 0.019784,
+  "reward": 38.75,
+  "deposit": 512,
+  "unfrozen_fees": 0,
+  "unfrozen_rewards": 0,
+  "unfrozen_deposits": 0,
+  "activated_supply": 0,
+  "burned_supply": 0.19275,
+  "n_accounts": 31,
+  "n_new_accounts": 1,
+  "n_new_implicit": 1,
+  "n_new_managed": 0,
+  "n_new_contracts": 0,
+  "n_cleared_accounts": 0,
+  "n_funded_accounts": 3,
+  "gas_limit": 113904,
+  "gas_used": 15466,
+  "gas_price": 1.27919,
+  "storage_size": 621,
+  "days_destroyed": 812.427699,
+  "pct_account_reuse": 96.7741935483871,
+  "n_ops_implicit": 1,
+  "metadata": {
+    "tz1KfEsrtDaA1sX7vdM4qmEPWuSytuqCDp5j": {
+      "alias": {
+        "name": "XTZ Master",
+        "kind": "validator",
+        "logo": "tz1KfEsrtDaA1sX7vdM4qmEPWuSytuqCDp5j.png"
+      },
+      "baker": {
+        "status": "public",
+        "fee": 0.08,
+        "payout_delay": true
+      },
+      "location": {
+        "country": "AU"
+      },
+      "social": {
+        "twitter": "Xtzmastercom"
+      }
+    },
+    // ...
+  },
+  "rights": [
+    {
+      "type": "baking",
+      "priority": 0,
+      "account": "tz1bTpviNnyx2PXsNmGpCQTMQsGoYordkUoA",
+      "is_used": true
+    },
+    {
+      "type": "endorsing",
+      "slot": 0,
+      "account": "tz2FCNBrERXtaTtNX6iimR1UJ5JSDxvdHM93",
+      "is_used": true
+    },
+    // ...
+  ]
+}
+```
+
+Fetches information about the specified block. Takes either a block `hash`, a block `height` or the string `head` as argument. Use `meta` (boolean) to embed optional account metadata and `rights` to embed information about baking and endorsing rights as well as their status.
+
+### HTTP Request
+
+`GET /explorer/block/{hash,height,head}`
+
+### HTTP Response
+
+Field              | Description
+-------------------|--------------------------------------------------
+`hash` *hash*                | Block hash.
+`predecessor` *hash*         | Parent block on canonical chain or orphan side-chain.
+`successor` *hash*           | Child block on canonical chain or orphan side-chain.
+`baker` *hash*               | Baker address.
+`height` *int64*             | Block height (a.k.a level).
+`cycle` *int64*              | Cycle
+`is_cycle_snapshot` *bool*   | True if this block has been selected as snapshot.
+`time` *datetime*            | Block creation time.
+`solvetime` *duration*       | Time since last block in seconds.
+`version` *int64*              | Protocol version.
+`validation_pass` *int64*      | Block validation pass.
+`fitness` *int64*              | Block fitness used to determine longest chain.
+`priority` *int64*             | Baking priority.
+`nonce` *uint64*               | Block nonce
+`voting_period_kind` *enum*    | Current voting period `proposal`, `testing_vote`, `testing`, `promotion_vote`.
+`endorsed_slots` *uint64*      | 32bit big-endian bitmask indicating which slots have been endorsed. (Note this field will be set from endorsements published in the subsequent block.)
+`n_endorsed_slots` *int64*     | Count of endorsed slots. (Note this field will be set from endorsements published in the subsequent block.)
+`n_ops` *int64*                | Count of operations contained in this block.
+`n_ops_failed` *int64*         | Count of failed operations.
+`n_ops_contract` *int64*       | Count of smart contract operations (transactions sent to contracts and internal operations sent by contracts).
+`n_ops_implicit` *int64*       | Count of implicit events, ie. operations and state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop` and `invoice`.
+`n_tx` *int64*                 | Count of `transaction` operations.
+`n_activation` *int64*         | Count of `activate_account` operations.
+`n_seed_nonce_revelation` *int64*  | Count of `seed_nonce_revelation` operations.
+`n_double_baking_evidence` *int64* | Count of `double_baking_evidence` operations.
+`n_double_endorsement_evidence` *int64* | Count of `double_endorsement_evidence` operations.
+`n_endorsement` *int64*        | Count of `endorsement` operations.
+`n_delegation` *int64*         | Count of `delegation` operations.
+`n_reveal` *int64*             | Count of `reveal` operations.
+`n_origination` *int64*        | Count of `origination` operations.
+`n_proposal` *int64*           | Count of `proposals` operations.
+`n_ballot` *int64*             | Count of `ballot` operations.
+`volume` *money*             | Total amount of tokens moved between accounts.
+`fee` *money*                | Total fee paid (and frozen) by all operations.
+`reward` *money*             | Reward earned (and frozen) by the block baker.
+`deposit` *money*            | Deposit frozen by the block baker.
+`unfrozen_fees` *money*      | Total unfrozen fees (at end of a cycle).
+`unfrozen_rewards` *money*   | Total unfrozen rewards (at end of a cycle).
+`unfrozen_deposits` *money*  | Total unfrozen deposits (at end of a cycle).
+`activated_supply` *money*   | Total amount of commitments activated in tz.
+`burned_supply` *money*      | Total amount of tokens burned by operations in tz.
+`n_accounts` *int64*           | Count of accounts seen in this block (i.e. this includes all operation senders, receivers, delegates and the block's baker).
+`n_new_accounts` *int64*       | Count of new accounts created regardless of type.
+`n_new_implicit` *int64*       | Count of created implicit accounts (tz1/2/3).
+`n_new_managed` *int64*        | Count of created managed accounts (KT1 without code or manager.tz script).
+`n_new_contracts` *int64*      | Count of created smart contracts (KT1 with code).
+`n_cleared_accounts` *int64*   | Count of accounts that were emptied (final balance = 0).
+`n_funded_accounts` *int64*    | Count of accounts that were funded by operations (this includes all new accounts plus previously cleared accounts that were funded again).
+`gas_limit` *int64*            | Total gas limit defined by operations.
+`gas_used` *int64*             | Total gas consumed by operations.
+`gas_price` *float*            | Average price of one gas unit in mutez.
+`storage_size` *int64*         | Total sum of new storage allocated by operations.
+`days_destroyed` *float*       | Token days destroyed (`tokens transferred * token idle time`).
+`pct_account_reuse` *float*    | Portion of seen accounts that existed before.
+`metadata` *object*            | Optional account metadata for baker and endorsers, missing when no metadata is available. Endorser metadata is only embedded when `rights` arg is also set.
+`rights` *array*               | List of endorsing (all slots) and baking rights (all priorities up to block priority) including owner and status.
+
+
+### List Block Operations
+
+> Example request to list block operations.
+
+```shell
+curl "https://api.tzstats.com/explorer/block/head/operations?meta=1"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzstats-go"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+ops, err := client.GetBlockOps(
+  context.Background(),
+  1342853,
+  tzstats.NewOpParams().
+    WithMeta(),
+)
+```
+
+> **Example response.**
+
+```json
+[
+  {
+    "row_id": 41092042,
+    "hash": "",
+    "type": "bake",
+    "block": "BMbQcVE5Yf7MnzGwHqFWHxwGgL4o6dBK1NywSSWVDYDFHZJijHE",
+    "time": "2021-02-13T10:23:55Z",
+    "height": 1342860,
+    "cycle": 327,
+    "counter": 0,
+    "op_n": 0,
+    "op_l": -1,
+    "op_p": 0,
+    "op_c": 0,
+    "op_i": 0,
+    "status": "applied",
+    "is_success": true,
+    "is_contract": false,
+    "gas_limit": 0,
+    "gas_used": 0,
+    "gas_price": 0,
+    "storage_limit": 0,
+    "storage_size": 0,
+    "storage_paid": 0,
+    "volume": 0,
+    "fee": 0.001411,
+    "reward": 40,
+    "deposit": 512,
+    "burned": 0,
+    "is_internal": false,
+    "has_data": false,
+    "days_destroyed": 0,
+    "sender": "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494",
+    "receiver": "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494",
+    "branch_height": 0,
+    "branch_depth": 0,
+    "branch": "",
+    "is_implicit": true,
+    "entrypoint_id": 0,
+    "is_orphan": false,
+    "is_batch": false,
+    "is_sapling": false,
+    "confirmations": 1000,
+    "metadata": {
+      "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494": {
+        "alias": {
+          "name": "Bakery IL",
+          "kind": "validator",
+          "logo": "tz1cYufsxHXJcvANhvS55h3aY32a9BAFB494.png"
+        },
+        "baker": {
+          "status": "public",
+          "fee": 0.05,
+          "payout_delay": true
+        },
+        "location": {
+          "country": "IL",
+          "city": "TLV"
+        },
+        "social": {
+          "twitter": "bakery_il"
+        }
+      }
+    }
+  },
+  // ...
+  ]
+}
+```
+
+Returns a list of operations in the corresponding block as well as a list of implicit events. Supports
+
+- `limit` and `cursor` / `offset` for paging
+- `order` with `asc` or `desc`for ordering (by row_id)
+- `type` for filtering operations (see [query filters](#query-filters))
+- `meta=1` to embed optional account metadata senders, receivers, delegates
+
+
+### HTTP Request
+
+#### List Block Operations
+
+`GET /explorer/block/{hash,height,head}/operations`
+
 ## Contracts
 
 > **Example request.**
 
 ```shell
 curl "https://api.tzstats.com/explorer/contract/KT1Puc9St8wdNoGtLiD2WXaHbWU7styaxYhD"
+```
+
+```go
+import (
+  "context"
+  "blockwatch.cc/tzgo"
+  "blockwatch.cc/tzstats-go"
+)
+
+// use default Mainnet client
+client := tzstats.DefaultClient
+
+contract, err := client.GetContract(
+  context.Background(),
+  tezos.MustParseAddress("KT1Puc9St8wdNoGtLiD2WXaHbWU7styaxYhD"),
+  tzstats.NewContractParams(),
+)
 ```
 
 > **Example response.**
@@ -1411,17 +1869,12 @@ curl "https://api.tzstats.com/explorer/contract/KT1Puc9St8wdNoGtLiD2WXaHbWU7stya
 }
 ```
 
-Returns metadata about a smart contract. For more details call the [explorer account endpoint](#accounts) using the contract's KT1 address. Separate calls support querying contract code, storage type and entrypoint specifications, storage contents and calls.
-
-
-### **SECURITY WARNING**
-
-Unlike other on-chain data where values and ranges are predictable the contents of **call parameters**, **storage keys/values** and **code/type annotations** is entirely user-controlled and unpredictable. IT MAY CONTAIN MALICIOUS DATA INTENDED TO ATTACK YOUR APPLICATIONS AND USERS! Be vigilant and sanitize all data before you process or display it.
+Returns information about a Tezos smart contract. For balance details call the [explorer account endpoint](#accounts) using the contract's KT1 address.
 
 
 ### HTTP Request
 
-`GET https://api.tzstats.com/explorer/contract/{hash}`
+`GET /explorer/contract/{hash}`
 
 
 ### HTTP Response
@@ -1445,22 +1898,36 @@ Field              | Description
 `code_hash` *bytes*            | Short hash to uniquely identify the contract code, first 4 bytes of the SHA256 hash over binary encoded Michelson script code.
 `call_stats` *object*          | Per-entrypoint call statistics, as named key/value pairs.
 `features` *array*             | Michelson features used by this contract. Any of `account_factory`, `contract_factory`, `set_delegate`, `lambda`, `transfer_tokens`, `chain_id`, `ticket`, `sapling`.
-`interfaces` *array*           | Standard interfaces implemented by this contract. Any of `MANAGER`, `SET_DELEGATE`, `TZIP-005`, `TZIP-007`, `TZIP-012`, `DEXTER`, `WXTZ_VAULT`, `KOLIBRI_VAULT` (list will be extended).
+`interfaces` *array*           | Standard interfaces implemented by this contract. Any of `MANAGER`, `SET_DELEGATE`, `TZIP-005`, `TZIP-007`, `TZIP-012`, `DEXTER` (list will be extended).
 
 
-### Related HTTP Requests
 
-### Get Contract Script
+## Contract Scripts
 
-`GET https://api.tzstats.com/explorer/contract/{hash}/script`
+> **Example request.**
 
-Returns the native Michelson JSON encoding of the deployed smart contract code as well as type specifications for call parameters, storage and bigmaps. Also contains decoded entrypoints and unboxed storage type.
+```shell
+curl "https://api.tzstats.com/explorer/contract/KT1Puc9St8wdNoGtLiD2WXaHbWU7styaxYhD/script?prim=1"
+```
 
-JSON keys for entrypoint arguments always follow the convention `<order>@<name>`, ie. they include an integer order number as first argument, followed by an optional `@` symbol and an optional argument name extracted from type annotations.
+```go
+import (
+  "context"
+  "blockwatch.cc/tzgo"
+  "blockwatch.cc/tzstats-go"
+)
 
-### Unboxed Contract Script
+// use default Mainnet client
+client := tzstats.DefaultClient
 
-> **Example script.**
+script, err := client.GetContractScript(
+  context.Background(),
+  tezos.MustParseAddress("KT1Puc9St8wdNoGtLiD2WXaHbWU7styaxYhD"),
+  tzstats.NewContractParams().WithPrim(),
+)
+```
+
+> **Example response.**
 
 ```json
 // ...
@@ -1474,21 +1941,27 @@ JSON keys for entrypoint arguments always follow the convention `<order>@<name>`
     },
   },
   "storage_type": {
-    "0@big_map": {
-      "0": "bytes",
-      "1": "bytes"
-    },
-    "1": "address",
-    "2": "nat"
+    "name": "storage",
+    "type": "struct",
+    "args": [{
+      // ...
+    }]
   },
   "entrypoints": {
-    "__entry_00__": {
+    "approve": {
       "id": 0,
-      "branch": "LLR",
-      "type": {
-        "0": "string",
-        "1": "bytes"
-      },
+      "call": "approve",
+      "branch": "/L/L/L",
+      "type": [{
+        "name": "spender",
+        "type": "address"
+      },{
+        "name": "allowance",
+        "type": "nat"
+      },{
+        "name": "currentAllowance",
+        "type": "nat"
+      }],
       "prim": {
         // ...
       }
@@ -1499,172 +1972,170 @@ JSON keys for entrypoint arguments always follow the convention `<order>@<name>`
 // ...
 ```
 
+`GET /explorer/contract/{hash}/script`
+
+Returns the native Michelson JSON encoding of the deployed smart contract code as well as type specifications for call parameters, storage and bigmaps. Also contains decoded entrypoints and unfolded storage type.
+
+JSON keys for entrypoint arguments always follow the convention `<order>@<name>`, ie. they include an integer order number as first argument, followed by an optional `@` symbol and an optional argument name extracted from type annotations.
+
+
+
 Field              | Description
 -------------------|--------------------------------------------------
-`script` *object*     | Native Michelson primitives from contract origination containing `code` with sub-primitives for parameter/entrypoint spec, storage spec and code as well as the initial `storage` content (hidden by default, enable with `prim=true`).
-`storage_type` *object* | Unboxed storage spec using order and nesting defined in script. Uses type annotations for JSON property keys if available and a position number otherwise. Complex types like maps, lists, sets, lambda use keys of form `{number}@{type}`.
-`entrypoint` *object* | List of named entrypoints using names from constructor/type annotations if present or `__entry_{number}__` otherwise.
+`script` *object*     | Native Micheline primitives (optional, use `prim=1`).
+`storage_type` *object* | Typedef for contract storage.
+`entrypoint` *object* | List of named entrypoints.
 `entrypoint.$.id` *int64*          | Position of the entrypoint in the Michelson parameter tree.
 `entrypoint.$.branch` *string*     | Path of left (L) or right \(R) branches to reach the entrypoint's code in the Michelson code tree.
-`entrypoint.$.type` *polymorph*    | List of unboxed scalar or complex types expected as function call parameters for this entrypoint.
-`entrypoint.$.prim` *object*       | Native Michelson primitives defining the parameter types for this entrypoint (hidden by default, enable with `prim=true`).
+`entrypoint.$.call` *string*       | Annotated name of the entrypoint.
+`entrypoint.$.type` *polymorph*    | Array of typedef for entrypoint arguments.
+`entrypoint.$.prim` *object*       | Native Micheline primitives (optional, use `prim=1`).
 
 
 
-### Get Contract Storage
+## Contract Storage
 
-`GET https://api.tzstats.com/explorer/contract/{hash}/storage`
+> **Example request.**
 
-Returns the most recent content of the contract's storage or, when using the optional `block` (int64|hash) argument, a prior state at the specified block. Use the optional `prim` (boolean) argument to embed Michelson JSON primitives.
+```shell
+curl "https://api.tzstats.com/explorer/contract/KT1Puc9St8wdNoGtLiD2WXaHbWU7styaxYhD/storage?prim=1"
+```
 
+```go
+import (
+  "context"
+  "blockwatch.cc/tzgo"
+  "blockwatch.cc/tzstats-go"
+)
 
+// use default Mainnet client
+client := tzstats.DefaultClient
 
-### Unboxed Contract Storage
+storage, err := client.GetContractStorage(
+  context.Background(),
+  tezos.MustParseAddress("KT1Puc9St8wdNoGtLiD2WXaHbWU7styaxYhD"),
+  tzstats.NewContractParams().WithPrim(),
+)
+```
 
-> **Example storage update.**
+> **Example response.**
 
 ```json
 {
-  "meta": {
-    "contract": "KT1NQfJvo9v8hXmEgqos8NP7sS8V4qaEfvRF",
-    "time": "2019-10-25T16:41:56Z",
-    "height": 665516,
-    "block": "BLrmdRNxyY5me3UCUhf4bdbys6RbwGuNJj9jkZG6587tZVdroJi"
-  },
   "value": {
-    "0@big_map": "12",
-    "1@lambda": [
-      // ...
-    ],
-    "2@address": "tz1TUQZtFFZ4Eh7TsYzrL7qFVvabTM63qAqY",
-    "3@nat": "1",
-    "4@bool": false
+    "accounts": "124",
+    "freezeBaker": false,
+    "lqtTotal": "55431856030",
+    "manager": "KT1B5VTw8ZSMnrjhy337CEvAm4tnT8Gu8Geu",
+    "selfIsUpdatingTokenPool": false,
+    "tokenAddress": "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
+    "tokenPool": "1494861",
+    "xtzPool": "1191482"
+  },
+  "prim": {
+    // ...
   }
 }
 ```
 
+`GET /explorer/contract/{hash}/storage`
+
+Returns the most recent or a historic version of the contract's storage. Supports
+
+- historic values when using `block` (int64|hash)
+- metadata about the contract and most recent update time/block with `meta=1`
+- native Micheline primitives `prim=1`
+- unpacking of packed data withh `unpack=1`
+
+
 Field              | Description
 -------------------|--------------------------------------------------
-`meta` *object*        | Metadata for the current bigmap entry.
-  `meta.contract` *hash*    | Contract that owns the bigmap.
-  `meta.time` *datetime*    | Update timestamp for this key/value pair.
-  `meta.height` *int64*     | Update height for this key/value pair.
-  `meta.block` *hash*       | Hash of the block containing the latest update.
-`value` *object*       | Unboxed contract storage using keys derived from type annotations or of form `number@type` and unboxed JSON representations for content.
-`prim` *object*        | Native JSON encoded Michelson primitives of storaged values (hidden by default, enable with `prim=true`).
+`meta` *object*        | Metadata for the current storage entry (optional, use `meta=1`).
+  `meta.contract` *hash*    | Owner contract.
+  `meta.time` *datetime*    | Update timestamp.
+  `meta.height` *int64*     | Update height.
+  `meta.block` *hash*       | Block hash of latest update.
+`value` *object*       | Unfolded storage using type annotations.
+`prim` *object*        | Native Micheline primitives (optional, use `prim=1`).
 
 
 
-### List Contract Calls
+## Contract Calls
 
-`GET https://api.tzstats.com/explorer/contract/{hash}/calls`
+> **Example request.**
 
-Returns calls (transactions) sent to the contract with embedded parameters, storage and bigmap updates. Use the optional `prim` (boolean) argument to embed Michelson primitive trees in addition to unboxed call data. To query calls until a specific block use the optional query argument `block` (int64|hash). Hash is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error. To query for updates after a certain block use the optional argument `since` (int64|hash). To change the order of returned calls use the optional `order` (asc|desc) parameter (defaults to ascending). Use the optional `entrypoint` (int64|string) argument to filter calls by entrypoint. This argument takes either an id value (eg. 7), a name (eg. "mint") or the branch (eg. "RRR"). Use `meta` (boolean) to add account metadata.
+```shell
+curl "https://api.tzstats.com/explorer/contract/KT1Puc9St8wdNoGtLiD2WXaHbWU7styaxYhD/calls?prim=1"
+```
 
+```go
+import (
+  "context"
+  "blockwatch.cc/tzgo"
+  "blockwatch.cc/tzstats-go"
+)
 
-### Unboxed Call Parameters
+// use default Mainnet client
+client := tzstats.DefaultClient
 
-> **Example call parameters.**
+calls, err := client.GetContractCalls(
+  context.Background(),
+  tezos.MustParseAddress("KT1Puc9St8wdNoGtLiD2WXaHbWU7styaxYhD"),
+  tzstats.NewContractParams().WithPrim(),
+)
+```
+
+> **Example response.**
 
 ```json
 // ...
 "parameters": {
-  "entrypoint": "default",
-  "branch": "RRR",
-  "call": "mint",
-  "id": 7,
+  "entrypoint": "addLiquidity",
+  "call": "addLiquidity",
+  "branch": "/L/L/R",
+  "id": 1,
   "value": {
-    //...
+    "addLiquidity": {
+      "deadline": "2020-09-30T18:30:44.002Z",
+      "maxTokensDeposited": "6000000",
+      "minLqtMinted": "1",
+      "owner": "tz1fSkEwBCgTLas8Y82SYpEGW9aFZPBag8uY"
+    }
   },
   "prim": {
     // ...
   },
 },
+"big_map_diff": {
+  // ...
+},
+"storage": {
+  // ...
+}
 // ...
 ```
 
-Call parameters are part of the call (operation) structure and contain the following properties:
+`GET /explorer/contract/{hash}/calls`
+
+Returns contract calls (transactions) sent to the contract with embedded parameters, storage and bigmap updates. Supports
+
+- metadata with `meta=1`
+- native Micheline primitives `prim=1`
+- unpacking of packed data withh `unpack=1`
+- listing of newer updates with `since` (int64|hash)
+- ordering of calls with `order` (asc|desc)
+- filtering by `entrypoint` (int64|string) using id, name or branch
+
+Call parameters contain the following properties:
 
 Field              | Description
 -------------------|--------------------------------------------------
-`entrypoint` *string* | Named entrypoint into the smart contract, e.g. 'default' or '__entry_00__.
+`entrypoint` *string* | Named entrypoint into the smart contract, e.g. 'default' or '__entrypoint_00__.
 `branch` *string*     | Path of left (L) or right \(R) branches to reach the entrypoint's code in the Michelson code tree.
 `call` *string*       | Name of the actaully called entrypoint. This is useful if parameters contain a call to default or root entrypoints and specify the real entrypoint by branching only.
 `id` *int64*          | Position of the entrypoint in the Michelson parameter tree.
 `value` *object*      | Call parameters in order of type definition.
-`prim` *object*       | Michelson JSON encoded representation of call parameters (hidden by default, enable with `prim=true`).
-
-
-### Unboxed BigMap Updates
-
-> **Example storage update.**
-
-```json
-// ...
-"big_map_diff": [{
-  "action": "update",
-  "key": "0501000000044e4c4576",
-  "key_hash": "exprtxcQXJiJWzb5PvjHzkf2LKvnvmbvKdNDSvWzegiTMAKsvTgijL",
-  "key_binary": "0501000000044e4c4576",
-  "key_unpacked": "NLEv",
-  "key_pretty": "NLEv",
-  "value": {
-    "0@bytes": "050000"
-  },
-  "value_unpacked": "0",
-  "meta": {
-    "contract": "KT1NQfJvo9v8hXmEgqos8NP7sS8V4qaEfvRF",
-    "bigmap_id": 12,
-    "time": "2019-10-25T16:37:56Z",
-    "height": 665512,
-    "block": "BKucUF1pxUv7JsrmKoLhmoXeoAzBvKUdZA7PVXEEUACyE7PR6qa",
-    "is_replaced": false,
-    "is_removed": false
-  },
-  "prim": {
-    "key": {
-      "bytes": "0501000000044e4c4576"
-    },
-    "value": {
-      "bytes": "050000"
-    }
-  }
-}]
-// ...
-```
-
-
-Field              | Description
--------------------|--------------------------------------------------
-`action` *enum*    | Update kind, one of `alloc`, `update`, `remove`, `copy`.
-`key` *polymorph*     | The native representation of the key. Integers are bigints wrapped in strings, other types are rendered according to type rules, e.g. addresses, keys and signatures are base58check encoded, timestamps are ISO8601, etc). Only present on `update` and `remove`.
-`key_hash` *hash*     | The script expression hash for this key. Only present on `update` and `remove`.
-`key_binary` *string* | Hex string containing the binary representation of the key as stored on-chain. Only present on `update` and `remove`.
-`key_unpacked` *polymorph* | Unpacked version of the key as Michelson primitives (Pair keys only) or scalar type (all other types). Optional, enable with `unpack=true`. Only present on `update` and `remove`.
-`key_pretty` *string*  | Prettified version of complex (Pair) keys where all elements are concatenated using `#`. Same as `key` or `key_unpacked` otherwise. Only present on `update` and `remove`.
-`value` *object*       | Unboxed version of the bigmap value, either a simple value or complex nested structure using scalar types, lists, sets, maps, and bigmaps. Only present on `update`.
-`value_unpacked` *object*  | An unpacked version of any packed binary data contained in the value. This can be a scalar type or a Michelson primitive tree if the type is complex such as lambda, pair, etc. Only present on `update`.
-`key_type` *object*   | Michelson JSON encoded representation of bigmap key type. Only present on `alloc` and `copy`.
-`value_type` *object*   | Michelson JSON encoded representation of bigmap value type. Only present on `alloc` and `copy`.
-`source_big_map` *int64*   | Source bigmap id. Only present on `copy`.
-`destination_big_map` *int64*   | Source bigmap id. Only present on `copy`.
-`meta` *object*        | Metadata for the current bigmap entry.
-  `contract` *hash*    | Contract that owns the bigmap.
-  `bigmap_id` *int64*  | Unique on-chain id of this bigmap.
-  `time` *datetime*    | Update timestamp for this key/value pair.
-  `height` *int64*     | Update height for this key/value pair.
-  `block` *hash*       | Hash of the block containing the latest update.
-  `is_replaced` *bool* | Flag indicating if a future update has overwritten the current value. Useful in combination with the `block` parameter that allows to query a value at a fixed block in history.
-  `is_removed` *bool* | Flag indicating if a future remove action has deleted the current key. Useful in combination with the `block` parameter that allows to query a value at a fixed block in history.
-`prim` *object*    | Native Michelson JSON encoded `key` and `value` as primitive tree. Optional, use `prim` to enable.
-
-
-
-### Get Contract Creator
-
-`GET https://api.tzstats.com/explorer/contract/{hash}/creator`
-
-Returns the originator account of this contract. This endpoint was called `../manager` before.
+`prim` *object*       | Native Micheline primitives (optional, use `prim=1`).
 
 
 
@@ -1731,7 +2202,7 @@ Provides information about a consensus cycle, the past roll snapshot cycle and t
 
 ### HTTP Request
 
-`GET https://api.tzstats.com/explorer/cycle/{head,number}`
+`GET /explorer/cycle/{head,number}`
 
 ### HTTP Response
 
@@ -1806,7 +2277,7 @@ curl "https://api.tzstats.com/explorer/election/head"
   "no_quorum": false,
   "no_majority": false,
   "no_proposal": false,
-  "voting_period": "promotion_vote",
+  "voting_period": "promotion",
   "proposal": {
     "voting_period": 15,
     "voting_period_kind": "proposal",
@@ -1857,9 +2328,9 @@ curl "https://api.tzstats.com/explorer/election/head"
       }
     ]
   },
-  "testing_vote": {
+  "exploration": {
     "voting_period": 16,
-    "voting_period_kind": "testing_vote",
+    "voting_period_kind": "exploration",
     "period_start_time": "2019-08-09T06:48:02Z",
     "period_end_time": "2019-09-01T17:52:51Z",
     "period_start_block": 557056,
@@ -1897,9 +2368,9 @@ curl "https://api.tzstats.com/explorer/election/head"
       }
     ]
   },
-  "testing": {
+  "cooldown": {
     "voting_period": 17,
-    "voting_period_kind": "testing",
+    "voting_period_kind": "cooldown",
     "period_start_time": "2019-09-01T17:53:51Z",
     "period_end_time": "2019-09-25T04:30:36Z",
     "period_start_block": 589824,
@@ -1937,9 +2408,9 @@ curl "https://api.tzstats.com/explorer/election/head"
       }
     ]
   },
-  "promotion_vote": {
+  "promotion": {
     "voting_period": 18,
-    "voting_period_kind": "promotion_vote",
+    "voting_period_kind": "promotion",
     "period_start_time": "2019-09-25T04:32:51Z",
     "period_end_time": "2019-10-18T00:28:57Z",
     "period_start_block": 622592,
@@ -1984,7 +2455,7 @@ On-chain elections can be queried by proposal `hash` or sequence `number`. An el
 
 ### HTTP Request
 
-`GET https://api.tzstats.com/explorer/election/{head,hash,number}`
+`GET /explorer/election/{head,hash,number}`
 
 ### HTTP Response
 
@@ -2003,18 +2474,19 @@ Field              | Description
 `no_quorum` *bool*       | Flag indicating the election has failed because no quorum could be reached.
 `no_majority` *bool*     | Flag indicating the election has failed because no majority could be reached.
 `no_proposal` *bool*     | Flag indicating the election has failed because no proposal has been submitted.
-`voting_period` *enum*  | Period kind `proposal`, `testing_vote`, `testing`, `promotion_vote`.
+`voting_period` *enum*  | Period kind `proposal`, `exploration`, `cooldown`, `promotion`, `adoption`.
 `proposal` *object*        | Vote object for the proposal period 1 (see below).
-`testing_vote` *object*    | Vote object for the testing vote period 2 (see below).
-`testing` *object*         | Vote object for the testing period 3 (see below).
-`promotion_vote` *object*  | Vote object for the promotion vote period 4 (see below).
+`exploration` *object*     | Vote object for the exploration period 2 (see below).
+`cooldown` *object*        | Vote object for the cooldown period 3 (see below).
+`promotion` *object*       | Vote object for the promotion vote period 4 (see below).
+`adoption` *object*        | Vote object for the adoption vote period 5 (see below).
 
 ### Voting Period Object
 
 Field              | Description
 -------------------|--------------------------------------------------
 `voting_period` *int64*        | Protocol-level voting period counter.
-`voting_period_kind` *enum*  | Period kind `proposal`, `testing_vote`, `testing`, `promotion_vote`.
+`voting_period_kind` *enum*  | Period kind `proposal`, `exploration`, `cooldown`, `promotion`, `adoption`.
 `period_start_time` *datetime*   | Time of the first block in the voting period.
 `period_end_time` *datetime*     | Time of the last block in the voting period (when open this is an approximation of the latest possible end assuming all remaining blocks are produced at priority zero).
 `period_start_block` *int64*  | First block of the voting period.
@@ -2056,7 +2528,7 @@ Field              | Description
 
 ### List Voters
 
-`GET https://api.tzstats.com/explorer/election/{hash,number,head}/{stage}/voters`
+`GET /explorer/election/{hash,number,head}/{stage}/voters`
 
 Lists all eligible voters for the current voting period where `stage` is the sequence number of the voting period `[1..4]`. The voter list supports pagination with `limit`, `offset` and `cursor`. To change the order of returned calls use the optional `order` (asc|desc) parameter.
 
@@ -2074,7 +2546,7 @@ Field              | Description
 
 ### List Ballots
 
-`GET https://api.tzstats.com/explorer/election/{hash,number,head}/{stage}/ballots`
+`GET /explorer/election/{hash,number,head}/{stage}/ballots`
 
 Lists all ballots cast during the current voting periodwhere `stage` is the sequence number of the voting period `[1..4]`. The voter list supports pagination with `limit`, `offset` and `cursor`. To change the order of returned calls use the optional `order` (asc|desc) parameter.
 
@@ -2093,43 +2565,6 @@ Field              | Description
 `op` *hash*        | Operation hash.
 `ballot` *enum*    | Ballot cast by the voter, either `yay`, `nay` or `pass`. During proposal period the ballot is always `yay` to decribe the only choice.
 `rolls` *int64*    | Count of rolls the voter has during this voting period.
-
-## Indexer Status
-
-> **Example request.**
-
-```shell
-curl "https://api.tzstats.com/explorer/status"
-```
-
-> **Example response.**
-
-```json
-{
-  "mode": "sync",
-  "status": "synced",
-  "blocks": 626399,
-  "indexed": 626399,
-  "progress": 1
-}
-```
-
-Returns the current indexer status, useful to check of the indexer is in sync with the blockchain.
-
-### HTTP Request
-
-`GET https://api.tzstats.com/explorer/status`
-
-### HTTP Response
-
-Field              | Description
--------------------|--------------------------------------------------
-`mode` *enum*      | Chain crawling mode (`sync` = live monitoring).
-`status` *enum*    | Indexer status (`connecting`, `syncing`, `synced`, `failed`).
-`blocks` *int64*   | Most recent block height seen by the connected Tezos node.
-`indexed` *int64*  | Most recent block height indexed.
-`progress` *float* | Percentage of blocks indexed.
-
 
 
 ## Market Tickers
@@ -2183,7 +2618,7 @@ Fetches a list of market price tickers with 24h OHLCV data.
 
 ### HTTP Request
 
-`GET https://api.tzstats.com/markets/tickers`
+`GET /markets/tickers`
 
 ### HTTP Response
 
@@ -2206,162 +2641,4 @@ Field              | Description
 
 
 
-
-
-
-## Operations
-
-> **Example request.**
-
-```shell
-curl "https://api.tzstats.com/explorer/op/opSrt7oYHDTZcfGnhNt3BzGrrCQf364VuYmKo5ZQVQRfTnczjnf"
-```
-
-> **Example response.**
-
-```json
-[
-  {
-    "row_id": 28086947,
-    "hash": "opSrt7oYHDTZcfGnhNt3BzGrrCQf364VuYmKo5ZQVQRfTnczjnf",
-    "type": "transaction",
-    "block": "BL1PGezBat3BX1N2rnk1qycTJbCXdWJwYoGBChyeFyYJABGLyZ9",
-    "time": "2020-06-25T06:18:19Z",
-    "height": 1011875,
-    "cycle": 247,
-    "counter": 2187104,
-    "op_n": 22,
-    "op_l": 3,
-    "op_p": 3,
-    "op_c": 0,
-    "op_i": 0,
-    "status": "applied",
-    "is_success": true,
-    "is_contract": false,
-    "gas_limit": 15385,
-    "gas_used": 10207,
-    "gas_price": 0.17557,
-    "storage_limit": 257,
-    "storage_size": 0,
-    "storage_paid": 0,
-    "volume": 0.040128,
-    "fee": 0.001792,
-    "reward": 0,
-    "deposit": 0,
-    "burned": 0,
-    "is_internal": false,
-    "has_data": false,
-    "days_destroyed": 0.016302,
-    "sender": "tz1Ywgcavxq9D6hL32Q2AQWHAux9MrWqGoZC",
-    "receiver": "tz1ijyJy2QncvgDKZJARDgPqEYVRk6yTE5d7",
-    "branch_height": 1011874,
-    "branch_depth": 1,
-    "branch": "BKt5Lz42YyZNaSYkqfx3m9cmZ2qRoqw1duHqvygLUrgxCewYXoS",
-    "is_implicit": false,
-    "entrypoint_id": 0,
-    "is_orphan": false,
-    "is_batch": true,
-    "is_sapling": false
-  },
-  // ...
-]
-```
-
-Returns info about a single operation or a list of related operations. Because Tezos supports batch operations (multiple operations sharing the same hash), internal operations (created by smart contract calls in response to a transaction) and implicit events (state changes that do not have an operation hash) this endpoint always returns an array of operation objects. In many cases this array contains one element only. Use the optional `prim` (boolean) parameter to embed Michelson primitive trees with smart contract calls. Use `meta` (boolean) to add optional account metadata.
-
-### HTTP Request
-
-`GET https://api.tzstats.com/explorer/op/{hash|id}`
-
-### HTTP Response
-
-Field              | Description
--------------------|--------------------------------------------------
-`hash` *hash*            | Operation hash.
-`type` *enum*            | Operation type.
-`block` *hash*           | Block hash at which the operation was included on-chain.
-`time` *datetime*        | Block time at which the operation was included on-chain.
-`height` *int64*         | Block height at which the operation was included on-chain.
-`cycle` *int64*          | Cycle in which the operation was included on-chain.
-`counter` *int64*        | Unique sender account 'nonce' value.
-`op_n` *int64*           | In block operation counter.
-`op_l` *int64*           | Tezos RPC operation list number (0..3).
-`op_p` *int64*           | Tezos RPC operation list position.
-`op_c` *int64*           | Bulk operation list position.
-`op_i` *int64*           | Internal operation list position.
-`status` *enum*          | Operation status `applied`, `failed`, `backtracked`, `skipped`.
-`is_success` *bool*      | Flag indicating operation was successfully applied.
-`is_contract` *bool*     | Flag indicating smart-contract calls.
-`gas_limit` *int64*      | Caller-defined gas limit.
-`gas_used` *int64*       | Gas used by the operation.
-`gas_price` *float*      | Effective price per gas unit in mutez.
-`storage_limit` *int64*  | Caller-defined storage limit.
-`storage_size` *int64*   | Actual storage size allocated.
-`storage_paid` *int64*   | Part of the storage the operation paid for.
-`volume` *money*         | Amount of tokens transferred in tz. In denunciation operations, this field contains the accuser reward, in delegation operations this field contains the initially delegated balance.
-`fee` *money*            | Fees paid in tz. In denunciation operations, this field contains the offender loss as negative value.
-`reward` *money*         | Rewards earned in tz. In denunciation operations, this field contains the offender loss as negative value.
-`deposit` *money*        | Amount of deposited tokens in tz. In denunciation operations, this field contains the offender loss as negative value.
-`burned` *money*         | Amount of burned tokens in tz.
-`is_internal` *bool*     | Flag indicating if this operation was sent be a smart contract.
-`is_implicit` *bool*     | Flag indicating implicit on-chain events, ie. state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop` and `invoice`.
-`has_data` *bool*        | Flag indicating if extra data or parameters are present.
-`data` *polymorph*       | Extra type-dependent operation data. See below.
-`parameters` *object*    | Call parameters as embedded JSON object, contract-only.
-`storage` *object*       | Updated contract storage as embedded JSON object, contract-only.
-`big_map_diff` *object*  | Inserted, updated or deleted bigmap entries as embedded JSON object, contract-only.
-`days_destroyed` *float* | Token days destroyed by this operation (`tokens transferred * token idle time`).
-`parameters` *object*    | Contract call parameters.
-`storage` *object*       | Updated version of contract storage after call.
-`data` *object*          | Extra operation data (see below for content encoding).
-`big_map_diff` *array*   | List of bigmap updates.
-`errors` *array*         | Native Tezos RPC errors.
-`sender` *hash*          | Operation sender.
-`receiver` *hash*        | Transaction receiver, may be empty. For `activate_account` the source account is referenced when the activation merged coins from a second blinded account (ie. when a fundraiser signed up twice). For `delegation` the previous delegate is referenced. For `seed_nonce_revelation` the actual seed publisher is referenced.
-`delegate` *hash*        | New Delegate, only used by `origination` and `delegation`. When empty for a `delegation` the operation was a delegate withdrawal.
-`creator` *hash*         | Contains contract creator on `origination`. For internal `transactions`, the original sender of the external transaction is referenced.
-`branch_height` *int64*  **meta-arg** | Height of the branch block this op refers to.
-`branch_depth` *int64* **meta-arg**  | Count of blocks between branch block and block including this op.
-`branch` *hash*  **meta-arg**        | Block hash of the branch this op refers to.
-`entrypoint_id` *int64*  | Serial id of the called entrypoint, only relevant if the operation was a transaction, the receiver is a smart contract and call parameters are present.
-`is_orphan` *bool*       | Flag indicating whether this operation was orphaned (not included in any block).
-`is_batch` *bool*        | Flag indicating if this operation is part of a batch operation list.
-`batch_volume` *money*   | Total amount transferred in a batch operation list. Only available of the first operation of a batch list and only when any transfers happened.
-`metadata` *object*      | Use `meta=1` to embed optional account metadata for sender, receiver, delegate, creator. May be empty if no account has metadata defined.
-
-### List of supported operation types
-
-- `activate_account`
-- `double_baking_evidence`
-- `double_endorsement_evidence`
-- `seed_nonce_revelation`
-- `transaction`
-- `origination`
-- `delegation`
-- `reveal`
-- `endorsement`
-- `proposals`
-- `ballot`
-- `bake` (implict, no hash, block header event `op_n = -1`)
-- `unfreeze` (implict, no hash, block header event `op_n = -1`)
-- `seed_slash` (implict, no hash, block header event `op_n = -1`)
-- `airdrop` (implict, no hash, protocol upgrade event `op_n = -2`)
-- `invoice` (implict, no hash, protocol upgrade event `op_n = -2`)
-- `migration` (implict, no hash, protocol upgrade event `op_n = -2`)
-
-### Decoding Operation Data
-
-Some operations contain extra data in the polymorphic `data` field. This field exists when the `has_data` flag is true. Decoding the data depends on the operation `type`.
-
-Operation | Data Type | Specification
-----------|-----------|--------------------
-`activate_account` | string | `hex(secret),blinded-address`
-`endorsement` | uint | 32bit big-endian bitmask identifying endorsed slots
-`ballot` | string | `proposal-hash,ballot` (yay, nay, pass)
-`proposals` | string | comma-separated list or proposal hashes
-`reveal` | string | public key hash
-`seed_nonce_revelation` | string | `level,hex(nonce)`
-`double_baking_evidence` | object | JSON array of double signed block headers
-`double_endorsemnt_evidence` | object | JSON array of double signed endorsements
-`transaction` | - | unused, see `parameters`, `storage` and `big_map_diff`
 

@@ -7,6 +7,28 @@ title: Changelog
 
 Recent changes and additions to the TzStats Data API.
 
+## 2021-04-16 {#2021-04-16}
+
+- API: fix offset argument on contract calls
+- API: new contract storage, bigmap, parameters data decoding engine
+- API: new JSON-schema powered metadata enpoints `/metadata`
+- API: add `confirmations` to operations
+
+### BREAKING CHANGES
+
+New Micheline decoding engine with changes to data types exported on storage, bigmaps and operation parameters.
+
+- API: new data formats for type definitions on contract storage, entrypoints, bigmap key and value types
+  - type definitions are arrays instead of objects
+  - value keys are without type always
+  - more record nesting levels exported from Micheline type annotations
+- API: new data formats for bigmap keys and values, deprecated fields `key_binary`, `key_unpacked`, `key_pretty`, `value_unpacked`, `key_type`, `key_encoding`
+- API: contract data decoding does no longer unpack bytes to string/timestamp/etc. automatically, use argument `unpack`
+- API: deprecated endpoints `/explorer/bigmap/:id/type` (merged into bigmap info),
+- API: changed bigmap update URL for single keys from `/explorer/bigmap/:id/:key/updates` to `/explorer/bigmap/:id/updates/:key`
+- API: supply metrics: removed `vesting` and `circulating`, added `liquid` (= total - frozen - unclaimed)
+
+
 ## 2021-02-10 {#2021-02-10}
 
 A big deal of behind-the-scenes performance improvements went into this release, so that we are able to deliver the snappy response times you're used to. We've started to **prune irrelevant historic data** from `rights` (unused bolck priorities) and `snapshots` (non-selected baker and delegator balances) to make querying relevant data faster.

@@ -33,9 +33,9 @@ search = true
 [[params.language_tabs]]
 key = "shell"
 name = "Shell"
-#[[params.language_tabs]]
-#key = "go"
-#name = "Go"
+[[params.language_tabs]]
+key = "go"
+name = "Go"
 
 #Languages
 [languages]
@@ -47,7 +47,8 @@ title = "Tezos API Reference | TzStats"
 
 # Left sidebar footer items. Use HTMl or Markdown.
 toc_footers = [
-	"[API v008-2021-02-10](https://tzstats.com/docs/api)",
+	"[API v008-2021-04-16](https://tzstats.com/docs/api)",
+	"[API v008-2021-02-10](https://github.com/blockwatch-cc/tezos-api/tree/v008-2021-02-10)",
 	"[API v006-2020-06-24](https://github.com/blockwatch-cc/tezos-api/tree/006-2020-06-24)",
 ]
 
