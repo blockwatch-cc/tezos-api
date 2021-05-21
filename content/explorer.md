@@ -468,7 +468,7 @@ import (
 // use default Mainnet client
 client := tzstats.DefaultClient
 
-// get account data and embed metadata of available
+// get account data and embed metadata if available
 a, err := client.GetAccount(
   context.Background(),
   tezos.MustParseAddress("tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9"),
@@ -1645,7 +1645,7 @@ Field              | Description
 `fitness` *int64*              | Block fitness used to determine longest chain.
 `priority` *int64*             | Baking priority.
 `nonce` *uint64*               | Block nonce
-`voting_period_kind` *enum*    | Current voting period `proposal`, `testing_vote`, `testing`, `promotion_vote`.
+`voting_period_kind` *enum*    | Current voting period `proposal`, `exploration`, `cooldown`, `promotion`, `adoption`.
 `endorsed_slots` *uint64*      | 32bit big-endian bitmask indicating which slots have been endorsed. (Note this field will be set from endorsements published in the subsequent block.)
 `n_endorsed_slots` *int64*     | Count of endorsed slots. (Note this field will be set from endorsements published in the subsequent block.)
 `n_ops` *int64*                | Count of operations contained in this block.
@@ -2560,11 +2560,13 @@ Field              | Description
 `time` *datetime*  | Operation submission time.
 `election_id` *int64*        | Sequence number of the election.
 `voting_period` *int64*      | Protocol-level voting period counter.
-`voting_period_kind` *enum*  | Period kind `proposal`, `testing_vote`, `testing`, `promotion_vote`.
+`voting_period_kind` *enum*  | Period kind `proposal`, `exploration`, `cooldown`, `promotion`, `adoption`.
 `proposal` *hash*  | Hash of the proposal the voter voted for. If the vote happend during the proposal period and the voter used to vote for multiple proposals either in a single `proposals` operation or with multiple `proposals` operations, multiple ballots exist.
 `op` *hash*        | Operation hash.
 `ballot` *enum*    | Ballot cast by the voter, either `yay`, `nay` or `pass`. During proposal period the ballot is always `yay` to decribe the only choice.
 `rolls` *int64*    | Count of rolls the voter has during this voting period.
+
+
 
 
 ## Market Tickers

@@ -311,7 +311,7 @@ curl "https://api.tzstats.com/tables/ballot?voting_period=16&limit=1"
     13,             // election_id
     5,              // proposal_id
     16,             // voting_period
-    "testing_vote", // voting_period_kind
+    "exploration",  // voting_period_kind
     557061,         // height
     1565333732000,  // time
     63795,          // source_id
@@ -339,7 +339,7 @@ Field              | Description
 `election_id` *uint64*         | Unique row_id of the election this proposal was submitted in.
 `proposal_id` *uint64*         | Unique row_id of the proposal that is voted for.
 `voting_period` *int64*        | On-chain sequence number of the voting period this ballot was cast at.
-`voting_period_kind` *enum*    | Type of the voting period `proposal`, `testing_vote`, `testing`, `promotion_vote`.
+`voting_period_kind` *enum*    | Type of the voting period `proposal`, `exploration`, `cooldown`, `promotion`, `adoption`.
 `height` *int64*               | Block height where the ballot was included
 `time` *datetime*              | Block time where the ballot was included.
 `source_id` *uint64*           | Unique row_id if the ballot sender account.
@@ -372,13 +372,13 @@ import (
 q := tzstats.DefaultClient.NewBigmapQuery()
 
 // need typ for decoding
-typ, err := tzstats.DefaultClient.GetBigmapType(
+info, err := tzstats.DefaultClient.GetBigmap(
     context.Background(),
     511,
     tzstats.NewContractParams().WithPrim(),
 )
-keyType := micheline.NewType(typ.KeyTypePrim)
-valType := micheline.NewType(typ.ValueTypePrim)
+keyType := info.MakeKeyType()
+valType := info.MakeValueType()
 
 // add filters and configure the query to list all active keys
 q.WithFilter(tzstats.FilterModeEqual, "bigmap_id", 511).
@@ -583,7 +583,7 @@ Field              | Description
 `fitness` *int64*               | Block fitness used to determine longest chain.
 `priority` *int64*              | Baking priority.
 `nonce` *uint64*                | Block nonce.
-`voting_period_kind` *enum*     | Current voting period `proposal`, `testing_vote`, `testing`, `promotion_vote`.
+`voting_period_kind` *enum*     | Current voting period `proposal`, `exploration`, `cooldown`, `promotion`, `adoption`.
 `baker_id` *uint64*             | Unique row id of the block's baker account.
 `endorsed_slots` *uint64*       | 32bit big-endian bitmask indicating which slots have been endorsed. (Note this field will be set from endorsements published in the subsequent block.)
 `n_endorsed_slots` *int64*      | Count of endorsed slots. (Note this field will be set from endorsements published in the subsequent block.)
@@ -895,7 +895,7 @@ Field              | Description
 `no_quorum` *bool*           | Flag indicating the election has failed because no quorum could be reached.
 `no_majority` *bool*         | Flag indicating the election has failed because no majority could be reached.
 `proposal` *hash*            | Hash of the proposal that is voted on, if any.
-`last_voting_period` *enum*  | Type of the last period at which this election ended `proposal`, `testing_vote`, `testing`, `promotion_vote`.
+`last_voting_period` *enum*  | Type of the last period at which this election ended `proposal`, `exploration`, `cooldown`, `promotion`, `adoption`.
 
 
 
@@ -1583,7 +1583,7 @@ curl "https://api.tzstats.com/tables/vote?voting_period=16"
     13,                // election_id
     5,                 // proposal_id
     16,                // voting_period
-    "testing_vote",    // voting_period_kind
+    "exploration",     // voting_period_kind
     1565333282000,     // period_start_time
     1565333282000,     // period_end_time
     557056,            // period_start_height
@@ -1628,7 +1628,7 @@ Field              | Description
 `election_id` *uint64*            | Unique row_id of the election this proposal was submitted in.
 `proposal_id` *uint64*            | Unique row_id of the proposal that is voted for (or the winning proposal, if any, from the proposal period).
 `voting_period` *int64*           | On-chain sequence number of the voting period.
-`voting_period_kind` *enum*       | Type of the voting period `proposal`, `testing_vote`, `testing`, `promotion_vote`.
+`voting_period_kind` *enum*       | Type of the voting period `proposal`, `exploration`, `cooldown`, `promotion`, `adoption`.
 `period_start_time` *datetime*    | Block time of vote start block.
 `period_end_time` *datetime*      | Block time of vote end block.
 `period_start_height` *int64*     | Block height of vote start block.
