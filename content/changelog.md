@@ -9,14 +9,14 @@ Recent changes and additions to the TzStats Data API.
 
 ## 2021-04-16 {#2021-04-16}
 
-- API: fix offset argument on contract calls
-- API: new contract storage, bigmap, parameters data decoding engine
+- API: NEW contract storage, bigmap, parameters data decoding engine
 - API: new JSON-schema powered metadata enpoints `/metadata`
 - API: add `confirmations` to operations
+- API: fix offset argument on contract calls
 
 ### BREAKING CHANGES
 
-New Micheline decoding engine with changes to data types exported on storage, bigmaps and operation parameters.
+With this release we introduce a new Micheline decoding engine which changes how data and typedefs are represented for contract storage, bigmaps and operation parameters.
 
 - API: new data formats for type definitions on contract storage, entrypoints, bigmap key and value types
   - type definitions are arrays instead of objects
@@ -43,7 +43,7 @@ We decided to not remove deprecated operation listing endpoints because many peo
 - **api/contract:** simplified and extended contract data model
 - **api/contract:** replaced `bigmap_ids` array (numeric only) with `bigmaps` object (mapping name to bigmap id)
 - **api/contract:** renamed `/explorer/contract/{hash}/manager` to `/explorer/contract/{hash}/creator`
-- **api/block:** removed `endorsers` list and replaced it with an optional more informative but `rights` list (use new query arg `rights=1`)
+- **api/block:** removed `endorsers` list and replaced it with an optional more informative `rights` list (use new query arg `rights=1`)
 - **api/account:** renamed `/explorer/account/{hash}/managed` to `/explorer/account/{hash}/contracts`
 - **api/account:** removed deprecated fields `is_delegatable`, `is_spendable` and `is_vesting`
 - **api/account:** renamed field `manager` to `creator`

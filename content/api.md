@@ -22,14 +22,14 @@ Edonet: https://rpc.edo.tzstats.com
 Florencenet: https://rpc.florence.tzstats.com
 ```
 
-TzStats provides a powerful Tezos API to access fully indexed raw data and statistics collected from the Tezos blockchain. Made and supported by [Blockwatch Data](https://blockwatch.cc). You may use this API free of charge and without limits for non-commercial projects. To inquire about commercial use send an email to license@blockwatch.cc.
+TzStats provides a powerful Tezos API to access **fully indexed** on-chain data and **statistics** collected from the Tezos blockchain. Supported by [Blockwatch Data](https://blockwatch.cc) and ready to use without permission for non-commercial projects. To inquire about commercial use send an email to license@blockwatch.cc.
 
-This API reference provides information on all public API endpoints and how to call them. Access is not authenticated and we do not enforce rate limits right now, but we monitor usage and may apply limits to guarantee fair usage for everybody.
+This API reference provides information on all public API endpoints and how to call them. Access does not require authentication and we do not enforce rate limits right now, but we monitor usage and may apply individual limits to guarantee fair use for everybody.
 
 The TzStats Tezos API supports different kinds of endpoints:
 
-- **explorer** for individual on-chain data like blocks, accounts and operations
-- **table** for direct listing of large quantities of rows
+- **explorer** detailed on-chain data objects like blocks, accounts, operations, votes
+- **table** for bulk lists and when you need to process large quantities of data
 - **series** for aggregate counters and statistics as time-series
 - **metadata** for off-chain and on-chain metadata
 - **markets** for off-chain and on-chain asset prices
