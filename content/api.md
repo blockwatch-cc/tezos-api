@@ -5,6 +5,12 @@ title: Tezos API
 
 # Tezos API
 
+> **Current Version**
+
+```
+v009-2021-04-16
+```
+
 > **API Endpoints**
 
 ```
