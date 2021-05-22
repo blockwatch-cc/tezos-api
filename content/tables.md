@@ -236,11 +236,11 @@ Field              | Description
 `delegate_until` *int64*          | Block height of most recent deactivation as delegate (baker).
 `total_received` *money*          | Lifetime total tokens received in transactions.
 `total_sent` *money*              | Lifetime total tokens sent in transactions.
-`total_burned` *money*            | Lifetime total tokens burned in tz.
-`total_fees_paid` *money*         | Lifetime fees paid in tz.
-`total_rewards_earned` *money*    | Lifetime rewards earned in tz.
-`total_fees_earned` *money*       | Lifetime fees earned in tz.
-`total_lost` *money*              | Lifetime total tokens lost in tz.
+`total_burned` *money*            | Lifetime total tokens burned in tez.
+`total_fees_paid` *money*         | Lifetime fees paid in tez.
+`total_rewards_earned` *money*    | Lifetime rewards earned in tez.
+`total_fees_earned` *money*       | Lifetime fees earned in tez.
+`total_lost` *money*              | Lifetime total tokens lost in tez.
 `frozen_deposits` *money*         | Currently frozen deposits
 `frozen_rewards` *money*          | Currently frozen rewards.
 `frozen_fees` *money*             | Currently frozen fees.
@@ -260,8 +260,8 @@ Field              | Description
 `blocks_missed` *int64*           | Lifetime total block baking missed.
 `blocks_stolen` *int64*           | Lifetime total block baked at priority > 0.
 `blocks_endorsed` *int64*         | Lifetime total blocks endorsed.
-`slots_endorsed` *int64*          | Lifetime total endorsemnt slots endorsed.
-`slots_missed` *int64*            | Lifetime total endorsemnt slots missed.
+`slots_endorsed` *int64*          | Lifetime total endorsement slots endorsed.
+`slots_missed` *int64*            | Lifetime total endorsement slots missed.
 `n_ops` *int64*                   | Lifetime total number of operations sent and received.
 `n_ops_failed` *int64*            | Lifetime total number of operations sent that failed.
 `n_tx` *int64*                    | Lifetime total number of transactions sent and received.
@@ -608,8 +608,8 @@ Field              | Description
 `unfrozen_fees` *money*       | Total unfrozen fees (at end of a cycle).
 `unfrozen_rewards` *money*    | Total unfrozen rewards (at end of a cycle).
 `unfrozen_deposits` *money*   | Total unfrozen deposits (at end of a cycle).
-`activated_supply` *money*    | Total amount of commitments activated in tz.
-`burned_supply` *money*       | Total amount of tokens burned by operations in tz.
+`activated_supply` *money*    | Total amount of commitments activated in tez.
+`burned_supply` *money*       | Total amount of tokens burned by operations in tez.
 `n_accounts` *int64*            | Count of accounts seen in this block (i.e. this includes all operation senders, receivers, delegates and the block's baker).
 `n_new_accounts` *int64*        | Count of new accounts created regardless of type.
 `n_new_implicit` *int64*        | Count of created implicit accounts (tz1/2/3).
@@ -881,7 +881,7 @@ List full details about past and current elections. Elections represent metadata
 Field              | Description
 -------------------|--------------------------------------------------
 `row_id` *uint64*            | Unique row identifier.
-`proposal_id` *uint64*       | Unqiue row_id of the winning proposal, if any.
+`proposal_id` *uint64*       | Unique row_id of the winning proposal, if any.
 `num_periods` *int64*        | Election duration in number of voting periods.
 `num_proposals` *int64*      | Total number of submitted proposals.
 `voting_perid` *int64*       | On-chain voting period number.
@@ -969,8 +969,8 @@ Field              | Description
 `address_type` *enum*  | Account address type `ed25519` (tz1), `secp256k1` (tz2), `p256` (tz3), `contract` (KT1) or `blinded` (btz1).
 `category` *enum*      | Flow category (i.e. sub-account) `rewards`, `deposits`, `fees`, `balance`, `delegation`.
 `operation` *enum*     | Operation creating this flow `activation`, `denunciation`, `transaction`, `origination`, `delegation`, `reveal`, `endorsement`, `baking`, `noncerevelation`, `internal`, `vest`, `pour`, `invoice`, `airdrop`.
-`amount_in` *money*    | Incoming amount in tz.
-`amount_out` *money*   | Outgoing amount in tz.
+`amount_in` *money*    | Incoming amount in tez.
+`amount_out` *money*   | Outgoing amount in tez.
 `is_fee` *bool*        | Flag indicating this flow is a fee payment.
 `is_burned` *bool*     | Flag indicating this flow burns coins.
 `is_frozen` *bool*     | Flag indicating this flow goes towards a freezer sub-account.
@@ -1214,11 +1214,11 @@ Field              | Description
 `storage_limit` *int64*     | Caller-defined storage limit.
 `storage_size` *int64*      | Actual storage size allocated.
 `storage_paid` *int64*      | Part of the storage the operation paid for.
-`volume` *money*            | Amount of tokens transferred in tz.
-`fee` *money*               | Fees paid in tz.
-`reward` *money*            | Rewards earned in tz.
-`deposit` *money*           | Amount of deposited tokens in tz.
-`burned` *money*            | Amount of burned tokens in tz.
+`volume` *money*            | Amount of tokens transferred in tez.
+`fee` *money*               | Fees paid in tez.
+`reward` *money*            | Rewards earned in tez.
+`deposit` *money*           | Amount of deposited tokens in tez.
+`burned` *money*            | Amount of burned tokens in tez.
 `sender_id` *uint64*        | Unique row id of the operation sender account.
 `receiver_id` *uint64*      | Unique row id of the transaction receiver, may be zero.
 `manager_id` *uint64*       | Unique row id of the new manager account, may be zero.

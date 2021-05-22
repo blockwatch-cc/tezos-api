@@ -70,7 +70,7 @@ For high-speed high-volume access, always use the table API endpoints. Table and
     ECDHE-RSA-AES256-SHA384
     ECDHE-RSA-AES128-SHA256
 
-The API supports secure connections via **TLS v1.3**, **v1.2** and **v1.1** with Perfect Forward Secrecy based on Elliptic Curves and Diffie Helman key exchange. Insecure HTTP requests to port 80 are automatically redirected to HTTPS on port 443.
+The API supports secure connections via **TLS v1.3**, **v1.2** and **v1.1** with Perfect Forward Secrecy based on Elliptic Curves and Diffie-Hellman key exchange. Insecure HTTP requests to port 80 are automatically redirected to HTTPS on port 443.
 
 ### Tezos API Response Headers
 
@@ -137,11 +137,11 @@ Results are returned as `Content-Type` JSON ([RFC 7159](https://tools.ietf.org/h
 
 CSV files always include a header containing the requested column names in the requested order. Columns are separated by comma (ASCII 44, UTF-8 0x2C).
 
-When downloading a CSV file you may add an optional `filename` query argument (ASCII only, 128 characters max, no path separators) which will be used in the Content-Disposition header. Suffix `.csv` isautomatically appended if missing.
+When downloading a CSV file you may add an optional `filename` query argument (ASCII only, 128 characters max, no path separators) which will be used in the Content-Disposition header. Suffix `.csv` is automatically appended if missing.
 
 ### JSON Bulk Arrays
 
-Large JSON results such as lists and time-series use a more optimized (less verbose) formatting. Instead of regular JSON objects with named key/value pairs we use **bulk arrays**, i.e. two levels of nested JSON arrays without keys. An outer array contains result rows or datapoints. The inner arrays contain lists of columns. To control which columns are returned and their order use the `columns` query parameter.
+Large JSON results such as lists and time-series use a more optimized (less verbose) formatting. Instead of regular JSON objects with named key/value pairs we use **bulk arrays**, i.e. two levels of nested JSON arrays without keys. An outer array contains result rows or data points. The inner arrays contain lists of columns. To control which columns are returned and their order use the `columns` query parameter.
 
 Note: As we keep adding new fields to tables and time-series the default order of JSON bulk arrays may change over time. To ensure that our API always returns the field order you expect, use the `columns` query argument. The order of columns you specify is exactly the order that's returned.
 
@@ -185,7 +185,7 @@ The TzStats Data API responds with regular HTTP status codes in the `2xx` range 
 - `409 Conflict` Resource state conflict
 - `429 Too Many Requests` Request limit exceeded
 - `500 Internal Server` Something went wrong, not your fault
-- `502 Bad Gateway` Your request has reached a timeout and was cancelled, try to reduce the range of data in your request
+- `502 Bad Gateway` Your request has reached a timeout and was canceled, try to reduce the range of data in your request
 - `504 Gateway Timeout` Our backend is overloaded or down for maintenance, wait a while before retry
 
 ### Error Responses

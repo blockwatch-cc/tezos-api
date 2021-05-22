@@ -135,8 +135,8 @@ Field              | Description
 `unfrozen_fees` *float*        | Total unfrozen fees (at end of a cycle).
 `unfrozen_rewards` *float*     | Total unfrozen rewards (at end of a cycle).
 `unfrozen_deposits` *float*    | Total unfrozen deposits (at end of a cycle).
-`activated_supply` *float*     | Total amount of commitments activated in tz.
-`burned_supply` *float*        | Total amount of tokens burned by operations in tz.
+`activated_supply` *float*     | Total amount of commitments activated in tez.
+`burned_supply` *float*        | Total amount of tokens burned by operations in tez.
 `n_new_accounts` *int*         | Count of new accounts created regardless of type.
 `n_new_implicit` *int*         | Count of created implicit accounts (tz1/2/3).
 `n_new_managed` *int*          | Count of created managed accounts (KT1 without code or manager.tz script).
@@ -183,8 +183,8 @@ An interesting feature of flow series is that you can reconstruct the entire bal
 Field              | Description
 -------------------|--------------------------------------------------
 `time` *datetime*    | Timestamp, start of interval.
-`amount_in` *float*  | Incoming amount during interval in tz.
-`amount_out` *float* | Outgoing amount during interval in tz.
+`amount_in` *float*  | Incoming amount during interval in tez.
+`amount_out` *float* | Outgoing amount during interval in tez.
 `count` *int*        | Number of aggregated rows for this time bucket.
 
 
@@ -231,11 +231,11 @@ Field              | Description
 `gas_used` *int*         | Total gas used by all operations.
 `storage_size` *int*     | Total storage size allocated by all operations.
 `storage_paid` *int*     | Total storage paid by all operations.
-`volume` *float*         | Total amount of tokens transferred by all operations in tz.
-`fee` *float*            | Fees paid by all operation in tz.
-`reward` *float*         | Rewards earned in by all operation tz.
-`deposit` *float*        | Amount of deposited tokens by all operation in tz.
-`burned` *float*         | Amount of burned tokens by all operation in tz.
+`volume` *float*         | Total amount of tokens transferred by all operations in tez.
+`fee` *float*            | Fees paid by all operation in tez.
+`reward` *float*         | Rewards earned in by all operation tez.
+`deposit` *float*        | Amount of deposited tokens by all operation in tez.
+`burned` *float*         | Amount of burned tokens by all operation in tez.
 `days_destroyed` *float* | Total token days destroyed by all operation.
 `count` *int*            | Number of aggregated rows for this time bucket.
 

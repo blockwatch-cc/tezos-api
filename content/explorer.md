@@ -218,22 +218,22 @@ Field                        | Description
 `chain_id` *hash*            | Chain hash.
 `version` *int64*            | Protocol version number.
 `deployment` *int64*         | Number of deployed protocols on this network.
-`protocol` *hash*            | Protool hash.
+`protocol` *hash*            | Protocol hash.
 `start_height` *int64*         | Activation height of the protocol.
 `end_height` *int64*               | Deactivation height of the protocol (0 if undefined).
 `no_reward_cycles` *int64*            | Number of initial cycles that pay no block rewards.
 `security_deposit_ramp_up_cycles` *int64*  | Number of initial cycles before full deposits are required.
 `decimals` *int64*                         | Decimal points of one coin unit.
 `units` *int64*                            | Number of atomic units in one coin (i.e. mutez).
-`block_reward` *money*                     | Block baking reward in tz.
-`block_security_deposit` *money*           | Baker security deposit in tz.
+`block_reward` *money*                     | Block baking reward in tez.
+`block_security_deposit` *money*           | Baker security deposit in tez.
 `blocks_per_commitment` *int64*            | Number of blocks between seed nonce commitments.
 `blocks_per_cycle` *int64*                 | Number of blocks per consensus cycle.
 `blocks_per_roll_snapshot` *int64*         | Number of blocks between roll snapshots.
 `blocks_per_voting_period` *int64*         | Number of blocks per voting period.
 `cost_per_byte` *int64*                    | Gas costs per data byte.
-`endorsement_reward` *money*               | Block endorsing reward per slot in tz.
-`endorsement_security_deposit` *money*     | Endorser security deposit per slot in tz.
+`endorsement_reward` *money*               | Block endorsing reward per slot in tez.
+`endorsement_security_deposit` *money*     | Endorser security deposit per slot in tez.
 `endorsers_per_block` *int64*              | Max number of endorsing slots.
 `hard_gas_limit_per_block` *int64*         | Max gas limit per block.
 `hard_gas_limit_per_operation` *int64*     | Max gas limit per single operation.
@@ -241,7 +241,7 @@ Field                        | Description
 `max_operation_data_length` *int64*        | Max data bytes per operation.
 `max_proposals_per_delegate` *int64*       | Max proposals per single delegate and proposals operation.
 `max_revelations_per_block` *int64*        | Maximum number of seed nonce revelation operations per block.
-`michelson_maximum_type_size` *int64*      | Maximum type size michelson type definition.
+`michelson_maximum_type_size` *int64*      | Maximum type size Michelson type definition.
 `nonce_length` *int64*                     | Nonce length
 `origination_burn` *money*                 | Amount of Tezos burned per origination.
 `origination_size` *int64*                 | Origination storage requirement in bytes.
@@ -442,7 +442,7 @@ Field                        | Description
 `new_accounts_30d` *int64*     | Accounts created during the past 30 days.
 `cleared_accounts_30d` *int64* | Accounts emptied during the past 30 days.
 `funded_accounts_30d` *int64*  | Accounts (re)funded (new and previously empty) during the past 30 days.
-`inflation_1y` *money*       | Absolute inflation in tz.
+`inflation_1y` *money*       | Absolute inflation in tez.
 `inflation_rate_1y` *float*  | Relative annualized inflation in percent.
 `health` *int64*             | Blockchain and consensus health indicator with range [0..100] based on recent 128 blocks (priority, endorsements, reorgs).
 `supply` *object*            | Coin supply statistics at current block height.
@@ -663,11 +663,11 @@ Field              | Description
 `delegate_until_time` *datetime* **baker-only** | Block time of most recent baker deactivation.
 `total_received` *money*       | Lifetime total tokens received in transactions.
 `total_sent` *money*           | Lifetime total tokens sent in transactions.
-`total_burned` *money*         | Lifetime total tokens burned in tz.
-`total_fees_paid` *money*      | Lifetime fees paid in tz.
-`total_rewards_earned` *money* **baker-only** | Lifetime rewards earned in tz.
-`total_fees_earned` *money* **baker-only**    | Lifetime fees earned in tz.
-`total_lost` *money* **baker-only**           | Lifetime total tokens lost in tz.
+`total_burned` *money*         | Lifetime total tokens burned in tez.
+`total_fees_paid` *money*      | Lifetime fees paid in tez.
+`total_rewards_earned` *money* **baker-only** | Lifetime rewards earned in tez.
+`total_fees_earned` *money* **baker-only**    | Lifetime fees earned in tez.
+`total_lost` *money* **baker-only**           | Lifetime total tokens lost in tez.
 `frozen_deposits` *money* **baker-only**      | Currently frozen deposits
 `frozen_rewards` *money* **baker-only**       | Currently frozen rewards.
 `frozen_fees` *money* **baker-only**          | Currently frozen fees.
@@ -689,8 +689,8 @@ Field              | Description
 `blocks_missed` *int64* **baker-only**        | Lifetime total block baking missed.
 `blocks_stolen` *int64* **baker-only**        | Lifetime total block baked at priority > 0.
 `blocks_endorsed` *int64* **baker-only**      | Lifetime total blocks endorsed.
-`slots_endorsed` *int64* **baker-only**       | Lifetime total endorsemnt slots endorsed.
-`slots_missed` *int64* **baker-only**         | Lifetime total endorsemnt slots missed.
+`slots_endorsed` *int64* **baker-only**       | Lifetime total endorsement slots endorsed.
+`slots_missed` *int64* **baker-only**         | Lifetime total endorsement slots missed.
 `n_ops` *int64*                | Lifetime total number of operations sent and received.
 `n_ops_failed` *int64*         | Lifetime total number of operations sent that failed.
 `n_tx` *int64*                 | Lifetime total number of transactions sent and received.
@@ -754,7 +754,7 @@ ops, err := client.GetAccountOps(
 
 Lists operations sent from and to an account (defaults to all types and ascending order). This endpoint supports pagination with `cursor` or `offset` and `limit`. Use `type` to [filter](#query-filters) for a specific operation type (e.g. `transaction`).
 
-To query for updates after a certain block use the optional argument `since` (int64|hash) or simply use `cursor`. Using block hash has teh advantage that the query is reorg-aware, i.e. it throws a 409 error when the specified block has become orphan.
+To query for updates after a certain block use the optional argument `since` (int64|hash) or simply use `cursor`. Using block hash has the advantage that the query is reorg-aware, i.e. it throws a 409 error when the specified block has become orphan.
 
 To change the order of returned operations use the optional `order` (asc|desc) parameter. Use `meta` (boolean) to add optional account metadata.
 
@@ -911,12 +911,12 @@ Field              | Description
 `storage_size` *int64*   | Actual storage size allocated.
 `storage_paid` *int64*   | Part of the storage the operation paid for.
 `volume` *money*         | Amount of tokens transferred in tz. In denunciation operations, this field contains the accuser reward, in delegation operations this field contains the initially delegated balance.
-`fee` *money*            | Fees paid in tz. In denunciation operations, this field contains the offender loss as negative value.
-`reward` *money*         | Rewards earned in tz. In denunciation operations, this field contains the offender loss as negative value.
-`deposit` *money*        | Amount of deposited tokens in tz. In denunciation operations, this field contains the offender loss as negative value.
-`burned` *money*         | Amount of burned tokens in tz.
+`fee` *money*            | Fees paid in tez. In denunciation operations, this field contains the offender loss as negative value.
+`reward` *money*         | Rewards earned in tez. In denunciation operations, this field contains the offender loss as negative value.
+`deposit` *money*        | Amount of deposited tokens in tez. In denunciation operations, this field contains the offender loss as negative value.
+`burned` *money*         | Amount of burned tokens in tez.
 `is_internal` *bool*     | Flag indicating if this operation was sent be a smart contract.
-`is_implicit` *bool*     | Flag indicating implicit on-chain events, ie. state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop` and `invoice`.
+`is_implicit` *bool*     | Flag indicating implicit on-chain events, ie. state changes that don't have an operation hash such as `bake`, `unfreeze`, `seed_slash`, `airdrop`, `invoice`, and `migration`.
 `has_data` *bool*        | Flag indicating if extra data or parameters are present.
 `data` *polymorph*       | Extra type-dependent operation data. See below.
 `parameters` *object*    | Call parameters as embedded JSON object, contract-only.
@@ -955,12 +955,12 @@ Field              | Description
 - `endorsement`
 - `proposals`
 - `ballot`
-- `bake` (implict, no hash, block header event `op_n = -1`)
-- `unfreeze` (implict, no hash, block header event `op_n = -1`)
-- `seed_slash` (implict, no hash, block header event `op_n = -1`)
-- `airdrop` (implict, no hash, protocol upgrade event `op_n = -2`)
-- `invoice` (implict, no hash, protocol upgrade event `op_n = -2`)
-- `migration` (implict, no hash, protocol upgrade event `op_n = -2`)
+- `bake` (implicit, no hash, block header event `op_n = -1`)
+- `unfreeze` (implicit, no hash, block header event `op_n = -1`)
+- `seed_slash` (implicit, no hash, block header event `op_n = -1`)
+- `airdrop` (implicit, no hash, protocol upgrade event `op_n = -2`)
+- `invoice` (implicit, no hash, protocol upgrade event `op_n = -2`)
+- `migration` (implicit, no hash, protocol upgrade event `op_n = -2`)
 
 ### Decoding Operation Data
 
@@ -1091,11 +1091,11 @@ Bigmaps are key-value stores where smart contracts keep large amounts of data. V
 
 **Packed Data** When data is **packed** using the `PACK` instruction, an unpacked version can be obtained with the `unpack=1` (bool) query argument. In this case both `key` and `value` contain the unpacked version. We also try to recursively unpack all embedded values of type `bytes` so that URLs, names and other packed data becomes easier to access.
 
-**Metadata** Each bigmap entry comes with a set of **metadata** that describes ist latest update time, block hash and height as well as the bigmap id and its owner contract.
+**Metadata** Each bigmap entry comes with a set of **metadata** that describes its latest update time, block hash and height as well as the bigmap id and its owner contract.
 
 **Pagination** The Bigmap API support paginated queries for keys, values and updates using `limit` and `cursor` or `offset`.
 
-**Historic Values** To query a bigmap at a certain point in time add the `block` (int64|hash) query argument. Using block hashes is reorg-aware, ie. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error.
+**Historic Values** To query a bigmap at a certain point in time add the `block` (int64|hash) query argument. Using block hashes is reorg-aware, i.e. in case you execute a query on a block that becomes orphaned, the API returns a 409 Conflict error.
 
 If you like to query for updates that happened after a certain block, add a `since` (int64|hash) argument.
 
@@ -1670,8 +1670,8 @@ Field              | Description
 `unfrozen_fees` *money*      | Total unfrozen fees (at end of a cycle).
 `unfrozen_rewards` *money*   | Total unfrozen rewards (at end of a cycle).
 `unfrozen_deposits` *money*  | Total unfrozen deposits (at end of a cycle).
-`activated_supply` *money*   | Total amount of commitments activated in tz.
-`burned_supply` *money*      | Total amount of tokens burned by operations in tz.
+`activated_supply` *money*   | Total amount of commitments activated in tez.
+`burned_supply` *money*      | Total amount of tokens burned by operations in tez.
 `n_accounts` *int64*           | Count of accounts seen in this block (i.e. this includes all operation senders, receivers, delegates and the block's baker).
 `n_new_accounts` *int64*       | Count of new accounts created regardless of type.
 `n_new_implicit` *int64*       | Count of created implicit accounts (tz1/2/3).
@@ -1869,7 +1869,7 @@ contract, err := client.GetContract(
 }
 ```
 
-Returns information about a Tezos smart contract. For balance details call the [explorer account endpoint](#accounts) using the contract's KT1 address.
+Returns information about a Tezos smart contract. For balance details call the [explorer account endpoint](#accounts) using the contracts KT1 address.
 
 
 ### HTTP Request
@@ -1976,7 +1976,7 @@ script, err := client.GetContractScript(
 
 Returns the native Michelson JSON encoding of the deployed smart contract code as well as type specifications for call parameters, storage and bigmaps. Also contains decoded entrypoints and unfolded storage type.
 
-JSON keys for entrypoint arguments always follow the convention `<order>@<name>`, ie. they include an integer order number as first argument, followed by an optional `@` symbol and an optional argument name extracted from type annotations.
+JSON keys for entrypoint arguments always follow the convention `<order>@<name>`, i.e. they include an integer order number as first argument, followed by an optional `@` symbol and an optional argument name extracted from type annotations.
 
 
 
@@ -2040,12 +2040,12 @@ storage, err := client.GetContractStorage(
 
 `GET /explorer/contract/{hash}/storage`
 
-Returns the most recent or a historic version of the contract's storage. Supports
+Returns the most recent or a historic version of the contracts storage. Supports
 
 - historic values when using `block` (int64|hash)
 - metadata about the contract and most recent update time/block with `meta=1`
 - native Micheline primitives `prim=1`
-- unpacking of packed data withh `unpack=1`
+- unpacking of packed data with `unpack=1`
 
 
 Field              | Description
@@ -2130,9 +2130,9 @@ Call parameters contain the following properties:
 
 Field              | Description
 -------------------|--------------------------------------------------
-`entrypoint` *string* | Named entrypoint into the smart contract, e.g. 'default' or '__entrypoint_00__.
+`entrypoint` *string* | Named entrypoint used in call params, e.g. 'default' or '__entrypoint_00__.
 `branch` *string*     | Path of left (L) or right \(R) branches to reach the entrypoint's code in the Michelson code tree.
-`call` *string*       | Name of the actaully called entrypoint. This is useful if parameters contain a call to default or root entrypoints and specify the real entrypoint by branching only.
+`call` *string*       | Name of the executed entrypoint. This is useful if call parameters reference a different entrypoint name, but include a sub-tree of primitives that unpacks to this concrete entrypoint.
 `id` *int64*          | Position of the entrypoint in the Michelson parameter tree.
 `value` *object*      | Call parameters in order of type definition.
 `prim` *object*       | Native Micheline primitives (optional, use `prim=1`).
@@ -2243,7 +2243,7 @@ Field              | Description
 `endorsements_min` *int64*     | Minimum count of endorsements across all blocks.
 `endorsements_max` *int64*     | Maximum count of endorsements across all blocks.
 `endorsements_mean` *float*  | Mean count of endorsements across all blocks.
-`seed_rate` *int64*            | Percentage of published vs expectd `seed_nonce_revelations`.
+`seed_rate` *int64*            | Percentage of published vs expected `seed_nonce_revelations`.
 `worst_baked_block` *int64*    | Height of the block with lowest priority.
 `worst_endorsed_block` *int64* | Height of the block with least endorsed slots.
 `snapshot_cycle` *object*    | Embedded cycle data for the cycle that provided the roll snapshot for the current cycle.
@@ -2451,7 +2451,7 @@ curl "https://api.tzstats.com/explorer/election/head"
 }
 ```
 
-On-chain elections can be queried by proposal `hash` or sequence `number`. An election contains a complete set of data on a past or the currently ongoing (`head`) on-chain voting process, including up to four voting periods. Voting periods may be empty when no proposal has been published. Only the last voting period of the last election is open at eny point in time. Ballots represent the individual ballot operations sent by bakers during votes or the upvotes to a proposal during the first voting period.
+On-chain elections can be queried by proposal `hash` or sequence `number`. An election contains a complete set of data on a past or the currently ongoing (`head`) on-chain voting process, including up to four voting periods. Voting periods may be empty when no proposal has been published. Only the last voting period of the last election can be in state open. Ballots represent the individual ballot operations sent by bakers during votes or the up-votes to a proposal during the first voting period.
 
 ### HTTP Request
 
@@ -2548,7 +2548,7 @@ Field              | Description
 
 `GET /explorer/election/{hash,number,head}/{stage}/ballots`
 
-Lists all ballots cast during the current voting periodwhere `stage` is the sequence number of the voting period `[1..4]`. The voter list supports pagination with `limit`, `offset` and `cursor`. To change the order of returned calls use the optional `order` (asc|desc) parameter.
+Lists all ballots cast during the current voting period where `stage` is the sequence number of the voting period `[1..4]`. The voter list supports pagination with `limit`, `offset` and `cursor`. To change the order of returned calls use the optional `order` (asc|desc) parameter.
 
 ### Ballot Object
 
@@ -2561,9 +2561,9 @@ Field              | Description
 `election_id` *int64*        | Sequence number of the election.
 `voting_period` *int64*      | Protocol-level voting period counter.
 `voting_period_kind` *enum*  | Period kind `proposal`, `exploration`, `cooldown`, `promotion`, `adoption`.
-`proposal` *hash*  | Hash of the proposal the voter voted for. If the vote happend during the proposal period and the voter used to vote for multiple proposals either in a single `proposals` operation or with multiple `proposals` operations, multiple ballots exist.
+`proposal` *hash*  | Hash of the proposal the voter voted for. If the vote happened during the proposal period and the voter used to vote for multiple proposals either in a single `proposals` operation or with multiple `proposals` operations, multiple ballots exist.
 `op` *hash*        | Operation hash.
-`ballot` *enum*    | Ballot cast by the voter, either `yay`, `nay` or `pass`. During proposal period the ballot is always `yay` to decribe the only choice.
+`ballot` *enum*    | Ballot cast by the voter, either `yay`, `nay` or `pass`. During proposal period the ballot is always `yay` to describe the only choice.
 `rolls` *int64*    | Count of rolls the voter has during this voting period.
 
 
@@ -2633,7 +2633,7 @@ Field              | Description
 `open` *money*          | 24h open price in quote currency.
 `high` *money*          | 24h highest price in quote currency.
 `low` *money*           | 24h lowest price in quote currency.
-`last` *money*          | Last price in quote curreny.
+`last` *money*          | Last price in quote currency.
 `change` *float*        | 24h price change in percent.
 `vwap` *money*          | 24h volume weighted average price in quote currency.
 `n_trades` *int64*      | 24h number of trades.

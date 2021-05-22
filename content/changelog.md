@@ -10,7 +10,7 @@ Recent changes and additions to the TzStats Data API.
 ## 2021-04-16 {#2021-04-16}
 
 - API: NEW contract storage, bigmap, parameters data decoding engine
-- API: new JSON-schema powered metadata enpoints `/metadata`
+- API: new JSON-schema powered metadata endpoints `/metadata`
 - API: add `confirmations` to operations
 - API: fix offset argument on contract calls
 
@@ -19,8 +19,8 @@ Recent changes and additions to the TzStats Data API.
 With this release we introduce a new Micheline decoding engine which changes how data and typedefs are represented for contract storage, bigmaps and operation parameters.
 
 - API: new data formats for type definitions on contract storage, entrypoints, bigmap key and value types
-  - type definitions are arrays instead of objects
-  - value keys are without type always
+  - new type definitions using nested arrays of `name`, `type`, `args` objects
+  - value key names are plain annotation names with `@type` as before
   - more record nesting levels exported from Micheline type annotations
 - API: new data formats for bigmap keys and values, deprecated fields `key_binary`, `key_unpacked`, `key_pretty`, `value_unpacked`, `key_type`, `key_encoding`
 - API: contract data decoding does no longer unpack bytes to string/timestamp/etc. automatically, use argument `unpack`
@@ -31,11 +31,11 @@ With this release we introduce a new Micheline decoding engine which changes how
 
 ## 2021-02-10 {#2021-02-10}
 
-A big deal of behind-the-scenes performance improvements went into this release, so that we are able to deliver the snappy response times you're used to. We've started to **prune irrelevant historic data** from `rights` (unused bolck priorities) and `snapshots` (non-selected baker and delegator balances) to make querying relevant data faster.
+A big deal of behind-the-scenes performance improvements went into this release, so that we are able to deliver the snappy response times you're used to. We've started to **prune irrelevant historic data** from `rights` (unused block priorities) and `snapshots` (non-selected baker and delegator balances) to make querying relevant data faster.
 
 We also reworked our smart contract data model, stripping less useful fields available elsewhere and adding new fields like detected interface standard and used Michelson features. When contract code is patched by a protocol upgrade we now add an implicit migration operation and update the stored representation of contract code as well. The previous version of the contract code is still available, either as part of the origination or the most recent migration operation.
 
-This release adds support for Edo, namely Michelson extensions tickets, comb pairs and lazy storage (currently still exposed as bigmap on the API) as well as simple Sapling support (traking total Sapling supply and flows). Please reach out to tzstats@blockwatch.cc if you need additional Sapling or ticket support.
+This release adds support for Edo, namely Michelson extensions tickets, comb pairs and lazy storage (currently still exposed as bigmap on the API) as well as simple Sapling support (tracking total Sapling supply and flows). Please reach out to tzstats@blockwatch.cc if you need additional Sapling or ticket support.
 
 We decided to not remove deprecated operation listing endpoints because many people still use them and we found a way to optimize their performance.
 
@@ -76,7 +76,7 @@ We decided to not remove deprecated operation listing endpoints because many peo
 
 ## 2020-06-24 {#2020-06-24}
 
-To handle the surge in volume we're optimizing a few of the most heavily used API endpoints. Our aim is to improve user experience and stabilty for everybody.
+To handle the surge in volume we're optimizing a few of the most heavily used API endpoints. Our aim is to improve user experience and stability for everybody.
 
 The most important change is that we begin migrating operation listings on explorer endpoints from embedded arrays inside accounts/blocks to stand-alone arrays. Both flavors will be available in parallel for a while. For high-speed high-volume access, consider using the table API endpoints. Table access is much faster since data is streamed and requires less calls due to higher limits.
 
