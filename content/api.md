@@ -44,7 +44,8 @@ The TzStats Tezos API supports different kinds of endpoints:
 
 Official client libraries for TzStats are currently available for
 
-- [https://github.com/blockwatch-cc/tzstats-go](Golang)
+- Golang: [TzStats-Go](https://github.com/blockwatch-cc/tzstats-go)
+- Golang: [TzGo](https://github.com/blockwatch-cc/tzgo) (low-level Tezos tools)
 
 ## Calling the API
 
